@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Biofloc – Bản số tương tác</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#eef8fb;--card:#fff;--tx:#1b2a30;--pr:#0b6e8a;--bd:#b9dbe5;--bad:#c0392b;--ok:#1e8e5a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10222a;--card:#17323d;--tx:#e6f3f7;--pr:#5ec3df;--bd:#2d5666;--bad:#ff8a7a;--ok:#5fd39b}}
+:root[data-theme="dark"]{--bg:#10222a;--card:#17323d;--tx:#e6f3f7;--pr:#5ec3df;--bd:#2d5666;--bad:#ff8a7a;--ok:#5fd39b}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 Georgia,"Times New Roman",serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font:700 26px/1.2 Arial,sans-serif;color:var(--pr);margin:8px 0}
+h2{font:700 20px Arial,sans-serif;margin:28px 0 8px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px}
+svg{max-width:100%;height:auto;display:block}
+.n rect{fill:var(--card);stroke:var(--pr);stroke-width:2;cursor:pointer}
+.n:hover rect,.n:focus rect,.n.on rect{fill:var(--pr);fill-opacity:.18;stroke-width:3.5}
+.n text,.s text{fill:var(--tx);font:600 13px Arial,sans-serif;pointer-events:none;text-anchor:middle}
+.s rect{fill:var(--card);stroke:var(--bd);stroke-width:2}
+.f{fill:none;stroke:var(--pr);stroke-width:2.5;stroke-dasharray:6 6;animation:fl 1s linear infinite;marker-end:url(#m)}
+@keyframes fl{to{stroke-dashoffset:-12}}
+@media(prefers-reduced-motion:reduce){.f{animation:none}}
+#info{margin-top:10px;min-height:96px}#info b{font-family:Arial,sans-serif;color:var(--pr)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+button{font:600 15px Arial,sans-serif;padding:9px 14px;border-radius:8px;border:2px solid var(--pr);background:var(--card);color:var(--tx);cursor:pointer}
+button:focus-visible{outline:3px solid var(--pr);outline-offset:2px}
+button.on{background:var(--pr);color:var(--bg)}
+.q{margin:12px 0}.q p{font-weight:700;margin:0 0 6px}.q button{display:block;width:100%;text-align:left;margin:5px 0}
+.ok{border-color:var(--ok)!important}.no{border-color:var(--bad)!important}
+small{opacity:.8}
+</style></head><body><main>
+<h1>Công nghệ Biofloc trong bể nuôi thuỷ sản</h1>
+
+<h2>1. Khám phá chu trình (bấm vào từng khung để xem giải thích)</h2>
+<div class="card"><svg viewBox="0 0 800 400" role="img" aria-label="Sơ đồ chu trình nitơ trong bể Biofloc">
+<defs><marker id="m" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--pr)"/></marker></defs>
+<g class="s"><rect x="10" y="10" width="110" height="44" rx="8"/><text x="65" y="37">Thức ăn</text>
+<rect x="150" y="10" width="110" height="44" rx="8"/><text x="205" y="37">Tôm / cá</text>
+<rect x="290" y="10" width="170" height="44" rx="8"/><text x="375" y="37">Phân + thức ăn thừa</text>
+<rect x="290" y="290" width="250" height="50" rx="8"/><text x="415" y="320">Tôm cá ăn lại floc → bớt thức ăn</text></g>
+<path class="f" d="M120 32H150"/><path class="f" d="M260 32H290"/><path class="f" d="M460 32H500"/>
+<path class="f" d="M645 54V100H135V140"/><path class="f" d="M645 54V100H415V140"/><path class="f" d="M645 54V100H680V140"/>
+<path class="f" d="M135 230V290"/><path class="f" d="M260 315H290"/>
+<g class="n" tabindex="0" data-k="tan"><rect x="500" y="10" width="290" height="44" rx="8"/><text x="645" y="37">NH₄⁺ / NH₃ (TAN)</text></g>
+<g class="n" tabindex="0" data-k="a"><rect x="10" y="140" width="250" height="90" rx="8"/><text x="135" y="178">(A) Vi khuẩn dị dưỡng</text><text x="135" y="200">+ carbon → floc</text></g>
+<g class="n" tabindex="0" data-k="b"><rect x="290" y="140" width="250" height="90" rx="8"/><text x="415" y="178">(B) Nitrat hóa</text><text x="415" y="200">NH₄⁺ → NO₂⁻ → NO₃⁻</text></g>
+<g class="n" tabindex="0" data-k="c"><rect x="570" y="140" width="220" height="90" rx="8"/><text x="680" y="190">(C) Tảo</text></g>
+<g class="n" tabindex="0" data-k="floc"><rect x="10" y="290" width="250" height="50" rx="25"/><text x="135" y="320">FLOC (bấm để xem video)</text></g>
+<g class="n" tabindex="0" data-k="air"><rect x="10" y="355" width="780" height="36" rx="8"/><text x="400" y="378">Sục khí liên tục</text></g>
+</svg></div>
+<div id="info" class="card"><small>Bấm vào một khung trên sơ đồ để xem giải thích.</small></div>
+
+<h2>2. Mô phỏng: thay đổi tỉ lệ C:N</h2>
+<div class="row" id="cn"></div>
+<div class="card"><svg id="ch" viewBox="0 0 400 200" role="img" aria-label="Đồ thị TAN theo ngày"></svg><p id="nt" style="margin:6px 0 0"></p></div>
+<small>Đường minh họa định tính, không phải số liệu đo thực tế. Hãy vẽ lại đường TAN của nhóm lên poster.</small>
+
+<h2>3. Quiz 3 câu</h2>
+<div id="qz"></div><p id="sc"><b></b></p>
+</main>
+<script>
+const I={tan:["TAN (NH₄⁺/NH₃) – chất độc cần xử lí","Sinh ra từ phân, thức ăn thừa và bài tiết của tôm cá. NH₃ độc hơn và tăng khi pH, nhiệt độ cao. Mục tiêu: giữ TAN thấp (&lt; 1 mg/L, mức tham khảo) mà không thay nước."],
+a:["(A) Vi khuẩn dị dưỡng","Khi bổ sung carbon (mật rỉ, cám gạo) để C:N ≈ 15:1, vi khuẩn dùng NH₄⁺ làm nguyên liệu tăng sinh khối. Đây là con đường xử lí TAN chính của Biofloc."],
+b:["(B) Nitrat hóa","Vi khuẩn tự dưỡng chuyển NH₄⁺ → NO₂⁻ (độc) → NO₃⁻ (ít độc hơn). Quá trình chậm, tốn oxy và làm giảm độ kiềm."],
+c:["(C) Tảo","Tảo quang hợp, hấp thu đạm và sinh O₂ ban ngày. Tảo quá nhiều làm pH và O₂ dao động mạnh giữa ngày và đêm."],
+floc:["Floc – bông sinh khối vi sinh","Vi khuẩn, tảo, vi động vật và chất hữu cơ kết thành bông lơ lửng. Tôm cá ăn lại floc nên giảm thức ăn bên ngoài.<iframe width='560' height='315' src='https://www.youtube.com/embed/hPH3GvDzo5E?si=YD3cIv5aYqMjlTGz' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"],
+air:["Sục khí liên tục","Cấp O₂ (nên giữ ≥ 5 mg/L) và tạo dòng chảy giữ floc lơ lửng. Ngừng sục khí lâu thì floc lắng, thiếu oxy và sinh khí độc ở đáy bể."]};
+const g=document.querySelectorAll(".n"),inf=document.getElementById("info");
+function show(e){g.forEach(x=>x.classList.remove("on"));e.classList.add("on");const d=I[e.dataset.k];inf.innerHTML="<b>"+d[0]+"</b><br>"+d[1]}
+g.forEach(e=>{e.onclick=()=>show(e);e.onkeydown=k=>{if(k.key=="Enter"||k.key==" "){k.preventDefault();show(e)}}});
+const D={5:[[.5,1,2,3.5,5,6.5,7.5,8],"Thiếu carbon: vi khuẩn dị dưỡng không đủ carbon để dùng hết amoni nên TAN tích tụ, nguy cơ tôm cá bị sốc, nổi đầu."],
+15:[[.5,1.2,1.5,1,.7,.5,.4,.4],"Cân bằng: floc phát triển, TAN được giữ thấp. Cần sục khí tốt và theo dõi độ kiềm."],
+20:[[.5,1,1,.6,.4,.3,.3,.3],"Dư carbon: TAN thấp nhưng floc phát triển quá mạnh, tiêu hao nhiều O₂ và kiềm, tốn chi phí carbon."]};
+const cn=document.getElementById("cn"),ch=document.getElementById("ch"),nt=document.getElementById("nt");
+function sim(k){cn.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.k==k));
+const p=D[k][0].map((v,i)=>(40+i*50)+","+(170-v*17)).join(" "),y=170-17;
+ch.innerHTML="<line x1='40' y1='170' x2='390' y2='170' stroke='currentColor'/><line x1='40' y1='20' x2='40' y2='170' stroke='currentColor'/><line x1='40' y1='"+y+"' x2='390' y2='"+y+"' stroke='var(--bad)' stroke-dasharray='5 4'/><text x='392' y='"+(y-3)+"' font-size='10' text-anchor='end' fill='var(--bad)'>1 mg/L</text><polyline points='"+p+"' fill='none' stroke='var(--pr)' stroke-width='3'/><text x='215' y='192' font-size='11' text-anchor='middle' fill='currentColor'>Thời gian (0 → 14 ngày)</text><text x='4' y='14' font-size='11' fill='currentColor'>TAN (mg/L)</text>";
+nt.innerHTML="<b>C:N = "+k+":1.</b> "+D[k][1]}
+[5,15,20].forEach(k=>{const b=document.createElement("button");b.textContent="C:N = "+k;b.dataset.k=k;b.onclick=()=>sim(k);cn.appendChild(b)});sim(15);
+const Q=[["Vì sao cần bổ sung carbon (mật rỉ, cám gạo) vào bể Biofloc?",["Để tôm cá lớn nhanh hơn","Để vi khuẩn dị dưỡng dùng NH₄⁺ tạo sinh khối floc","Để tăng pH","Để tăng O₂ hòa tan"],1],
+["Chất trung gian độc trong quá trình nitrat hóa là gì?",["NO₃⁻","NO₂⁻","O₂","CO₂"],1],
+["Ngừng sục khí nhiều giờ trong bể Biofloc dẫn đến điều gì?",["Floc lơ lửng nhiều hơn","Floc lắng, thiếu O₂, nguy cơ tôm cá chết","TAN tự giảm","pH ổn định hơn"],1]];
+let s=0,n=0;const qz=document.getElementById("qz"),sc=document.querySelector("#sc b");
+Q.forEach(q=>{const d=document.createElement("div");d.className="q";d.innerHTML="<p>"+q[0]+"</p>";q[1].forEach((t,i)=>{const b=document.createElement("button");b.textContent=t;b.onclick=()=>{if(d.dataset.done)return;d.dataset.done=1;n++;const r=i==q[2];if(r)s++;b.classList.add(r?"ok":"no");if(!r)d.querySelectorAll("button")[q[2]].classList.add("ok");sc.textContent="Điểm: "+s+"/"+n+(n==Q.length?" – hoàn thành":"")};d.appendChild(b)});qz.appendChild(d)});
+</script></body></html>
