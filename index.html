@@ -472,6 +472,8 @@
 
       link.className = "file-link";
       link.href = getFileUrl(file.path);
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
 
       icon.className = "file-icon";
       icon.setAttribute("aria-hidden", "true");
