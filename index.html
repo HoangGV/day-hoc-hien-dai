@@ -3,141 +3,440 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>README & File Explorer</title>
 
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown.min.css">
+  <meta name="theme-color" content="#ffffff">
+  <title>File Explorer</title>
 
   <style>
-    * { box-sizing: border-box; }
+    :root {
+      color-scheme: light dark;
+
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --hover: #f3f4f6;
+      --active: #e8f2ff;
+      --text: #24292f;
+      --muted: #656d76;
+      --border: #d1d9e0;
+      --accent: #0969da;
+      --focus: #80b7ff;
+      --radius: 8px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --hover: #21262d;
+        --active: #172b45;
+        --text: #e6edf3;
+        --muted: #9198a1;
+        --border: #30363d;
+        --accent: #58a6ff;
+        --focus: #388bfd;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      color: #24292f;
-      background: #f6f8fa;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
     }
 
-    header {
-      padding: 18px 24px;
-      background: #24292f;
-      color: white;
+    button, input {
+      font: inherit;
     }
 
-    header h2 { margin: 0 0 6px; }
-    header a { color: #a5d6ff; }
+    .explorer {
+      width: 100%;
+      max-width: 440px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--surface);
+      border-inline: 1px solid var(--border);
+    }
 
-    .layout {
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 18px 16px 12px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .brand-icon {
       display: grid;
-      grid-template-columns: 280px minmax(0, 1fr);
-      gap: 20px;
-      padding: 20px;
-      max-width: 1500px;
-      margin: auto;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--hover);
+      font-size: 19px;
     }
 
-    aside, main {
-      background: white;
-      border: 1px solid #d1d9e0;
-      border-radius: 8px;
-      padding: 18px;
+    .heading h1 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 650;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .search {
+      position: relative;
+    }
+
+    .search input {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 34px 8px 34px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+    }
+
+    .search input::placeholder {
+      color: var(--muted);
+    }
+
+    .search input:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--focus) 20%, transparent);
+    }
+
+    .search-icon {
+      position: absolute;
+      top: 50%;
+      left: 11px;
+      color: var(--muted);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .shortcut {
+      position: absolute;
+      top: 50%;
+      right: 9px;
+      color: var(--muted);
+      font-size: 11px;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 14px 16px 8px;
+    }
+
+    .section-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tool-button {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .tool-button:hover {
+      color: var(--text);
+      background: var(--hover);
+    }
+
+    .tree {
+      padding: 2px 8px 24px;
+    }
+
+    .folder {
       min-width: 0;
     }
 
-    aside {
-      align-self: start;
-      position: sticky;
-      top: 12px;
-      max-height: calc(100vh - 24px);
-      overflow: auto;
-    }
-
-    .tree { font-size: 14px; }
-
-    .tree details { margin: 4px 0 4px 8px; }
-    .tree summary {
+    .folder summary {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 5px 8px;
+      border-radius: 6px;
       cursor: pointer;
-      padding: 5px 2px;
-      overflow-wrap: anywhere;
+      list-style: none;
+      user-select: none;
     }
 
-    .tree a {
-      color: #0969da;
+    .folder summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .folder summary::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      flex: 0 0 6px;
+      border-right: 1.5px solid var(--muted);
+      border-bottom: 1.5px solid var(--muted);
+      transform: rotate(-45deg);
+      transition: transform 140ms ease;
+    }
+
+    .folder[open] > summary::before {
+      transform: rotate(45deg) translate(-1px, -1px);
+    }
+
+    .folder summary:hover,
+    .file-link:hover {
+      background: var(--hover);
+    }
+
+    .folder summary:focus-visible,
+    .file-link:focus-visible,
+    .tool-button:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: -2px;
+    }
+
+    .folder-name,
+    .file-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .folder-name {
+      font-weight: 550;
+    }
+
+    .folder-children {
+      margin-left: 13px;
+      padding-left: 7px;
+      border-left: 1px solid var(--border);
+    }
+
+    .file-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      min-height: 33px;
+      padding: 5px 8px 5px 21px;
+      color: var(--text);
       text-decoration: none;
-      overflow-wrap: anywhere;
+      border-radius: 6px;
     }
 
-    .tree a:hover { text-decoration: underline; }
-
-    .file {
-      display: block;
-      padding: 5px 0 5px 20px;
+    .file-icon {
+      display: grid;
+      place-items: center;
+      width: 16px;
+      flex: 0 0 16px;
+      color: var(--muted);
+      font-size: 12px;
     }
 
-    .markdown-body {
-      max-width: 100%;
-      font-size: 15px;
+    .file-link.html-file .file-icon {
+      color: #e16b45;
     }
 
-    .status { color: #57606a; font-size: 13px; }
+    .file-link.readme-file .file-icon {
+      color: #3fb950;
+    }
 
-    @media (max-width: 760px) {
-      .layout { grid-template-columns: 1fr; padding: 10px; }
-      aside { position: static; max-height: 45vh; }
+    .empty {
+      padding: 24px 12px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .repo-link {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .repo-link:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      padding: 20px 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (min-width: 700px) {
+      body {
+        padding: 32px 16px;
+      }
+
+      .explorer {
+        min-height: 0;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: clip;
+        box-shadow: 0 8px 30px rgb(0 0 0 / 4%);
+      }
+
+      .topbar {
+        position: static;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <h2 id="repo-title">README & File Explorer</h2>
-    <div>README và cây thư mục tự động</div>
-  </header>
+  <section class="explorer" aria-label="Repository file explorer">
+    <header class="topbar">
+      <div class="heading">
+        <div class="brand-icon" aria-hidden="true">⌘</div>
+        <div>
+          <h1 id="repo-title">File Explorer</h1>
+          <div class="subtitle">Browse project files</div>
+        </div>
+      </div>
 
-  <div class="layout">
-    <aside>
-      <h3>📁 Cây thư mục</h3>
-      <p class="status" id="tree-status">Đang tải danh sách file...</p>
-      <div id="tree" class="tree"></div>
-    </aside>
+      <label class="search">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input
+          id="search"
+          type="search"
+          placeholder="Tìm file hoặc thư mục..."
+          autocomplete="off"
+          aria-label="Tìm file hoặc thư mục"
+        >
+        <span class="shortcut" aria-hidden="true">/</span>
+      </label>
+    </header>
 
-    <main>
-      <article id="readme" class="markdown-body">
-        Đang tải README...
-      </article>
-    </main>
-  </div>
+    <div class="toolbar">
+      <span class="section-label">Explorer</span>
+      <button
+        class="tool-button"
+        id="toggle-all"
+        type="button"
+        aria-label="Mở hoặc đóng tất cả thư mục"
+        title="Mở / đóng tất cả thư mục"
+      >⊞</button>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+    <nav id="tree" class="tree" aria-label="Cây thư mục">
+      <div class="loading">Đang tải danh sách file...</div>
+    </nav>
+
+    <footer class="footer">
+      <span id="file-count">Đang kết nối...</span>
+      <a
+        class="repo-link"
+        id="repo-link"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+      >GitHub ↗</a>
+    </footer>
+  </section>
 
   <script>
-    // ===== SỬA 3 THÔNG TIN NÀY =====
+    // ===== CẤU HÌNH =====
     const OWNER = "HoangGV";
     const REPO = "day-hoc-hien-dai";
     const BRANCH = "main";
-    // ==============================
+    const HTML_BASE_URL = "https://dhhd.ndh.io.vn/";
+    // ====================
 
-    const api = `https://api.github.com/repos/${OWNER}/${REPO}`;
-    const repoUrl = `https://github.com/${OWNER}/${REPO}`;
+    const API =
+      `https://api.github.com/repos/${OWNER}/${REPO}`;
 
-    document.getElementById("repo-title").textContent =
-      `${OWNER}/${REPO}`;
+    const REPO_URL =
+      `https://github.com/${OWNER}/${REPO}`;
 
-    // Tạo cây thư mục từ danh sách file của GitHub.
+    const treeElement = document.getElementById("tree");
+    const searchInput = document.getElementById("search");
+    const countElement = document.getElementById("file-count");
+    const toggleButton = document.getElementById("toggle-all");
+
+    document.getElementById("repo-title").textContent = REPO;
+    document.getElementById("repo-link").href = REPO_URL;
+
+    let allPaths = [];
+    let allFolders = [];
+    let allExpanded = false;
+
+    // Tạo cây thư mục từ danh sách đường dẫn.
     function buildTree(paths) {
-      const root = { dirs: {}, files: [] };
+      const root = { dirs: new Map(), files: [] };
 
       for (const path of paths) {
         const parts = path.split("/");
         let node = root;
 
-        parts.forEach((part, i) => {
-          if (i === parts.length - 1) {
-            node.files.push(part);
+        parts.forEach((part, index) => {
+          if (index === parts.length - 1) {
+            node.files.push({
+              name: part,
+              path
+            });
           } else {
-            node.dirs[part] ??= { dirs: {}, files: [] };
-            node = node.dirs[part];
+            if (!node.dirs.has(part)) {
+              node.dirs.set(part, {
+                dirs: new Map(),
+                files: []
+              });
+            }
+
+            node = node.dirs.get(part);
           }
         });
       }
@@ -145,112 +444,237 @@
       return root;
     }
 
-    function renderTree(node, prefix = "") {
+    // File HTML mở trên website triển khai.
+    // File khác mở trên GitHub.
+    function getFileUrl(path) {
+      if (/\.html?$/i.test(path)) {
+        const encodedPath = path
+          .split("/")
+          .map(encodeURIComponent)
+          .join("/");
+
+        return HTML_BASE_URL.replace(/\/+$/, "") +
+          "/" + encodedPath;
+      }
+
+      const encodedPath = path
+        .split("/")
+        .map(encodeURIComponent)
+        .join("/");
+
+      return `${REPO_URL}/blob/${encodeURIComponent(BRANCH)}/${encodedPath}`;
+    }
+
+    function createFileLink(file) {
+      const link = document.createElement("a");
+      const icon = document.createElement("span");
+      const name = document.createElement("span");
+
+      link.className = "file-link";
+      link.href = getFileUrl(file.path);
+
+      icon.className = "file-icon";
+      icon.setAttribute("aria-hidden", "true");
+
+      name.className = "file-name";
+      name.textContent = file.name;
+
+      if (/\.html?$/i.test(file.name)) {
+        link.classList.add("html-file");
+        icon.textContent = "◇";
+      } else if (/^readme\.md$/i.test(file.name)) {
+        link.classList.add("readme-file");
+        icon.textContent = "▤";
+      } else if (/\.md$/i.test(file.name)) {
+        icon.textContent = "M";
+      } else if (/\.css$/i.test(file.name)) {
+        icon.textContent = "#";
+      } else if (/\.js$/i.test(file.name)) {
+        icon.textContent = "JS";
+      } else {
+        icon.textContent = "·";
+      }
+
+      link.append(icon, name);
+
+      return link;
+    }
+
+    function renderTree(node, depth = 0) {
       const fragment = document.createDocumentFragment();
 
-      Object.keys(node.dirs).sort().forEach(name => {
+      const directories = [...node.dirs.entries()]
+        .sort(([a], [b]) => a.localeCompare(b));
+
+      for (const [name, child] of directories) {
         const details = document.createElement("details");
         const summary = document.createElement("summary");
-        summary.textContent = "📁 " + name;
+        const label = document.createElement("span");
+        const children = document.createElement("div");
 
-        details.appendChild(summary);
-        details.appendChild(
-          renderTree(node.dirs[name], prefix + name + "/")
-        );
-        fragment.appendChild(details);
-      });
+        details.className = "folder";
+        summary.title = name;
 
-      node.files.sort().forEach(name => {
-        const path = prefix + name;
-        const link = document.createElement("a");
+        label.className = "folder-name";
+        label.textContent = name;
 
-        link.className = "file";
-        link.textContent = "📄 " + name;
-        link.href =
-          `${repoUrl}/blob/${encodeURIComponent(BRANCH)}/` +
-          path.split("/").map(encodeURIComponent).join("/");
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
+        children.className = "folder-children";
 
-        fragment.appendChild(link);
-      });
+        summary.append(label);
+        details.append(summary);
+
+        if (depth === 0 && !searchInput.value) {
+          details.open = false;
+        }
+
+        children.append(renderTree(child, depth + 1));
+        details.append(children);
+        fragment.append(details);
+
+        allFolders.push(details);
+      }
+
+      const files = node.files.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+
+      for (const file of files) {
+        fragment.append(createFileLink(file));
+      }
 
       return fragment;
     }
 
-    async function loadPage() {
-      const readme = document.getElementById("readme");
-      const tree = document.getElementById("tree");
-      const status = document.getElementById("tree-status");
+    function render(paths, expandAll = false) {
+      allFolders = [];
 
+      const filteredPaths = paths.filter(path =>
+        path !== "index.html"
+      );
+
+      const tree = buildTree(filteredPaths);
+      treeElement.replaceChildren(renderTree(tree));
+
+      if (expandAll) {
+        allFolders.forEach(folder => {
+          folder.open = true;
+        });
+      }
+
+      countElement.textContent =
+        `${filteredPaths.length} file`;
+
+      toggleButton.textContent = expandAll ? "⊟" : "⊞";
+      toggleButton.setAttribute(
+        "aria-label",
+        expandAll
+          ? "Đóng tất cả thư mục"
+          : "Mở tất cả thư mục"
+      );
+
+      if (filteredPaths.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "Không tìm thấy file phù hợp.";
+        treeElement.append(empty);
+      }
+    }
+
+    function searchFiles(query) {
+      const keyword = query.trim().toLocaleLowerCase("vi");
+
+      if (!keyword) {
+        render(allPaths, false);
+        return;
+      }
+
+      const matched = allPaths.filter(path =>
+        path.toLocaleLowerCase("vi").includes(keyword)
+      );
+
+      render(matched, true);
+    }
+
+    async function loadFiles() {
       try {
-        // Lấy danh sách file, kể cả file trong thư mục con.
         const response = await fetch(
-          `${api}/git/trees/${encodeURIComponent(BRANCH)}?recursive=1`
+          `${API}/git/trees/${encodeURIComponent(BRANCH)}?recursive=1`
         );
 
         if (!response.ok) {
-          throw new Error("Không lấy được danh sách file từ GitHub.");
+          throw new Error(
+            response.status === 404
+              ? "Không tìm thấy repository hoặc branch."
+              : `GitHub API trả về lỗi ${response.status}.`
+          );
         }
 
         const data = await response.json();
 
         if (data.truncated) {
-          throw new Error("Repository quá lớn; GitHub đã cắt bớt danh sách.");
+          throw new Error(
+            "Repository quá lớn; danh sách file bị cắt bớt."
+          );
         }
 
-        const paths = data.tree
+        allPaths = data.tree
           .filter(item => item.type === "blob")
           .map(item => item.path)
           .filter(path => path !== "index.html");
 
-        tree.replaceChildren(
-          renderTree(buildTree(paths))
-        );
-
-        status.textContent = `${paths.length} file`;
-
-        // Đọc README và hiển thị dưới dạng Markdown.
-        const readmeResponse = await fetch(
-          `https://raw.githubusercontent.com/${OWNER}/${REPO}/` +
-          `${encodeURIComponent(BRANCH)}/README.md`
-        );
-
-        if (!readmeResponse.ok) {
-          throw new Error("Không tìm thấy README.md ở thư mục gốc.");
-        }
-
-        const markdown = await readmeResponse.text();
-
-        readme.innerHTML = DOMPurify.sanitize(
-          marked.parse(markdown)
-        );
-
-        // Chuyển link tương đối trong README thành link GitHub.
-        readme.querySelectorAll("a[href]").forEach(link => {
-          const href = link.getAttribute("href");
-
-          if (
-            href &&
-            !href.startsWith("#") &&
-            !/^(https?:|mailto:|data:|javascript:)/i.test(href)
-          ) {
-            link.href = `${repoUrl}/blob/${BRANCH}/${href}`;
-          }
-
-          if (link.host && link.host !== location.host) {
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-          }
-        });
-
+        render(allPaths);
       } catch (error) {
-        status.textContent = "Không tải được cây thư mục.";
-        readme.textContent = error.message;
+        treeElement.replaceChildren();
+
+        const message = document.createElement("div");
+        message.className = "empty";
+        message.textContent = error.message;
+
+        treeElement.append(message);
+        countElement.textContent = "Không thể tải file";
       }
     }
 
-    loadPage();
+    searchInput.addEventListener("input", event => {
+      searchFiles(event.target.value);
+    });
+
+    toggleButton.addEventListener("click", () => {
+      allExpanded = !allExpanded;
+
+      allFolders.forEach(folder => {
+        folder.open = allExpanded;
+      });
+
+      toggleButton.textContent = allExpanded ? "⊟" : "⊞";
+      toggleButton.setAttribute(
+        "aria-label",
+        allExpanded
+          ? "Đóng tất cả thư mục"
+          : "Mở tất cả thư mục"
+      );
+    });
+
+    document.addEventListener("keydown", event => {
+      const target = event.target;
+      const isTyping =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target.isContentEditable;
+
+      if (event.key === "/" && !isTyping) {
+        event.preventDefault();
+        searchInput.focus();
+      }
+
+      if (event.key === "Escape" && target === searchInput) {
+        searchInput.value = "";
+        searchFiles("");
+        searchInput.blur();
+      }
+    });
+
+    loadFiles();
   </script>
 </body>
 </html>
