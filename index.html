@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>README & File Explorer</title>
+
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown.min.css">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #24292f;
+      background: #f6f8fa;
+    }
+
+    header {
+      padding: 18px 24px;
+      background: #24292f;
+      color: white;
+    }
+
+    header h2 { margin: 0 0 6px; }
+    header a { color: #a5d6ff; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 20px;
+      padding: 20px;
+      max-width: 1500px;
+      margin: auto;
+    }
+
+    aside, main {
+      background: white;
+      border: 1px solid #d1d9e0;
+      border-radius: 8px;
+      padding: 18px;
+      min-width: 0;
+    }
+
+    aside {
+      align-self: start;
+      position: sticky;
+      top: 12px;
+      max-height: calc(100vh - 24px);
+      overflow: auto;
+    }
+
+    .tree { font-size: 14px; }
+
+    .tree details { margin: 4px 0 4px 8px; }
+    .tree summary {
+      cursor: pointer;
+      padding: 5px 2px;
+      overflow-wrap: anywhere;
+    }
+
+    .tree a {
+      color: #0969da;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+
+    .tree a:hover { text-decoration: underline; }
+
+    .file {
+      display: block;
+      padding: 5px 0 5px 20px;
+    }
+
+    .markdown-body {
+      max-width: 100%;
+      font-size: 15px;
+    }
+
+    .status { color: #57606a; font-size: 13px; }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; padding: 10px; }
+      aside { position: static; max-height: 45vh; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h2 id="repo-title">README & File Explorer</h2>
+    <div>README và cây thư mục tự động</div>
+  </header>
+
+  <div class="layout">
+    <aside>
+      <h3>📁 Cây thư mục</h3>
+      <p class="status" id="tree-status">Đang tải danh sách file...</p>
+      <div id="tree" class="tree"></div>
+    </aside>
+
+    <main>
+      <article id="readme" class="markdown-body">
+        Đang tải README...
+      </article>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+
+  <script>
+    // ===== SỬA 3 THÔNG TIN NÀY =====
+    const OWNER = "TEN_TAI_KHOAN";
+    const REPO = "TEN_REPOSITORY";
+    const BRANCH = "main";
+    // ==============================
+
+    const api = `https://api.github.com/repos/${OWNER}/${REPO}`;
+    const repoUrl = `https://github.com/${OWNER}/${REPO}`;
+
+    document.getElementById("repo-title").textContent =
+      `${OWNER}/${REPO}`;
+
+    // Tạo cây thư mục từ danh sách file của GitHub.
+    function buildTree(paths) {
+      const root = { dirs: {}, files: [] };
+
+      for (const path of paths) {
+        const parts = path.split("/");
+        let node = root;
+
+        parts.forEach((part, i) => {
+          if (i === parts.length - 1) {
+            node.files.push(part);
+          } else {
+            node.dirs[part] ??= { dirs: {}, files: [] };
+            node = node.dirs[part];
+          }
+        });
+      }
+
+      return root;
+    }
+
+    function renderTree(node, prefix = "") {
+      const fragment = document.createDocumentFragment();
+
+      Object.keys(node.dirs).sort().forEach(name => {
+        const details = document.createElement("details");
+        const summary = document.createElement("summary");
+        summary.textContent = "📁 " + name;
+
+        details.appendChild(summary);
+        details.appendChild(
+          renderTree(node.dirs[name], prefix + name + "/")
+        );
+        fragment.appendChild(details);
+      });
+
+      node.files.sort().forEach(name => {
+        const path = prefix + name;
+        const link = document.createElement("a");
+
+        link.className = "file";
+        link.textContent = "📄 " + name;
+        link.href =
+          `${repoUrl}/blob/${encodeURIComponent(BRANCH)}/` +
+          path.split("/").map(encodeURIComponent).join("/");
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
+        fragment.appendChild(link);
+      });
+
+      return fragment;
+    }
+
+    async function loadPage() {
+      const readme = document.getElementById("readme");
+      const tree = document.getElementById("tree");
+      const status = document.getElementById("tree-status");
+
+      try {
+        // Lấy danh sách file, kể cả file trong thư mục con.
+        const response = await fetch(
+          `${api}/git/trees/${encodeURIComponent(BRANCH)}?recursive=1`
+        );
+
+        if (!response.ok) {
+          throw new Error("Không lấy được danh sách file từ GitHub.");
+        }
+
+        const data = await response.json();
+
+        if (data.truncated) {
+          throw new Error("Repository quá lớn; GitHub đã cắt bớt danh sách.");
+        }
+
+        const paths = data.tree
+          .filter(item => item.type === "blob")
+          .map(item => item.path)
+          .filter(path => path !== "index.html");
+
+        tree.replaceChildren(
+          renderTree(buildTree(paths))
+        );
+
+        status.textContent = `${paths.length} file`;
+
+        // Đọc README và hiển thị dưới dạng Markdown.
+        const readmeResponse = await fetch(
+          `https://raw.githubusercontent.com/${OWNER}/${REPO}/` +
+          `${encodeURIComponent(BRANCH)}/README.md`
+        );
+
+        if (!readmeResponse.ok) {
+          throw new Error("Không tìm thấy README.md ở thư mục gốc.");
+        }
+
+        const markdown = await readmeResponse.text();
+
+        readme.innerHTML = DOMPurify.sanitize(
+          marked.parse(markdown)
+        );
+
+        // Chuyển link tương đối trong README thành link GitHub.
+        readme.querySelectorAll("a[href]").forEach(link => {
+          const href = link.getAttribute("href");
+
+          if (
+            href &&
+            !href.startsWith("#") &&
+            !/^(https?:|mailto:|data:|javascript:)/i.test(href)
+          ) {
+            link.href = `${repoUrl}/blob/${BRANCH}/${href}`;
+          }
+
+          if (link.host && link.host !== location.host) {
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+          }
+        });
+
+      } catch (error) {
+        status.textContent = "Không tải được cây thư mục.";
+        readme.textContent = error.message;
+      }
+    }
+
+    loadPage();
+  </script>
+</body>
+</html>
