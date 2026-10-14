@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bạn hướng nội hay hướng ngoại?</title>
+<style>
+:root{--bg:#eef1f8;--card:#fff;--ink:#141b34;--mut:#5b6384;--line:#d9deee;--in:#3b4fb8;--ex:#f0a030;--acc:#3b4fb8;--sh:0 10px 40px rgba(30,40,100,.12);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1325;--card:#171e38;--ink:#eef0fa;--mut:#9aa3c7;--line:#2a3358;--in:#7d8dff;--ex:#ffb84d;--acc:#7d8dff;--sh:0 10px 40px rgba(0,0,0,.4)}}
+:root[data-theme="dark"]{--bg:#0e1325;--card:#171e38;--ink:#eef0fa;--mut:#9aa3c7;--line:#2a3358;--in:#7d8dff;--ex:#ffb84d;--acc:#7d8dff;--sh:0 10px 40px rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;transition:background .6s}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(60% 50% at calc(var(--lean,50)*1%) 0,color-mix(in srgb,var(--mix,var(--acc)) 28%,transparent),transparent 70%);transition:background .6s}
+main{max-width:680px;margin:0 auto;padding:20px 16px 40px}
+h1,h2{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;line-height:1.2;margin:0 0 .5em;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,7vw,3rem)}h2{font-size:clamp(1.35rem,4.5vw,1.8rem)}
+p{margin:0 0 1em}.mut{color:var(--mut)}
+.card{background:var(--card);border-radius:22px;padding:clamp(20px,5vw,36px);box-shadow:var(--sh);border:1px solid var(--line)}
+.spec{height:12px;border-radius:99px;background:linear-gradient(90deg,var(--in),var(--ex));position:relative}
+.spec i{position:absolute;top:50%;left:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:var(--card);border:4px solid var(--ink);transition:left 1s cubic-bezier(.2,.8,.2,1)}
+.ends{display:flex;justify-content:space-between;font-size:.85rem;color:var(--mut);margin-top:10px}
+.btn{font:inherit;font-weight:600;border:0;border-radius:14px;padding:14px 26px;cursor:pointer;background:var(--ink);color:var(--bg);transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.ghost{background:none;color:var(--mut);padding:10px 14px;border:1px solid var(--line)}
+button:focus-visible{outline:3px solid var(--ex);outline-offset:2px}
+.hero{margin:6vh 0 28px}
+.hero .spec{margin:28px 0 8px}
+ul.facts{padding-left:1.1em;color:var(--mut);margin:0 0 1.5em}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;color:var(--mut);margin-bottom:10px}
+.prog{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:24px}
+.prog b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--in),var(--ex));transition:width .35s}
+.q{font-family:Georgia,serif;font-size:clamp(1.3rem,4.8vw,1.8rem);line-height:1.35;min-height:5.4em;margin-bottom:18px}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:center;gap:14px;text-align:left;font:inherit;color:var(--ink);background:none;border:2px solid var(--line);border-radius:14px;padding:13px 16px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--acc)}
+.opt.sel{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.opt kbd{font:600 .8rem system-ui;min-width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--line);color:var(--mut)}
+.nav{display:flex;justify-content:space-between;margin-top:18px}
+@media(min-width:600px){.opts{grid-template-columns:1fr}}
+.pct{font-family:Georgia,serif;font-size:clamp(3.2rem,16vw,5rem);line-height:1;margin:6px 0}
+.res .spec{margin:30px 0 4px}
+.fac{margin:22px 0}
+.fac div.r{display:flex;justify-content:space-between;font-size:.92rem;margin-bottom:5px}
+.bar{height:9px;background:var(--line);border-radius:9px;overflow:hidden}
+.bar b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--in),var(--ex));border-radius:9px;transition:width 1s .2s}
+.box{border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0}
+.box h3{margin:0 0 6px;font-size:1rem}
+.note{font-size:.82rem;color:var(--mut);margin-top:20px}
+.hide{display:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<section id="intro" class="hero">
+  <h1>Bạn hướng nội hay hướng ngoại?</h1>
+  <p class="mut">16 câu hỏi, khoảng 3 phút. Bài trắc nghiệm đo mức độ hướng ngoại theo mô hình Big Five, mô hình được nghiên cứu tâm lý học dùng rộng rãi nhất, qua bốn khía cạnh khác nhau.</p>
+  <div class="card">
+    <ul class="facts">
+      <li>Trả lời theo con người bạn thường ngày, không phải con người bạn muốn trở thành.</li>
+      <li>Không có đáp án đúng hay sai. Hãy chọn nhanh theo cảm giác đầu tiên.</li>
+      <li>Kết quả chạy hoàn toàn trên máy bạn, không gửi đi đâu.</li>
+    </ul>
+    <div class="spec" aria-hidden="true"></div>
+    <div class="ends"><span>Hướng nội</span><span>Hướng ngoại</span></div>
+    <p style="margin-top:24px"><button class="btn" id="start">Bắt đầu làm bài</button></p>
+  </div>
+</section>
+
+<section id="quiz" class="hide">
+  <div class="card">
+    <div class="top"><span id="cnt"></span><span id="hint">Phím 1–5 để chọn</span></div>
+    <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="16" id="pg"><b id="pb"></b></div>
+    <div class="q" id="qt" aria-live="polite"></div>
+    <div class="opts" id="opts"></div>
+    <div class="nav"><button class="btn ghost" id="back">Câu trước</button></div>
+  </div>
+</section>
+
+<section id="result" class="hide res">
+  <div class="card">
+    <p class="mut" style="margin:0">Điểm hướng ngoại của bạn</p>
+    <div class="pct" id="pct"></div>
+    <h2 id="rt"></h2>
+    <div class="spec"><i id="mk"></i></div>
+    <div class="ends"><span>Hướng nội</span><span>Hướng ngoại</span></div>
+    <p id="rd" style="margin-top:20px"></p>
+    <h3 style="margin:28px 0 0">Bốn khía cạnh</h3>
+    <div id="facs"></div>
+    <div class="box"><h3>Điểm mạnh thường thấy</h3><p id="rs" class="mut" style="margin:0"></p></div>
+    <div class="box"><h3>Gợi ý cho bạn</h3><p id="rg" class="mut" style="margin:0"></p></div>
+    <p class="note">Đây là công cụ tự đánh giá để hiểu bản thân, không phải chẩn đoán tâm lý. Tính cách là một dải liên tục và có thể thay đổi theo hoàn cảnh. Phần lớn mọi người nằm ở khoảng giữa.</p>
+    <button class="btn" id="again">Làm lại bài</button>
+  </div>
+</section>
+</main>
+
+<script>
+const F={S:"Hòa đồng",A:"Quyết đoán",E:"Năng lượng",R:"Nạp năng lượng từ xã hội"};
+const FD={S:["Ngại giao tiếp","Dễ kết nối"],A:["Thích đứng sau","Thích dẫn dắt"],E:["Điềm tĩnh","Sôi nổi"],R:["Cần ở một mình","Cần ở bên người khác"]};
+// d: 1 = chấm thuận (hướng ngoại), -1 = chấm đảo (hướng nội)
+const Q=[
+["S",1,"Tôi dễ bắt chuyện với người lạ."],
+["S",-1,"Ở những buổi tụ tập đông người, tôi thường ngồi im lặng."],
+["S",1,"Tôi thích có nhiều bạn bè và các mối quan hệ xung quanh."],
+["S",-1,"Làm quen với người mới khiến tôi thấy ngại hoặc mệt."],
+["A",1,"Trong nhóm, tôi thường là người đứng ra đề xuất và dẫn dắt."],
+["A",-1,"Tôi thường để người khác nói trước và ít khi giành quyền phát biểu."],
+["A",1,"Tôi thoải mái nói ra ý kiến của mình trước đám đông."],
+["A",-1,"Tôi tránh để mình trở thành tâm điểm chú ý."],
+["E",1,"Tôi thường tràn đầy năng lượng và hào hứng."],
+["E",-1,"Tôi thích nhịp sống chậm và yên tĩnh hơn là nhiều hoạt động."],
+["E",1,"Tôi dễ bị cuốn vào những hoạt động sôi nổi, náo nhiệt."],
+["E",-1,"Tôi ít khi thấy phấn khích mạnh."],
+["R",1,"Sau một ngày gặp gỡ nhiều người, tôi thấy mình phấn chấn hơn."],
+["R",-1,"Sau khi giao tiếp nhiều, tôi cần ở một mình để lấy lại sức."],
+["R",1,"Ở một mình quá lâu khiến tôi thấy buồn chán."],
+["R",-1,"Tôi thích tự suy nghĩ và làm việc một mình hơn là làm cùng nhóm."]];
+const L=["Hoàn toàn không đồng ý","Không đồng ý","Trung lập","Đồng ý","Hoàn toàn đồng ý"];
+const BANDS=[
+[30,"Hướng nội rõ rệt","Bạn lấy năng lượng từ không gian riêng và những cuộc trò chuyện sâu, ít mà chất. Bạn thường quan sát và suy nghĩ kỹ trước khi nói hoặc hành động, và thấy các môi trường ồn ào, đông người khá tốn sức.","Tập trung sâu, lắng nghe tốt, suy nghĩ chín chắn, xây dựng các mối quan hệ bền và có chiều sâu.","Chủ động dành thời gian yên tĩnh để hồi sức sau các sự kiện xã hội. Chuẩn bị trước điều muốn nói ở cuộc họp và nhắn tin trước cho người quan trọng để việc kết nối bớt áp lực."],
+[43,"Thiên về hướng nội","Bạn thoải mái với người khác nhưng cần khoảng lặng để cân bằng. Bạn chọn lọc khi giao tiếp, thích nhóm nhỏ hơn đám đông.","Linh hoạt giữa làm việc độc lập và hợp tác, quan sát tinh, giao tiếp có chọn lọc nên thường rất đáng tin.","Sắp xếp lịch để xen kẽ giữa hoạt động xã hội và thời gian một mình. Thử nói ý kiến sớm hơn một chút trong nhóm, bạn thường có điều đáng nghe."],
+[58,"Ở giữa (hướng ngoại – hướng nội cân bằng)","Bạn nằm gần điểm giữa của dải tính cách, thường gọi là ambivert. Tùy hoàn cảnh bạn có thể sôi nổi hoặc trầm lắng.","Thích nghi tốt với nhiều tình huống, dễ làm cầu nối giữa người nói nhiều và người ít nói.","Để ý xem lúc nào bạn cần người khác, lúc nào cần yên tĩnh, và tôn trọng cả hai nhu cầu đó thay vì ép mình theo một kiểu."],
+[71,"Thiên về hướng ngoại","Bạn thường thấy thoải mái và có năng lượng khi ở bên người khác, dễ bắt chuyện và thích các hoạt động có tương tác.","Giao tiếp tự nhiên, tạo không khí tích cực, dễ mở rộng các mối quan hệ và nhanh chóng bắt tay vào việc.","Thỉnh thoảng dành thời gian một mình để suy ngẫm và nghe người ít nói hơn trước khi chốt quyết định."],
+[101,"Hướng ngoại rõ rệt","Bạn nạp năng lượng từ tương tác xã hội, thích hành động, chủ động dẫn dắt và thường là người tạo ra sự sôi nổi trong nhóm.","Nhiệt huyết, truyền cảm hứng, tự tin giao tiếp, dễ xây dựng mạng lưới quan hệ rộng.","Tập dừng lại để lắng nghe và dành thời gian suy xét một mình, nhất là trước các quyết định lớn. Chú ý nhu cầu yên tĩnh của người xung quanh."]];
+const $=id=>document.getElementById(id),show=id=>["intro","quiz","result"].forEach(s=>$(s).classList.toggle("hide",s!==id));
+let order,ans,i;
+const shuffle=a=>{a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+function start(){order=shuffle(Q.map((_,k)=>k));ans={};i=0;show("quiz");render();window.scrollTo(0,0)}
+function render(){
+  const q=Q[order[i]];$("cnt").textContent="Câu "+(i+1)+" / "+Q.length;
+  $("pb").style.width=(i/Q.length*100)+"%";$("pg").setAttribute("aria-valuenow",i);
+  $("qt").textContent=q[2];
+  $("opts").innerHTML=L.map((t,k)=>`<button class="opt${ans[order[i]]===k+1?" sel":""}" data-v="${k+1}"><kbd>${k+1}</kbd><span>${t}</span></button>`).join("");
+  $("back").style.visibility=i?"visible":"hidden";
+  lean();
+}
+function lean(){ // nền đổi sắc theo xu hướng câu trả lời hiện tại
+  const r=score(true);document.documentElement.style.setProperty("--lean",r===null?50:r);
+  document.documentElement.style.setProperty("--mix",r===null?"var(--acc)":`color-mix(in srgb,var(--ex) ${r}%,var(--in))`);
+}
+function pick(v){
+  ans[order[i]]=v;[...$("opts").children].forEach(b=>b.classList.toggle("sel",+b.dataset.v===v));lean();
+  setTimeout(()=>{if(i<Q.length-1){i++;render()}else finish()},230);
+}
+function score(partial){
+  const f={S:[],A:[],E:[],R:[]};
+  Q.forEach((q,k)=>{if(ans[k]!=null)f[q[0]].push(q[1]>0?ans[k]:6-ans[k])});
+  const all=Object.values(f).flat();if(!all.length)return null;
+  const pc=a=>(a.reduce((x,y)=>x+y,0)/a.length-1)/4*100;
+  if(partial)return pc(all);
+  const o={};for(const k in f)o[k]=pc(f[k]);o.T=pc(all);return o;
+}
+function finish(){
+  const s=score(),t=Math.round(s.T),b=BANDS.find(x=>t<x[0]);
+  show("result");$("pct").textContent=t+"%";$("rt").textContent=b[1];$("rd").textContent=b[2];$("rs").textContent=b[3];$("rg").textContent=b[4];
+  $("facs").innerHTML=Object.keys(F).map(k=>`<div class="fac"><div class="r"><strong>${F[k]}</strong><span>${Math.round(s[k])}%</span></div><div class="bar"><b data-w="${s[k]}"></b></div><div class="ends" style="margin-top:4px"><span>${FD[k][0]}</span><span>${FD[k][1]}</span></div></div>`).join("");
+  $("mk").style.left="50%";
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{$("mk").style.left=t+"%";document.querySelectorAll(".bar b").forEach(e=>e.style.width=e.dataset.w+"%")}));
+  document.documentElement.style.setProperty("--lean",t);document.documentElement.style.setProperty("--mix",`color-mix(in srgb,var(--ex) ${t}%,var(--in))`);
+  window.scrollTo(0,0);
+}
+$("start").onclick=start;$("again").onclick=()=>{show("intro");lean0()};
+function lean0(){document.documentElement.style.setProperty("--lean",50);document.documentElement.style.setProperty("--mix","var(--acc)")}
+$("opts").onclick=e=>{const b=e.target.closest(".opt");if(b)pick(+b.dataset.v)};
+$("back").onclick=()=>{if(i>0){i--;render()}};
+document.addEventListener("keydown",e=>{
+  if($("quiz").classList.contains("hide"))return;
+  if(e.key>="1"&&e.key<="5")pick(+e.key);
+  else if(e.key==="ArrowLeft"||e.key==="Backspace"){if(i>0){i--;render()}}
+});
+</script>
+</body>
+</html>
