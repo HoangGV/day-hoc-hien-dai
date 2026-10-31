@@ -1,0 +1,2006 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Word Hunt | NDH</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@400;500;700&family=Nunito:wght@400;700&family=Quicksand:wght@500;700&family=Courier+Prime:wght@400;700&family=Fredoka:wght@500;600;700&family=Baloo+2:wght@400;700&family=Mali:wght@400;700&family=Patrick+Hand&family=Itim&family=Pangolin&family=Grandstander:wght@400;700&family=Playpen+Sans:wght@400;700&family=Comfortaa:wght@400;700&family=Sriracha&family=Montserrat:wght@400;700&family=Noto+Sans:wght@400;700&family=Lora:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* Layout: control column on the left, a sticky A4 sheet preview on the right; stacks on phones. */
+:root{
+  --bg:#EEF2F8; --panel:#FFFFFF; --ink:#1C2740; --muted:#5A6580; --line:#D8DEE9; --sun:#FFD25E; --soft:#E7EEFC;
+  --accent:#2853B8; --accent-ink:#FFFFFF; --mark:#F4C542; --ok:#1E7F55; --warn:#B4412F;
+  --field:#F6F8FB; --shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.08);
+  --f-display:"Lexend",system-ui,sans-serif; --f-body:"Be Vietnam Pro",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11151E; --panel:#192030; --ink:#E5E9F2; --muted:#9AA4BA; --line:#2B3447;
+  --accent:#7DA0F4; --accent-ink:#0D1220; --mark:#E2B53C; --ok:#5CC796; --warn:#F08A76;
+  --field:#131926; --sun:#E2B53C; --soft:#1E2A44; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151E; --panel:#192030; --ink:#E5E9F2; --muted:#9AA4BA; --line:#2B3447;
+  --accent:#7DA0F4; --accent-ink:#0D1220; --mark:#E2B53C; --ok:#5CC796; --warn:#F08A76;
+  --field:#131926; --sun:#E2B53C; --soft:#1E2A44; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--f-display);font-weight:700;font-size:28px;letter-spacing:-.01em;margin:0;line-height:1.1;text-wrap:balance}
+h1 .hl{background:linear-gradient(transparent 58%,var(--mark) 58% 90%,transparent 90%);padding:0 2px}
+header p{margin:4px 0 0;color:var(--muted);max-width:62ch}
+.layout{display:grid;grid-template-columns:minmax(0,460px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:920px){.layout{grid-template-columns:minmax(0,1fr)}}
+.controls{display:flex;flex-direction:column;gap:14px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h2{font-family:var(--f-display);font-size:15px;font-weight:600;margin:0;letter-spacing:.01em}
+label,.lbl{font-size:12.5px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px}
+.field{display:flex;flex-direction:column;min-width:0}
+textarea,input[type=text],input[type=number],select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea{resize:vertical;line-height:1.45}
+textarea:focus,input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;font-weight:500;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;padding:9px 18px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.hint{font-size:12.5px;color:var(--muted)}
+.hint.err{color:var(--warn)}
+.shapes{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.shape{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px 6px;font-size:12px;border-radius:10px}
+.shape canvas{width:52px;height:52px}
+.shape[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
+.check{display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer}
+.check input{width:16px;height:16px;accent-color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.warnbox{font-size:12.5px;color:var(--warn)}
+.preview{position:sticky;top:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+@media (max-width:920px){.preview{position:static}}
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.tabs button{border:0;background:transparent;padding:6px 12px;border-radius:7px}
+.tabs button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.stats{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin:0}
+.paper{background:#fff;border-radius:4px;box-shadow:var(--shadow);overflow:hidden;max-height:calc(100vh - 120px);overflow-y:auto}
+@media (max-width:920px){.paper{max-height:none}}
+.paper canvas{display:block;width:100%;height:auto}
+.thumb{display:flex;align-items:center;gap:8px}
+.thumb img{width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>.piclist{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto}
+.picrow{display:flex;align-items:center;gap:8px;min-width:0}
+.picrow img,.picrow .ph{width:38px;height:38px;flex:none;object-fit:cover;border-radius:6px;border:1px dashed var(--line)}
+.picrow span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.picrow button{padding:4px 9px;font-size:12.5px}
+.paper canvas+canvas{border-top:14px solid var(--bg)}
+.saveimgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.saveimgs figure{margin:0;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+.saveimgs img{width:100%;border:1px solid var(--line);border-radius:4px;background:#fff}
+#paper{display:flex;flex-direction:column}
+.pals{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:6px}
+.pal{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:7px 9px;font-size:12px;border-radius:9px;text-align:left}
+.pal .sw{display:flex;gap:3px}.pal .sw i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.25)}
+.pal[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
+.play{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.playbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--panel);border-bottom:1px solid var(--line)}
+.ptitle{font-family:var(--f-display);font-weight:700;font-size:20px;min-width:0}
+.pstat{display:flex;gap:14px;font-family:var(--f-display);font-weight:600;font-size:18px;font-variant-numeric:tabular-nums}
+.pstat span{background:var(--field);border:1px solid var(--line);border-radius:999px;padding:3px 12px}
+.pmain{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,300px);gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
+@media (max-width:820px){.pmain{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}}
+.pboard{position:relative;min-height:0;display:block;background:#fff;border-radius:12px;border:1px solid var(--line);overflow:auto;-webkit-overflow-scrolling:touch}
+.zoom{display:inline-flex;align-items:center;gap:4px}.zoom button{min-width:38px;font-size:18px;font-weight:700;padding:4px 8px}.zoom span{min-width:46px;text-align:center;font-variant-numeric:tabular-nums;font-size:13px}
+.pboard canvas{touch-action:none;cursor:pointer;display:block;margin:0 auto}
+.plist{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;overflow-y:auto;min-height:0;max-height:100%}
+@media (max-width:820px){.plist{max-height:24vh}}
+.plist ol{margin:8px 0 0;padding-left:24px;display:flex;flex-direction:column;gap:4px}
+.plist li{padding:2px 4px;border-radius:6px}
+.plist li.found{cursor:pointer;text-decoration:line-through;color:var(--ok);font-weight:600}
+.plist li .hint{display:block;text-decoration:none;font-weight:400;color:var(--muted)}
+.plist li.missed{color:var(--warn);font-weight:600}
+.plist li.flash{background:color-mix(in srgb,var(--mark) 45%,transparent)}
+.ptoast{position:sticky;float:left;margin-left:50%;left:50%;top:12px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:6px 14px;border-radius:999px;font-weight:600;font-size:14px;pointer-events:none}
+.pdone{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:2}
+.pdonecard{background:var(--panel);border-radius:16px;padding:24px 28px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;max-width:90vw}
+.pbig{font-family:"Baloo 2",var(--f-display);font-size:40px;font-weight:700;color:var(--accent)}
+.pconf{position:absolute;inset:0;pointer-events:none;width:100%;height:100%;z-index:3}
+#shareOut{font-size:12px;font-family:ui-monospace,monospace}
+.savedlist{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.saved{display:flex;align-items:center;gap:6px;min-width:0}.saved span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved button{padding:4px 9px;font-size:12.5px}
+.preset[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+details.results summary{cursor:pointer;font-weight:600}
+#gasCode{font-size:11.5px;font-family:ui-monospace,monospace}
+.restable{overflow-x:auto;margin-top:8px}.restable table{border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums;min-width:100%}
+.restable th,.restable td{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;white-space:nowrap}
+.teams{display:flex;gap:8px;flex-wrap:wrap;padding:8px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.team{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;border-width:2px}
+.team b{font-variant-numeric:tabular-nums;font-size:20px}
+.team[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent)}
+.pmodal{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:4;padding:16px}
+.pmcard{background:var(--panel);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px;width:min(560px,100%);max-height:100%;overflow-y:auto}
+.pmcard h3{margin:0;font-family:"Baloo 2",var(--f-display);font-size:24px}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:520px){.qopts{grid-template-columns:1fr}}
+.qopts button{padding:12px;font-size:17px;font-weight:600;text-align:left}
+.qopts button.right{background:color-mix(in srgb,var(--ok) 25%,var(--panel));border-color:var(--ok)}
+.qopts button.wrong{background:color-mix(in srgb,var(--warn) 22%,var(--panel));border-color:var(--warn)}
+.qq{font-size:19px;font-weight:600;line-height:1.4}
+.top{align-items:center}
+.brand{min-width:0}
+.savedmenu{position:relative}
+.savedmenu>summary{list-style:none;cursor:pointer;font-weight:600;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.savedmenu>summary::-webkit-details-marker{display:none}
+.savedmenu[open]>summary{border-color:var(--accent)}
+.savedpanel{position:absolute;right:0;top:calc(100% + 8px);width:min(400px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);z-index:20;display:flex;flex-direction:column;gap:10px}
+.steps{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.steps button{display:flex;align-items:center;gap:10px;padding:7px 16px 7px 7px;border-radius:999px;background:var(--panel);flex:none;text-align:left;border:1px solid var(--line)}
+.steps i{font-style:normal;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-weight:700;font-family:var(--f-display);color:var(--accent)}
+.steps b{display:block;font-size:14px;font-family:var(--f-display);font-weight:600}
+.steps small{display:block;font-size:11.5px;color:var(--muted)}
+.steps button[aria-current="step"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.steps button[aria-current="step"] i{background:var(--accent);color:var(--accent-ink)}
+.steps button.done i{background:var(--sun);color:#3a2a00}
+.step{display:none;flex-direction:column;gap:14px}
+.step.on{display:flex}
+.stepnav{display:flex;justify-content:space-between;gap:8px;padding-top:2px}
+.card{border-radius:14px}
+.card h2{font-size:16px}
+.card .sub{margin:-6px 0 0;color:var(--muted);font-size:12.5px}
+button.ghost{background:transparent}
+optgroup{font-style:normal;font-weight:600}
+.ages{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.ages button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 12px;text-align:left;border-radius:12px}
+.ages b{font-family:var(--f-display);font-size:15px}.ages small{font-size:12px;color:var(--muted)}
+.ages button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}.ages button[aria-pressed="true"] b,.ages button[aria-pressed="true"] small{color:var(--accent-ink)}
+.quick{margin-top:4px}
+#pType{display:flex;gap:6px;margin-top:8px}#pType input{flex:1;min-width:0}
+.stars{display:flex;gap:6px;justify-content:center}.stars svg{width:38px;height:38px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.badges span{background:color-mix(in srgb,var(--sun) 40%,var(--panel));border:1px solid var(--sun);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600}
+.wordstat td.bar{min-width:90px}.wordstat i{display:block;height:8px;border-radius:4px;background:var(--warn)}
+.val{float:right;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>NDH <span class="hl">Word Hunt</span></h1>
+      <p>Soạn phiếu tìm từ trong 5 bước. Xem trước ở bên phải, in PDF hoặc gửi link cho học sinh chơi online.</p>
+    </div>
+    <details class="savedmenu">
+      <summary>Đề đã lưu</summary>
+      <div class="savedpanel">
+        <div class="row"><input type="text" id="saveName" placeholder="Tên đề, vd. Unit 5 – Phrasal verbs" style="flex:1;min-width:0"><button id="saveBtn" type="button">Lưu đề</button></div>
+        <div id="savedList" class="savedlist"></div>
+        <span class="hint">Đề lưu trong trình duyệt của máy này (không kèm ảnh minh hoạ).</span>
+      </div>
+    </details>
+  </header>
+  <nav class="steps" aria-label="Các bước soạn đề">
+    <button type="button" data-go="1" aria-current="step"><i>1</i><span><b>Từ vựng</b><small>Danh sách từ</small></span></button>
+    <button type="button" data-go="2"><i>2</i><span><b>Hình &amp; chữ</b><small>Hình, cách xếp, nhiễu</small></span></button>
+    <button type="button" data-go="3"><i>3</i><span><b>Trang trí</b><small>Màu, hình vẽ, viền</small></span></button>
+    <button type="button" data-go="4"><i>4</i><span><b>Phiếu in</b><small>Tiêu đề, trang thêm</small></span></button>
+    <button type="button" data-go="5"><i>5</i><span><b>Chơi online</b><small>Link, quiz, kết quả</small></span></button>
+  </nav>
+
+  <div class="layout">
+    <section class="controls">
+    <div class="step" data-step="1" id="step1">
+      <div class="card">
+        <h2>Danh sách từ</h2><p class="sub">Học sinh sẽ đi tìm đúng những từ này trong hình.</p>
+        <div class="field">
+          <label for="items">Mỗi dòng một từ hoặc cụm. Có thể thêm: = định nghĩa | câu ví dụ</label>
+          <textarea id="items" rows="12" spellcheck="false"></textarea>
+        </div>
+        <div class="row">
+          <button id="ocrBtn" type="button">Lấy từ trong ảnh…</button>
+          <input type="file" id="ocrFile" accept="image/*" hidden>
+          <button id="sampleBtn" type="button">Dùng ví dụ mẫu</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Chọn lứa tuổi</h2><p class="sub">Một lần bấm đặt sẵn cỡ chữ, phông, cách dàn chữ, chữ hoa/thường, nhiễu, bẫy và quiz cho hợp. Sau đó vẫn chỉnh tay được.</p>
+        <div class="ages">
+          <button type="button" class="preset" data-p="prea1"><b>Pre-A1</b><small>Mầm non – lớp 2</small></button>
+          <button type="button" class="preset" data-p="a1"><b>A1</b><small>Lớp 3 – 5</small></button>
+          <button type="button" class="preset" data-p="a2"><b>A2</b><small>THCS</small></button>
+          <button type="button" class="preset" data-p="b1"><b>B1+</b><small>THPT, sinh viên</small></button>
+          <button type="button" class="preset" data-p="expert"><b>Thử thách</b><small>Có chữ ngược</small></button>
+        </div>
+        <span class="hint" id="presetMsg"></span>
+        <div class="row quick"><button type="button" class="primary" id="qPdf">Tải PDF ngay</button><button type="button" id="qPlay">Chơi thử</button><button type="button" id="qShare">Sao chép link cho học sinh</button></div>
+        <span class="hint" id="qMsg">Muốn chỉnh kỹ hơn thì đi tiếp các bước 2–5.</span>
+      </div>
+      <div class="card">
+        <h2>Định nghĩa &amp; câu ví dụ</h2><p class="sub">Dùng cho phần gợi ý, đọc to và quiz. Có thể gõ tay hoặc để Claude viết.</p>
+        <div class="row">
+          <select id="level" aria-label="Trình độ" style="width:auto"><option value="A2">A2</option><option value="B1" selected>B1</option></select>
+          <button id="defBtn" type="button">Viết định nghĩa + câu ví dụ</button>
+        </div>
+        <span id="ocrStatus" class="hint"></span>
+      </div>
+      <div class="stepnav"><span></span><button type="button" class="primary" data-go="2">Bước tiếp →</button></div>
+    </div>
+    <div class="step" data-step="2" id="step2">
+      <div class="card">
+        <h2>Chọn hình</h2>
+        <span class="lbl">Cơ bản</span>
+        <div id="shapes" class="shapes"></div>
+        <span class="lbl">Cho trẻ em</span>
+        <div id="shapesKids" class="shapes"></div>
+        <span class="lbl">Đồ vật &amp; hình khác</span>
+        <div id="shapesMore" class="shapes"></div>
+        <div class="row"><button id="randShape" type="button">Hình ngẫu nhiên</button></div>
+      </div>
+      <div class="card">
+        <h2>Cách xếp chữ</h2>
+        <div class="field">
+          <label for="layoutMode">Cách dàn chữ (chọn theo lứa tuổi)</label>
+          <select id="layoutMode">
+            <optgroup label="Chữ xuôi theo dòng – trẻ nhỏ, mới học">
+              <option value="forward" selected>Dòng cong theo dáng hình</option>
+              <option value="rows">Dòng thẳng như trang sách (dễ nhất)</option>
+              <option value="arch">Dòng vòng cung (cầu vồng)</option>
+              <option value="wave">Dòng lượn sóng</option>
+              <option value="diagUp">Dòng chéo lên</option>
+              <option value="diagDown">Dòng chéo xuống</option>
+            </optgroup>
+            <optgroup label="Chạy vòng quanh hình – học sinh lớn, thử thách hơn">
+              <option value="ring">Vòng xuôi: nửa trên và nửa dưới đều đọc trái → phải</option>
+              <option value="soft">Xoắn ốc, chữ không lộn ngược</option>
+              <option value="path">Xoắn ốc, chữ xoay theo đường (có chữ úp ngược)</option>
+              <option value="upright">Xoắn ốc, từng chữ đứng thẳng</option>
+            </optgroup>
+          </select>
+          <span class="hint" id="orientHint"></span>
+        </div>
+        <div class="field">
+            <label for="font">Phông chữ</label>
+            <select id="font">
+              <optgroup label="Có dấu tiếng Việt – chữ in rõ ràng">
+                <option value="Lexend">Lexend (tiếng Việt)</option>
+                <option value="Andika">Andika (tiếng Việt) – dễ đọc cho trẻ</option>
+                <option value="Be Vietnam Pro">Be Vietnam Pro (tiếng Việt)</option>
+                <option value="Nunito">Nunito (tiếng Việt)</option>
+                <option value="Quicksand">Quicksand (tiếng Việt)</option>
+                <option value="Montserrat">Montserrat (tiếng Việt)</option>
+                <option value="Noto Sans">Noto Sans (tiếng Việt)</option>
+              </optgroup>
+              <optgroup label="Có dấu tiếng Việt – vui nhộn, chữ tay cho trẻ em">
+                <option value="Baloo 2">Baloo 2 (tiếng Việt) – tròn, vui</option>
+                <option value="Comfortaa">Comfortaa (tiếng Việt) – tròn</option>
+                <option value="Grandstander">Grandstander (tiếng Việt) – vui nhộn</option>
+                <option value="Playpen Sans">Playpen Sans (tiếng Việt) – chữ viết tay</option>
+                <option value="Mali">Mali (tiếng Việt) – chữ viết tay</option>
+                <option value="Patrick Hand">Patrick Hand (tiếng Việt) – chữ viết tay</option>
+                <option value="Itim">Itim (tiếng Việt) – chữ viết tay</option>
+                <option value="Pangolin">Pangolin (tiếng Việt) – chữ viết tay</option>
+                <option value="Sriracha">Sriracha (tiếng Việt) – chữ viết tay</option>
+              </optgroup>
+              <optgroup label="Có dấu tiếng Việt – có chân">
+                <option value="Lora">Lora (tiếng Việt)</option>
+                <option value="Merriweather">Merriweather (tiếng Việt)</option>
+              </optgroup>
+              <optgroup label="Không có dấu tiếng Việt – chỉ dùng cho tiếng Anh">
+                <option value="Fredoka">Fredoka</option>
+                <option value="Courier Prime">Courier Prime</option>
+              </optgroup>
+            </select>
+          </div>
+        <div class="field">
+          <label for="size">Cỡ chữ <span class="val" id="sizeVal"></span></label>
+          <input type="range" id="size" min="8" max="28" step="0.5" value="14">
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label for="gap">Giãn dòng</label>
+            <input type="range" id="gap" min="1.25" max="2.2" step="0.05" value="1.5">
+          </div>
+          <div class="field">
+            <label for="hole">Khoảng trống ở giữa</label>
+            <input type="range" id="hole" min="0.06" max="0.5" step="0.01" value="0.16">
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="outline" checked> Vẽ đường viền quanh hình (giúp nhận ra hình)</label>
+        <label class="check"><input type="checkbox" id="startMark" checked> Đánh dấu điểm bắt đầu đọc</label>
+        <div class="field">
+          <span class="lbl">Ảnh trang trí ở giữa hình</span>
+          <div class="row thumb">
+            <img id="centerThumb" alt="" hidden>
+            <button id="centerBtn" type="button">Thêm ảnh…</button>
+            <button id="centerClear" type="button" hidden>Bỏ ảnh</button>
+            <input type="file" id="centerFile" accept="image/*" hidden>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Phần nhiễu</h2>
+        <div class="field">
+          <label for="noise">Kiểu chữ nhiễu</label>
+          <select id="noise">
+            <option value="words">Từ vô nghĩa đọc được (blim, tasor…)</option>
+            <option value="letters">Chuỗi chữ cái ngẫu nhiên (qzt, mfro…)</option>
+          </select>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label for="decoys">Số bẫy gần giống</label>
+            <input type="number" id="decoys" min="0" max="30" value="5">
+          </div>
+          <div class="field">
+            <label for="reseed">&nbsp;</label>
+            <button id="reseed" type="button">Tạo lại nhiễu</button>
+          </div>
+        </div>
+        <span class="hint">Bẫy là từ cần tìm bị viết sai một chữ, ví dụ <i>look aftre</i>, để học sinh phải đọc kỹ.</span>
+        <label class="check"><input type="checkbox" id="upper" checked> Viết IN HOA</label>
+        <label class="check" id="reverseWrap"><input type="checkbox" id="reverse"> Viết ngược một số từ (chỉ với kiểu chạy vòng, dành cho học sinh lớn)</label>
+      </div>
+      <div class="stepnav"><button type="button" class="ghost" data-go="1">← Bước trước</button><button type="button" class="primary" data-go="3">Bước tiếp →</button></div>
+    </div>
+    <div class="step" data-step="3" id="step3">
+      <div class="card">
+        <h2>Bảng màu</h2>
+        <div class="field">
+          <span class="lbl">Bảng màu</span>
+          <div id="palettes" class="pals"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Hình vẽ &amp; viền trang</h2>
+        <div class="grid2">
+          <div class="field">
+            <label for="decor">Chủ đề hình vẽ</label>
+            <select id="decor">
+              <option value="none">Không trang trí</option>
+              <optgroup label="Vui nhộn">
+                <option value="stars">Ngôi sao &amp; trái tim</option>
+                <option value="party">Bóng bay &amp; tiệc</option>
+                <option value="sweets">Đồ ngọt</option>
+                <option value="music">Âm nhạc</option>
+              </optgroup>
+              <optgroup label="Thiên nhiên &amp; con vật">
+                <option value="nature">Thiên nhiên</option>
+                <option value="garden">Vườn &amp; côn trùng</option>
+                <option value="fruits">Trái cây</option>
+                <option value="pets">Thú cưng</option>
+                <option value="sea">Biển</option>
+                <option value="space">Vũ trụ</option>
+              </optgroup>
+              <optgroup label="Trường học &amp; đời sống">
+                <option value="school">Trường học</option>
+                <option value="transport">Xe cộ &amp; du lịch</option>
+              </optgroup>
+              <optgroup label="Mùa &amp; lễ hội">
+                <option value="autumn">Mùa thu</option>
+                <option value="winter">Mùa đông &amp; Giáng sinh</option>
+                <option value="tet">Tết</option>
+                <option value="halloween">Halloween</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="field">
+            <label for="decorColor">Kiểu vẽ</label>
+            <select id="decorColor">
+              <option value="color">Tô màu sẵn</option>
+              <option value="line">Nét viền để bé tự tô</option>
+            </select>
+          </div>
+        </div>
+        <span class="hint">Hình vẽ nhỏ tự đặt vào chỗ trống quanh hình và ở giữa hình (nếu chưa có ảnh ở giữa).</span>
+        <label class="check"><input type="checkbox" id="autoPal" checked> Tự đổi bảng màu hợp với chủ đề</label>
+        <label class="check"><input type="checkbox" id="border" checked> Viền trang có hình góc</label>
+        <label class="check"><input type="checkbox" id="kidsTitle" checked> Tiêu đề kiểu vui nhộn</label>
+        <label class="check"><input type="checkbox" id="wordColor"> Chữ trong hình nhiều màu</label>
+        <button id="redecor" type="button">Đổi vị trí hình vẽ</button>
+      </div>
+      <div class="stepnav"><button type="button" class="ghost" data-go="2">← Bước trước</button><button type="button" class="primary" data-go="4">Bước tiếp →</button></div>
+    </div>
+    <div class="step" data-step="4" id="step4">
+      <div class="card">
+        <h2>Tiêu đề &amp; hướng dẫn</h2>
+        <div class="field"><label for="title">Tiêu đề</label><input type="text" id="title" value="Word Hunt"></div>
+        <label class="check"><input type="checkbox" id="instrVi"> Thêm một dòng hướng dẫn bằng tiếng Việt (tuỳ chọn)</label>
+        <div class="field"><label for="instr">Hướng dẫn ({n} = số từ cần tìm)</label><textarea id="instr" rows="3"></textarea></div>
+        <div class="field"><label for="footer">Chân trang</label><input type="text" id="footer" value="NDH"></div>
+        <label class="check"><input type="checkbox" id="nameLine" checked> Dòng Name / Class / Date</label>
+        <label class="check"><input type="checkbox" id="topicLine"> Dòng hỏi chủ đề hôm nay</label>
+        
+        <div id="topicFields" class="grid2" hidden>
+          <div class="field"><label for="topicQ">Câu hỏi</label><input type="text" id="topicQ" value="What do you think today's topic is?"></div>
+          <div class="field"><label for="topicA">Đáp án (chỉ hiện ở trang đáp án)</label><input type="text" id="topicA" placeholder="vd. Phrasal verbs"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Phần dưới hình</h2>
+        <div class="field">
+          <label for="box">Phần dưới hình</label>
+          <select id="box">
+            <option value="en">Danh sách từ cần tìm (đánh dấu ✓)</option>
+            <option value="hint">Định nghĩa tiếng Anh, học sinh tìm và viết từ</option>
+            <option value="pic">Hình ảnh, học sinh tìm và viết từ</option>
+            <option value="count">Chỉ cho số lượng, học sinh tự viết ra</option>
+            <option value="none">Không có</option>
+          </select>
+        </div>
+        <div id="picPanel" class="field" hidden>
+          <span class="lbl">Ảnh cho từng từ</span>
+          <div class="row">
+            <button id="picBulk" type="button">Thêm nhiều ảnh…</button>
+            <input type="file" id="picBulkFile" accept="image/*" multiple hidden>
+            <input type="file" id="picOne" accept="image/*" hidden>
+          </div>
+          <span class="hint">Đặt tên file theo từ (vd. look-after.jpg) để tự ghép đúng chỗ. File khác tên được gán lần lượt cho từ chưa có ảnh.</span>
+          <div id="picList" class="piclist"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Trang thêm</h2>
+        <label class="check"><input type="checkbox" id="drawBox"> Thêm trang ô vẽ minh hoạ từ tìm được</label>
+        <div id="drawFields" class="field" hidden>
+          <div class="grid2">
+            <div class="field"><label for="drawN">Số ô vẽ</label>
+              <select id="drawN"><option value="2">2 ô</option><option value="4" selected>4 ô</option><option value="6">6 ô</option><option value="8">8 ô</option></select></div>
+            <div class="field"><label for="drawWord">Dưới mỗi ô</label>
+              <select id="drawWord"><option value="line">Dòng trống để viết từ</option><option value="none">Không có dòng</option></select></div>
+          </div>
+          <div class="field" style="margin-top:8px"><label for="drawInstr">Hướng dẫn trang vẽ</label><textarea id="drawInstr" rows="2">Choose some words you found. Draw a picture for each word and write the word under your picture.</textarea></div>
+        </div>
+        <label class="check"><input type="checkbox" id="sentBox"> Thêm trang đặt câu với từ tìm được</label>
+        <div id="sentFields" class="field" hidden>
+          <div class="grid2">
+            <div class="field"><label for="sentN">Số câu</label>
+              <select id="sentN"><option value="3">3 câu</option><option value="5" selected>5 câu</option><option value="6">6 câu</option><option value="8">8 câu</option><option value="10">10 câu</option></select></div>
+            <div class="field"><label for="sentStyle">Kiểu dòng kẻ</label>
+              <select id="sentStyle"><option value="single">Dòng kẻ thường</option><option value="kids">Dòng có đường giữa (cho bé)</option></select></div>
+          </div>
+          <div class="field" style="margin-top:8px"><label for="sentWordMode">Từ cho mỗi câu</label>
+            <select id="sentWordMode"><option value="blank">Học sinh tự chọn từ (ô Word trống)</option><option value="given">In sẵn từ cần dùng</option><option value="none">Không có ô Word</option></select></div>
+          <div class="field" style="margin-top:8px"><label for="sentInstr">Hướng dẫn trang đặt câu</label><textarea id="sentInstr" rows="2">Choose words you found. Write one sentence with each word.</textarea></div>
+          <span class="hint">"In sẵn từ" lấy lần lượt các từ trong danh sách cần tìm.</span>
+        </div>
+        
+        <label class="check"><input type="checkbox" id="withKey" checked> Kèm trang đáp án trong PDF</label>
+        <div class="field"><label for="versions">Số phiên bản đề trong PDF (chống nhìn bài)</label><select id="versions"><option value="1">1 đề</option><option value="2">2 đề (A, B)</option><option value="3">3 đề (A, B, C)</option><option value="4">4 đề (A, B, C, D)</option></select><span class="hint">Cùng danh sách từ, mỗi đề xếp chữ và nhiễu khác nhau, có đáp án riêng.</span></div>
+      </div>
+      <div class="stepnav"><button type="button" class="ghost" data-go="3">← Bước trước</button><button type="button" class="primary" data-go="5">Bước tiếp →</button></div>
+    </div>
+    <div class="step" data-step="5" id="step5">
+      <div class="card">
+        <h2>Link cho học sinh</h2>
+        <p class="hint" style="margin:0">Học sinh kéo qua chữ (hoặc chạm chữ đầu rồi chữ cuối) để khoanh từ ngay trên màn hình. Gửi link dưới đây để học sinh mở đúng đề này.</p>
+        <div class="field"><label for="shareBase">Link trang (link artifact hoặc link web của bạn)</label><input type="text" id="shareBase" placeholder="https://claude.ai/artifact/..."></div>
+        <div class="row"><button id="shareBtn" type="button">Sao chép link cho học sinh</button><button id="playBtn2" type="button">Thử chơi</button><button id="editShareBtn" type="button">Sao chép link soạn đề cho đồng nghiệp</button></div>
+        <textarea id="shareOut" rows="3" readonly spellcheck="false" aria-label="Link chơi online"></textarea>
+        <span id="shareMsg" class="hint"></span>
+        
+        <label class="check"><input type="checkbox" id="askName" checked> Học sinh nhập tên trước khi chơi</label>
+      </div>
+      <div class="card">
+        <h2>Âm thanh &amp; quiz</h2>
+        <div class="field"><label for="speakMode">Khi tìm đúng, máy đọc</label>
+          <select id="speakMode"><option value="word">Chỉ từ</option><option value="def">Từ + định nghĩa</option><option value="ex">Từ + câu ví dụ</option></select></div>
+        <label class="check"><input type="checkbox" id="quizOn" checked> Có mini quiz sau khi tìm xong</label>
+        <div id="quizFields" class="field">
+          <div class="grid2">
+            <div class="field"><label for="quizN">Số câu quiz</label>
+              <select id="quizN"><option value="5">5 câu</option><option value="8" selected>8 câu</option><option value="10">10 câu</option><option value="12">12 câu</option><option value="15">15 câu</option><option value="20">20 câu</option></select></div>
+            <div class="field"><label for="quizLevel">Mức độ</label>
+              <select id="quizLevel"><option value="easy">Dễ (3 lựa chọn)</option><option value="medium" selected>Vừa (4 lựa chọn)</option><option value="hard">Khó (lựa chọn gần giống nhau)</option></select></div>
+          </div>
+          <div class="field" style="margin-top:8px"><label for="quizType">Dạng câu hỏi</label>
+            <select id="quizType">
+              <option value="mix">Trộn các dạng</option>
+              <option value="def">Đọc định nghĩa, chọn từ</option>
+              <option value="mean">Đọc từ, chọn nghĩa</option>
+              <option value="gap">Điền từ vào câu ví dụ</option>
+              <option value="listen">Nghe, chọn cách viết đúng</option>
+              <option value="spell">Chọn cách viết đúng</option>
+            </select></div>
+          <span class="hint" id="quizInfo"></span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Kết quả của học sinh</h2>
+        <div id="resClaude">
+            <p class="hint">Trên link Claude: kết quả tự lưu vào trang này khi học sinh có tài khoản Claude trong cùng tổ chức với bạn, hoặc được bạn chia sẻ quyền Contributor. Người mở link công khai từ bên ngoài vẫn chơi được nhưng không ghi được kết quả.</p>
+            <div class="row"><button id="resRefresh" type="button">Xem kết quả</button><button id="resCsv" type="button">Tải bảng CSV</button></div>
+            <div id="resTable" class="restable"></div>
+          </div>
+          <div class="field" style="margin-top:10px"><label for="sheetUrl">Bản web: link Google Apps Script để ghi vào Google Sheet</label><input type="text" id="sheetUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
+          <p class="hint">Cách làm (1 lần): mở Google Sheet mới → Tiện ích mở rộng → Apps Script → dán đoạn mã dưới đây → Triển khai → Tùy chọn triển khai mới → Ứng dụng web, "Bất kỳ ai" có quyền truy cập → sao chép link /exec dán vào ô trên rồi tạo lại link cho học sinh.</p>
+          <textarea id="gasCode" rows="7" readonly spellcheck="false">function doPost(e) {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  if (sh.getLastRow() === 0) sh.appendRow(['Thời gian','Tên','Lớp','Đề','Loại','Tìm được','Tổng','Thời gian làm (giây)','Gợi ý','Lần sai','Quiz đúng','Quiz tổng','Từ tìm được (giây)','Từ chưa tìm']);
+  var d = JSON.parse(e.postData.contents);
+  sh.appendRow([new Date(), d.name, d.cls, d.title, d.kind, d.found, d.total, d.secs, d.hints, d.wrong, d.qok, d.qn, d.words, d.missed]);
+  return ContentService.createTextOutput('ok');
+}</textarea>
+          <button id="gasCopy" type="button">Sao chép đoạn mã</button>
+      </div>
+      <div class="stepnav"><button type="button" class="ghost" data-go="4">← Bước trước</button></div>
+    </div>
+    </section>
+
+    <section class="preview">
+      <div class="toolbar">
+        <div class="tabs" role="group" aria-label="Trang xem trước">
+          <button id="tabS" type="button" aria-pressed="true">Phiếu học sinh</button>
+          <button id="tabA" type="button" aria-pressed="false">Đáp án</button>
+        </div>
+        <div class="row">
+          <button id="playBtn" type="button">Chơi online</button>
+          <button id="pdfBtn" class="primary" type="button" disabled>Tải PDF</button>
+        </div>
+      </div>
+      <p id="stats" class="stats"></p>
+      <span id="pdfStatus" class="hint"></span>
+      <div id="saveImgs" class="card" hidden>
+        <h2>Lưu phiếu dạng ảnh</h2>
+        <p class="hint" style="margin:0">Máy tính: nhấp chuột phải vào từng trang, chọn <b>Lưu hình ảnh</b>. Điện thoại: nhấn giữ vào ảnh, chọn <b>Lưu ảnh</b>. Ảnh có khổ A4, in ra như PDF.</p>
+        <div id="saveImgList" class="saveimgs"></div>
+        <button id="saveImgClose" type="button">Đóng</button>
+      </div>
+      <div class="paper" id="paper"></div>
+    </section>
+  </div>
+</div>
+
+<div id="play" class="play" hidden>
+  <header class="playbar">
+    <div class="ptitle" id="pTitle"></div>
+    <div class="pstat"><span id="pFound">0/0</span><span id="pTime">00:00</span></div>
+    <div class="row">
+      <select id="pTeams" aria-label="Thi đua đội" style="width:auto"><option value="0">Chơi cá nhân</option><option value="2">2 đội</option><option value="3">3 đội</option><option value="4">4 đội</option></select>
+      <button id="pSound" type="button" aria-pressed="true">Đọc to: Bật</button>
+      <button id="pHint" type="button">Gợi ý</button>
+      <span class="zoom"><button id="pZoomOut" type="button" aria-label="Thu nhỏ">−</button><span id="pZoomVal">100%</span><button id="pZoomIn" type="button" aria-label="Phóng to">+</button></span>
+      <button id="pFinish" type="button">Nộp bài</button>
+      <button id="pRestart" type="button">Chơi lại</button>
+      <button id="pExit" type="button">Đóng</button>
+    </div>
+  </header>
+  <div id="pTeamBar" class="teams" hidden></div>
+  <div class="pmain">
+    <div class="pboard"><canvas id="pCanvas"></canvas><div id="pToast" class="ptoast" role="status" aria-live="polite" hidden></div></div>
+    <aside class="plist"><p id="pInstr" class="hint" style="margin:0"></p><button id="pListen" type="button" style="margin-top:6px">Nghe hướng dẫn</button>
+      <form id="pType" autocomplete="off"><input id="pTypeIn" type="text" placeholder="Gõ từ bạn tìm thấy, nhấn Enter" aria-label="Gõ từ bạn tìm thấy"><button type="submit">OK</button></form><ol id="pWords"></ol></aside>
+  </div>
+  <div id="pDone" class="pdone" hidden><div class="pdonecard"><div class="pbig" id="pBig">Great job!</div><div id="pStars" class="stars" aria-label=""></div><p id="pDoneMsg"></p><div id="pBadges" class="badges"></div><p id="pSendMsg" class="hint"></p><div class="row" style="justify-content:center"><button id="pQuizBtn" class="primary" type="button">Làm mini quiz</button><button id="pReveal" type="button">Xem từ còn thiếu</button><button id="pReview" type="button">Ôn lại từ còn thiếu</button><button id="pAgain" type="button">Chơi lại</button></div></div></div>
+  <div id="pName" class="pmodal" hidden><form class="pmcard" id="pNameForm"><h3>Before you start</h3>
+    <div class="field"><label for="pNameIn">Your name</label><input type="text" id="pNameIn" required maxlength="60" autocomplete="name"></div>
+    <div class="field"><label for="pClassIn">Class (optional)</label><input type="text" id="pClassIn" maxlength="30"></div>
+    <button class="primary" type="submit">Start</button></form></div>
+  <div id="pQuiz" class="pmodal" hidden><div class="pmcard"><div class="row" style="justify-content:space-between"><h3 id="qTitle">Mini quiz</h3><span id="qProg" class="hint"></span></div>
+    <div id="qQ" class="qq"></div><button id="qListen" type="button" hidden>Nghe lại</button><div id="qOpts" class="qopts"></div>
+    <div class="row" style="justify-content:flex-end"><button id="qNext" class="primary" type="button" hidden>Câu tiếp</button><button id="qClose" type="button">Đóng</button></div></div></div>
+  <canvas id="pConfetti" class="pconf"></canvas>
+</div>
+
+<script>
+/* ================= shapes ================= */
+const SHAPES=[['circle','Xoắn tròn'],['square','Vuông'],['rect','Chữ nhật'],['triangle','Tam giác'],['diamond','Hình thoi'],['pentagon','Ngũ giác'],['hexagon','Lục giác'],['star','Ngôi sao'],['heart','Trái tim'],['flower','Bông hoa'],['oval','Bầu dục'],['snake','Đường rắn']];
+const KIDS_SHAPES=[['cloud','Đám mây'],['apple','Quả táo'],['fish','Con cá'],['house','Ngôi nhà'],['butterfly','Con bướm'],['cat','Mèo con'],['bear','Gấu con'],['balloon','Bóng bay'],['icecream','Kem ốc quế']];
+KIDS_SHAPES.push(['tree','Cái cây'],['sun','Mặt trời'],['leaf','Chiếc lá'],['drop','Giọt nước'],['egg','Quả trứng'],['car','Ô tô'],['rocket','Tên lửa']);
+const MORE_SHAPES=[['speech','Bóng thoại'],['crown','Vương miện'],['cup','Cốc'],['gift','Hộp quà'],['bell','Chuông'],['shield','Khiên'],['blob','Hình mềm']];
+const ALL_SHAPES=[...SHAPES,...KIDS_SHAPES,...MORE_SHAPES];
+const PI=Math.PI;
+function ellP(x,y,rx,ry,rot=0,n=72){const v=[],c=Math.cos(rot),s=Math.sin(rot);for(let k=0;k<n;k++){const a=k/n*2*PI,px=Math.cos(a)*rx,py=Math.sin(a)*ry;v.push([x+px*c-py*s,y+px*s+py*c]);}return v;}
+const circP=(x,y,r)=>ellP(x,y,r,r);
+function castShape(polys){
+  const N=720,rs=new Float64Array(N);
+  for(let k=0;k<N;k++){const a=k/N*2*PI,dx=Math.cos(a),dy=Math.sin(a);let best=0;
+    for(const P of polys)for(let i=0;i<P.length;i++){const A=P[i],B=P[(i+1)%P.length],ex=B[0]-A[0],ey=B[1]-A[1];
+      const den=dx*ey-dy*ex;if(Math.abs(den)<1e-12)continue;const t=(A[0]*ey-A[1]*ex)/den,u=(A[0]*dy-A[1]*dx)/den;
+      if(u>=0&&u<=1&&t>best)best=t;}
+    rs[k]=best||.05;}
+  const v=[];for(let k=0;k<N;k++){let m=0;for(let j=-5;j<=5;j++)m+=rs[(k+j+N)%N];m/=11;const a=k/N*2*PI;v.push([Math.cos(a)*m,Math.sin(a)*m]);}
+  v.c=[0,0];return v;
+}
+function regular(n,rot,sx=1,sy=1){const v=[];for(let k=0;k<n;k++){const a=rot+k*2*PI/n;v.push([Math.cos(a)*sx,Math.sin(a)*sy]);}return v;}
+function chaikin(v,q=.14,it=3){for(let i=0;i<it;i++){const o=[];for(let k=0;k<v.length;k++){const a=v[k],b=v[(k+1)%v.length];o.push([a[0]+q*(b[0]-a[0]),a[1]+q*(b[1]-a[1])],[a[0]+(1-q)*(b[0]-a[0]),a[1]+(1-q)*(b[1]-a[1])]);}v=o;}return v;}
+function rawOutline(id){
+  switch(id){
+    case 'circle': return regular(360,-PI/2);
+    case 'square': return chaikin(regular(4,-PI/4));
+    case 'rect': return chaikin(regular(4,-PI/4,1,.62));
+    case 'triangle': return chaikin(regular(3,-PI/2));
+    case 'diamond': return chaikin(regular(4,-PI/2,.74,1));
+    case 'pentagon': return chaikin(regular(5,-PI/2));
+    case 'hexagon': return chaikin(regular(6,0));
+    case 'star': {const v=[];for(let k=0;k<10;k++){const a=-PI/2+k*PI/5,r=k%2?.56:1;v.push([Math.cos(a)*r,Math.sin(a)*r]);}return chaikin(v,.1,3);}
+    case 'heart': {const v=[];for(let i=0;i<48;i++){const t=i/48*2*PI;v.push([16*Math.sin(t)**3,-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))]);}return chaikin(v,.25,3);}
+    case 'flower': {const v=[];for(let i=0;i<720;i++){const t=i/720*2*PI,r=1+.13*Math.cos(6*t);v.push([Math.cos(t-PI/2)*r,Math.sin(t-PI/2)*r]);}return v;}
+    case 'oval': return regular(360,-PI/2,1,.7);
+    case 'cloud': return castShape([circP(0,-.2,.5),circP(-.55,.05,.38),circP(.55,.05,.4),circP(-.25,.28,.38),circP(.27,.28,.38)]);
+    case 'apple': return castShape([circP(-.3,.1,.6),circP(.3,.1,.6),ellP(.2,-.6,.24,.12,-.5),[[-.04,-.4],[.04,-.4],[.08,-.78],[0,-.78]]]);
+    case 'fish': return castShape([ellP(-.12,0,.74,.56),[[.42,0],[.98,-.56],[.9,0],[.98,.56]]]);
+    case 'house': return castShape([[[-.72,.75],[.72,.75],[.72,-.2],[0,-.9],[-.72,-.2]],[[.32,-.55],[.32,-.86],[.52,-.86],[.52,-.36]]]);
+    case 'butterfly': return castShape([ellP(-.45,-.3,.5,.4,-.5),ellP(.45,-.3,.5,.4,.5),ellP(-.33,.38,.36,.3,.5),ellP(.33,.38,.36,.3,-.5),ellP(0,0,.12,.62)]);
+    case 'cat': return castShape([circP(0,.12,.72),[[-.68,-.1],[-.62,-.92],[-.12,-.55]],[[.68,-.1],[.62,-.92],[.12,-.55]]]);
+    case 'bear': return castShape([circP(0,.1,.7),circP(-.58,-.5,.28),circP(.58,-.5,.28)]);
+    case 'balloon': return castShape([ellP(0,-.12,.68,.8),[[-.11,.82],[.11,.82],[0,.6]]]);
+    case 'tree': return castShape([circP(0,-.32,.5),circP(-.4,-.08,.4),circP(.4,-.08,.4),circP(0,.08,.44),[[-.18,.3],[.18,.3],[.22,1],[-.22,1]]]);
+    case 'sun': {const P=[circP(0,0,.6)];for(let k=0;k<12;k++){const a=k*PI/6;P.push([[Math.cos(a-.17)*.55,Math.sin(a-.17)*.55],[Math.cos(a)*1,Math.sin(a)*1],[Math.cos(a+.17)*.55,Math.sin(a+.17)*.55]]);}return castShape(P);}
+    case 'leaf': {let v=chaikin([[0,-1],[.42,-.55],[.5,.05],[.28,.6],[0,.95],[-.28,.6],[-.5,.05],[-.42,-.55]],.2,3);const r=-.55;v=v.map(([x,y])=>[x*Math.cos(r)-y*Math.sin(r),x*Math.sin(r)+y*Math.cos(r)]);return v;}
+    case 'drop': return castShape([circP(0,.28,.62),[[-.55,.0],[0,-.95],[.55,.0]]]);
+    case 'egg': {const v=[];for(let i=0;i<360;i++){const t=i/360*2*PI;v.push([.7*Math.sin(t)*(1-.14*Math.cos(t)),-.95*Math.cos(t)]);}return v;}
+    case 'car': return castShape([chaikin([[-1,.3],[1,.3],[1,-.12],[.6,-.22],[.36,-.78],[-.4,-.78],[-.62,-.22],[-1,-.12]],.1,2),circP(-.55,.36,.27),circP(.55,.36,.27)]);
+    case 'rocket': return castShape([ellP(0,-.08,.44,.84),[[-.38,.15],[-.75,.75],[-.25,.6]],[[.38,.15],[.75,.75],[.25,.6]],[[-.18,.7],[.18,.7],[0,1]]]);
+    case 'speech': return castShape([ellP(0,-.12,1,.66),[[-.5,.3],[-.75,.95],[-.05,.48]]]);
+    case 'crown': return chaikin([[-.92,.6],[.92,.6],[.92,-.6],[.46,-.15],[0,-.85],[-.46,-.15],[-.92,-.6]],.08,2);
+    case 'cup': return castShape([[[-.62,-.72],[.42,-.72],[.36,.78],[-.56,.78]],ellP(.46,-.02,.42,.38)]);
+    case 'gift': return castShape([[[-.78,-.32],[.78,-.32],[.78,.82],[-.78,.82]],ellP(-.3,-.55,.32,.2,-.45),ellP(.3,-.55,.32,.2,.45)]);
+    case 'bell': return castShape([chaikin([[-.78,.55],[.78,.55],[.58,.2],[.52,-.45],[0,-.85],[-.52,-.45],[-.58,.2]],.15,3),circP(0,.66,.18)]);
+    case 'shield': return chaikin([[-.8,-.85],[0,-.7],[.8,-.85],[.75,.1],[0,.95],[-.75,.1]],.18,3);
+    case 'arch': {const v=[];for(let i=0;i<=180;i++){const a=PI+i/180*PI;v.push([Math.cos(a),.45+Math.sin(a)*1.05]);}for(let i=180;i>=0;i--){const a=PI+i/180*PI;v.push([Math.cos(a)*.42,.45+Math.sin(a)*.5]);}return chaikin(v,.2,1);}
+    case 'blob': {const v=[];for(let i=0;i<720;i++){const t=i/720*2*PI,r=1+.16*Math.sin(3*t+.6)+.09*Math.cos(5*t);v.push([Math.cos(t)*r,Math.sin(t)*r*.92]);}return v;}
+    case 'icecream': return castShape([circP(0,-.36,.5),circP(-.38,-.2,.34),circP(.38,-.2,.34),[[-.5,-.05],[.5,-.05],[0,1]]]);
+  }
+  return regular(360,-PI/2);
+}
+function resample(v,N){const L=[0];for(let i=1;i<=v.length;i++){const a=v[i-1],b=v[i%v.length];L.push(L[i-1]+Math.hypot(b[0]-a[0],b[1]-a[1]));}
+  const T=L[v.length],out=[];let j=0;
+  for(let k=0;k<N;k++){const d=k/N*T;while(L[j+1]<d)j++;const a=v[j],b=v[(j+1)%v.length],t=(d-L[j])/((L[j+1]-L[j])||1);out.push([a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])]);}
+  return out;}
+const outlineCache={};
+function prepareOutline(id){
+  if(outlineCache[id]) return outlineCache[id];
+  let v=rawOutline(id);const c0=v.c;
+  let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
+  for(const p of v){x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}
+  const cx=(x0+x1)/2,cy=(y0+y1)/2,s=Math.max(x1-x0,y1-y0)/2;
+  v=v.map(p=>[(p[0]-cx)/s,(p[1]-cy)/s]);const bw=(x1-x0)/2/s,bh=(y1-y0)/2/s;
+  let a=0;for(let k=0;k<v.length;k++){const p=v[k],q=v[(k+1)%v.length];a+=p[0]*q[1]-q[0]*p[1];}
+  if(a<0) v.reverse();
+  let pts=resample(v,720);
+  let bi=0,bv=Infinity;pts.forEach((p,i)=>{const val=p[1]+.002*Math.abs(p[0]);if(val<bv){bv=val;bi=i;}});
+  pts=pts.slice(bi).concat(pts.slice(0,bi));
+  let gx=0,gy=0;
+  if(c0){gx=(c0[0]-cx)/s;gy=(c0[1]-cy)/s;}else{for(const p of pts){gx+=p[0];gy+=p[1];}gx/=pts.length;gy/=pts.length;}
+  let rmin=Infinity;for(const p of pts)rmin=Math.min(rmin,Math.hypot(p[0]-gx,p[1]-gy));
+  // perpendicular spacing: distance from centre to each tangent line, so concave shapes do not overlap
+  const n=pts.length,hs=[];for(let k=0;k<n;k++){const a=pts[(k-2+n)%n],b=pts[(k+2)%n],tx=b[0]-a[0],ty=b[1]-a[1],tl=Math.hypot(tx,ty)||1,p=pts[k];
+    hs.push(Math.abs((p[0]-gx)*ty-(p[1]-gy)*tx)/tl);}
+  hs.sort((x,y)=>x-y);const h=Math.min(Math.max(hs[Math.floor(n*.04)],.36),Math.max(rmin,.36));
+  return outlineCache[id]={pts,gx,gy,rmin:Math.max(rmin,.2),h,bw,bh};
+}
+function finalize(pts,segs){
+  const cum=new Float64Array(pts.length);for(let i=1;i<pts.length;i++)cum[i]=cum[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
+  const skips=segs.map(([a,b])=>[cum[a],cum[b]]);
+  return {pts,cum,L:cum[pts.length-1]||0,skips,skipL:skips.reduce((s,[a,b])=>s+(b-a),0),segs};
+}
+const fieldCache={};
+function shapeField(id){
+  if(fieldCache[id])return fieldCache[id];
+  const P=prepareOutline(id).pts,n=P.length;
+  const G=170,lo=-1.08,cs=2.16/(G-1),D=new Float32Array(G*G);
+  let best=-1,bx=0,by=0;
+  for(let gy=0;gy<G;gy++){const y=lo+gy*cs,xs=[];
+    for(let i=0;i<n;i++){const A=P[i],B=P[(i+1)%n];if((A[1]>y)!==(B[1]>y))xs.push(A[0]+(y-A[1])*(B[0]-A[0])/(B[1]-A[1]));}
+    xs.sort((u,v)=>u-v);
+    for(let k=0;k+1<xs.length;k+=2){const g0=Math.max(0,Math.ceil((xs[k]-lo)/cs)),g1=Math.min(G-1,Math.floor((xs[k+1]-lo)/cs));
+      for(let gx=g0;gx<=g1;gx++){const x=lo+gx*cs;let m=Infinity;for(let i=0;i<n;i+=2){const dx=P[i][0]-x,dy=P[i][1]-y,e=dx*dx+dy*dy;if(e<m)m=e;}
+        const d=Math.sqrt(m);D[gy*G+gx]=d;if(d>best){best=d;bx=x;by=y;}}}}
+  const samp=(x,y)=>{const fx=(x-lo)/cs,fy=(y-lo)/cs,ix=Math.floor(fx),iy=Math.floor(fy);if(ix<0||iy<0||ix>=G-1||iy>=G-1)return 0;
+    const tx=fx-ix,ty=fy-iy,i=iy*G+ix;return D[i]*(1-tx)*(1-ty)+D[i+1]*tx*(1-ty)+D[i+G]*(1-tx)*ty+D[i+G+1]*tx*ty;};
+  const N=720,S=320,rmax=new Float32Array(N),E=new Float32Array(N*S);
+  for(let k=0;k<N;k++){const a=-PI/2+k*2*PI/N,dx=Math.cos(a),dy=Math.sin(a);let t=0;
+    for(let i=0;i<n;i++){const A=[P[i][0]-bx,P[i][1]-by],B=[P[(i+1)%n][0]-bx,P[(i+1)%n][1]-by],ex=B[0]-A[0],ey=B[1]-A[1],den=dx*ey-dy*ex;if(Math.abs(den)<1e-12)continue;
+      const tt=(A[0]*ey-A[1]*ex)/den,u=(A[0]*dy-A[1]*dx)/den;if(u>=0&&u<=1&&tt>t)t=tt;}
+    rmax[k]=t;let env=0;
+    for(let i=S-1;i>=0;i--){const r=t*i/(S-1);env=Math.max(env,samp(bx+dx*r,by+dy*r));E[k*S+i]=env;}}
+  return fieldCache[id]={cx:bx,cy:by,Dmax:best,N,S,rmax,E,samp};
+}
+function ringR(F,k,l){const S=F.S,o=k*S,E=F.E;if(E[o]<l)return 0;let lo=0,hi=S-1;if(E[o+hi]>=l)return F.rmax[k];
+  while(hi-lo>1){const m=(lo+hi)>>1;if(E[o+m]>=l)lo=m;else hi=m;}const f=(E[o+lo]-l)/((E[o+lo]-E[o+hi])||1);return F.rmax[k]*(lo+f)/(S-1);}
+const LAYOUTS=['forward','rows','arch','wave','diagUp','diagDown'],RING_LAYOUTS=['ring','path','soft','upright'],ALL_LAYOUTS=[...LAYOUTS,...RING_LAYOUTS];
+function buildRows(shape,rect,fs,gapMul,curved){
+  const sh=shape==='snake'?'rect':shape,O=prepareOutline(sh);
+  const R=Math.min((rect.w/2-fs*.75)/O.bw,(rect.h/2-fs*.75)/O.bh),cx=rect.x+rect.w/2,cy=rect.y+rect.h/2;
+  const k=shape==='snake'?{x:rect.w/2/O.bw-fs*.75,y:rect.h/2/O.bh-fs*.75}:{x:R,y:R};
+  const poly=O.pts.map(p=>[cx+k.x*p[0],cy+k.y*p[1]]);
+  let y0=Infinity,y1=-Infinity;for(const q of poly){y0=Math.min(y0,q[1]);y1=Math.max(y1,q[1]);}
+  const span=y=>{const xs=[];for(let i=0;i<poly.length;i++){const A=poly[i],B=poly[(i+1)%poly.length];if((A[1]>y)!==(B[1]>y))xs.push(A[0]+(y-A[1])*(B[0]-A[0])/(B[1]-A[1]));}
+    xs.sort((a,b)=>a-b);const out=[];for(let i=0;i+1<xs.length;i+=2)out.push([xs[i],xs[i+1]]);return out;};
+  const inter=(A,B)=>{const o=[];for(const a of A)for(const b of B){const l=Math.max(a[0],b[0]),r=Math.min(a[1],b[1]);if(r>l)o.push([l,r]);}return o.sort((a,b)=>a[0]-b[0]);};
+  const pts=[],segs=[],step=fs*gapMul,rows=[];
+  for(let y=y0+fs*.75;y<=y1-fs*.6;y+=step){
+    const iv=inter(inter(span(y-fs*.45),span(y)),span(y+fs*.45)).map(([l,r])=>[l+fs*.25,r-fs*.25]).filter(([l,r])=>r-l>fs*2.4);
+    if(iv.length)rows.push({y,iv});}
+  const bend=!!curved,kind=curved===true?'forward':curved;
+  if(bend){
+    // one family of parallel curved lines: arching up in the top part, dipping in the bottom part, easing to flat in the middle.
+    // All lines are vertical shifts of each other, so spacing stays even and every word reads left to right.
+    let x0=Infinity,x1=-Infinity;for(const q of poly){x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);}
+    const H=y1-y0,ym=(y0+y1)/2,xc=(x0+x1)/2,wh=Math.max(1,(x1-x0)/2),B0=.1*H,T=.5*H;
+    const beta=y=>B0*Math.max(-1,Math.min(1,(ym-y)/T));
+    const lam=Math.max(fs*14,wh*.95),amp=Math.min(fs*.85,.42*lam/(2*PI)),tilt=Math.tan(.3);
+    const yAt=(yj,x)=>{const u=Math.max(-1,Math.min(1,(x-xc)/wh));
+      if(kind==='arch')return yj-.11*H*(1-u*u);
+      if(kind==='wave')return yj+amp*Math.sin(2*PI*(x-x0)/lam);
+      if(kind==='diagUp')return yj-tilt*(x-xc);
+      if(kind==='diagDown')return yj+tilt*(x-xc);
+      return yj-beta(yj)*(1-u*u);};
+    const reach=kind==='diagUp'||kind==='diagDown'?tilt*wh+fs:kind==='arch'?.12*H:B0+amp;
+    const vstep=kind==='diagUp'||kind==='diagDown'?step/Math.cos(.3):step;
+    const inside=(x,y)=>span(y).some(([l,r])=>x>l+fs*.3&&x<r-fs*.3);
+    for(let yj=y0-reach;yj<=y1+reach;yj+=vstep){let run=[];
+      const flush=()=>{if(run.length>1){const len=run[run.length-1][0]-run[0][0];if(len>fs*2.9){const cut=Math.ceil(fs*.25/3);const q=run.slice(cut,run.length-cut);
+          if(q.length>1){if(pts.length)segs.push([pts.length-1,pts.length]);pts.push(...q);}}}run=[];};
+      for(let x=x0;x<=x1;x+=3){const y=yAt(yj,x);
+        if(inside(x,y)&&inside(x,y-fs*.45)&&inside(x,y+fs*.45))run.push([x,y]);else flush();}
+      flush();}
+  }else for(const r of rows)for(const [l,rr] of r.iv){if(pts.length)segs.push([pts.length-1,pts.length]);pts.push([l,r.y],[rr,r.y]);}
+  if(pts.length<2)pts.push([cx-10,cy],[cx+10,cy]);
+  const path=finalize(pts,segs);path.segs=[];path.outer=poly;path.center=null;path.rows=!bend;path.wrap=true;path.curved=bend;return path;
+}
+function buildForward(shape,rect,fs,hole,gapMul){
+  // top: arcs, sides and middle: horizontal lines, bottom: arcs. Everything reads left to right and leans at most ~45°.
+  const F=shapeField(shape),N=F.N,O=prepareOutline(shape);
+  const R=Math.min((rect.w/2-fs*.75)/O.bw,(rect.h/2-fs*.75)/O.bh);
+  const cxr=rect.x+rect.w/2,cyr=rect.y+rect.h/2,ox=cxr+R*F.cx,oy=cyr+R*F.cy;
+  const g=fs*gapMul/R,lStop=Math.min(F.Dmax*(1-hole),F.Dmax-g*.6),K=Math.max(1,Math.floor(lStop/g)+1);
+  const TC=.78,tanC=Math.tan(TC),pad=fs*.95;
+  const ring=l=>{const r=new Float32Array(N);for(let k=0;k<N;k++)r[k]=ringR(F,k,l);const o=new Float32Array(N);for(let k=0;k<N;k++){let m=0;for(let j=-3;j<=3;j++)m+=r[(k+j+N)%N];o[k]=m/7;}return o;};
+  const rAt=(rg,a)=>{let f=((a+PI/2)/(2*PI))*N;f=((f%N)+N)%N;const i=Math.floor(f),t=f-i;return rg[i]*(1-t)+rg[(i+1)%N]*t;};
+  const poly=O.pts.map(q=>[cxr+R*q[0],cyr+R*q[1]]);
+  const outer=[];{const r0=ring(0);for(let k=0;k<N;k++){const a=-PI/2+k*2*PI/N;outer.push([ox+R*r0[k]*Math.cos(a),oy+R*r0[k]*Math.sin(a)]);}}
+  const segsOut=[];
+  const arcPts=(rg,a0,a1)=>{const rr=R*rAt(rg,(a0+a1)/2),len=Math.abs(a1-a0)*rr;if(len<fs*2.6)return null;
+    const n=Math.max(8,Math.ceil(len/3));let q=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n,r=R*rAt(rg,a);q.push([ox+r*Math.cos(a),oy+r*Math.sin(a)]);}
+    const sw=Math.max(1,Math.round(fs*1.1/3));for(let pass=0;pass<3;pass++){const src=q.map(v=>v.slice());for(let i=1;i<q.length-1;i++){let x=0,y=0,c=0;for(let j=-sw;j<=sw;j++){const v=src[Math.min(q.length-1,Math.max(0,i+j))];x+=v[0];y+=v[1];c++;}q[i]=[x/c,y/c];}}
+    return q;};
+  const rings=[];for(let k=0;k<K;k++){const l=k*g;if(l>lStop)break;rings.push(ring(l));}
+  const lHole=(rings.length-1)*g+g*.55;
+  const inHole=(x,y)=>F.samp((x-cxr)/R,(y-cyr)/R)>lHole;
+  const span=y=>{const xs=[];for(let i=0;i<poly.length;i++){const A=poly[i],B=poly[(i+1)%poly.length];if((A[1]>y)!==(B[1]>y))xs.push(A[0]+(y-A[1])*(B[0]-A[0])/(B[1]-A[1]));}xs.sort((u,v)=>u-v);return xs.length>=2?[xs[0],xs[xs.length-1]]:null;};
+  // 1) top arcs, outer to inner
+  for(const rg of rings){const q=arcPts(rg,PI+TC,2*PI-TC);if(q)segsOut.push(q);}
+  // 2) horizontal lines in the side wedges, top to bottom
+  let y0=Infinity,y1=-Infinity;for(const q of poly){y0=Math.min(y0,q[1]);y1=Math.max(y1,q[1]);}
+  const step=fs*gapMul,jMin=Math.ceil((y0+fs*.8-oy)/step),jMax=Math.floor((y1-fs*.8-oy)/step);
+  for(let j=jMin;j<=jMax;j++){const y=oy+j*step,dy=Math.abs(y-oy);
+    const sp=[span(y-fs*.42),span(y),span(y+fs*.42)];if(sp.some(v=>!v))continue;
+    const L=Math.max(sp[0][0],sp[1][0],sp[2][0])+fs*.3,Rr=Math.min(sp[0][1],sp[1][1],sp[2][1])-fs*.3;
+    let lb=ox-dy/tanC-pad,ra=ox+dy/tanC+pad;
+    const clear=(x0,x1,dir)=>{let x=x0;for(let t=0;t<400;t++){if(!inHole(x,y)&&!inHole(x,y-fs*.4)&&!inHole(x,y+fs*.4))return x;x+=dir*3;if((dir<0&&x<x1)||(dir>0&&x>x1))return null;}return null;};
+    const le=clear(Math.min(lb,Rr),L,-1),rs=clear(Math.max(ra,L),Rr,1);
+    if(le!==null&&le-L>fs*2.4)segsOut.push([[L,y],[le-(inHole(le+fs*.6,y)?fs*.6:0),y]]);
+    if(rs!==null&&Rr-rs>fs*2.4&&(le===null||rs>le+fs))segsOut.push([[rs,y],[Rr,y]]);}
+  // 3) bottom arcs, inner to outer
+  for(let k=rings.length-1;k>=0;k--){const q=arcPts(rings[k],PI-TC,TC);if(q)segsOut.push(q);}
+  const pts=[],segs=[];
+  for(const q of segsOut){if(pts.length)segs.push([pts.length-1,pts.length]);
+    if(q.length===2){const n=Math.max(2,Math.ceil((q[1][0]-q[0][0])/4));for(let i=0;i<=n;i++)pts.push([q[0][0]+(q[1][0]-q[0][0])*i/n,q[0][1]]);}else pts.push(...q);}
+  if(pts.length<2)pts.push([ox-10,oy],[ox+10,oy]);
+  const path=finalize(pts,segs);path.segs=[];path.outer=outer;path.wrap=true;
+  path.center={x:ox,y:oy,r:Math.max(0,(F.Dmax-lHole)*R-fs*.6)};
+  return path;
+}
+function buildRing(shape,rect,fs,hole,gapMul){
+  // concentric rings; each ring is read as a top arc then a bottom arc, both left to right, so no text is upside down
+  const F=shapeField(shape),N=F.N,O=prepareOutline(shape);
+  const R=Math.min((rect.w/2-fs*.75)/O.bw,(rect.h/2-fs*.75)/O.bh);
+  const ox=rect.x+rect.w/2+R*F.cx,oy=rect.y+rect.h/2+R*F.cy;
+  const g=fs*gapMul/R,lStop=Math.min(F.Dmax*(1-hole),F.Dmax-g*.6),K=Math.max(1,Math.floor(lStop/g)+1);
+  const ring=l=>{const r=new Float32Array(N);for(let k=0;k<N;k++)r[k]=ringR(F,k,l);const o=new Float32Array(N);for(let k=0;k<N;k++){let m=0;for(let j=-3;j<=3;j++)m+=r[(k+j+N)%N];o[k]=m/7;}return o;};
+  const rAt=(rg,a)=>{let f=((a+PI/2)/(2*PI))*N;f=((f%N)+N)%N;const i=Math.floor(f),t=f-i;return rg[i]*(1-t)+rg[(i+1)%N]*t;};
+  const pts=[],segs=[],outer=[];
+  const ring0=ring(0);for(let k=0;k<N;k++){const a=-PI/2+k*2*PI/N;outer.push([ox+R*ring0[k]*Math.cos(a),oy+R*ring0[k]*Math.sin(a)]);}
+  const arc=(rg,a0,a1)=>{const rr=R*rAt(rg,(a0+a1)/2),len=Math.abs(a1-a0)*rr;if(len<fs*2.6)return;
+    const n=Math.max(8,Math.ceil(len/3));if(pts.length)segs.push([pts.length-1,pts.length]);
+    let q=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n,r=R*rAt(rg,a);q.push([ox+r*Math.cos(a),oy+r*Math.sin(a)]);}
+    const sw=Math.max(1,Math.round(fs*1.1/3));for(let pass=0;pass<3;pass++){const src=q.map(v=>v.slice());for(let i=1;i<q.length-1;i++){let x=0,y=0,c=0;for(let j=-sw;j<=sw;j++){const v=src[Math.min(q.length-1,Math.max(0,i+j))];x+=v[0];y+=v[1];c++;}q[i]=[x/c,y/c];}}
+    pts.push(...q);};
+  for(let k=0;k<K;k++){const l=k*g;if(l>lStop)break;const rg=ring(l);
+    const rr=R*rAt(rg,-PI/2),d=Math.min(.5,Math.max(.1,fs*1.1/Math.max(rr,1)));
+    arc(rg,PI+d,2*PI-d);arc(rg,PI-d,d);}
+  if(pts.length<2)pts.push([ox-10,oy],[ox+10,oy]);
+  const path=finalize(pts,segs);path.segs=[];path.outer=outer;path.wrap=true;
+  const Kd=Math.min(K,Math.floor(lStop/g)+1);path.center={x:ox,y:oy,r:Math.max(0,(F.Dmax-(Kd-1)*g)*R-fs*1.4)};
+  return path;
+}
+function buildPath(shape,rect,fs,hole,gapMul,rows){
+  if(rows==='ring') return shape==='snake'?buildRows(shape,rect,fs,gapMul):buildRing(shape,rect,fs,hole,gapMul);
+  if(rows==='rows'||rows===true) return buildRows(shape,rect,fs,gapMul);
+  if(LAYOUTS.includes(rows)) return buildRows(shape,rect,fs,gapMul,rows==='forward'?true:rows);
+  if(shape==='snake') return buildSnake(rect,fs,gapMul);
+  const F=shapeField(shape),N=F.N,O=prepareOutline(shape);
+  const R=Math.min((rect.w/2-fs*.75)/O.bw,(rect.h/2-fs*.75)/O.bh);
+  const ox=rect.x+rect.w/2+R*F.cx,oy=rect.y+rect.h/2+R*F.cy;
+  const g=fs*gapMul/R,lStop=Math.min(F.Dmax*(1-hole),F.Dmax-g*.6),K=Math.max(1,Math.floor(lStop/g));
+  const pts=[],outer=[];
+  const ring=l=>{const r=new Float32Array(N);for(let k=0;k<N;k++)r[k]=ringR(F,k,l);const o=new Float32Array(N);for(let k=0;k<N;k++){let m=0;for(let j=-3;j<=3;j++)m+=r[(k+j+N)%N];o[k]=m/7;}return o;};
+  let cur=ring(0);
+  for(let k=0;k<N;k++){const a=-PI/2+k*2*PI/N;outer.push([ox+R*cur[k]*Math.cos(a),oy+R*cur[k]*Math.sin(a)]);}
+  for(let loop=0;loop<K;loop++){const nxt=ring((loop+1)*g);
+    for(let k=0;k<N;k++){const t=k/N,r=cur[k]*(1-t)+nxt[k]*t,a=-PI/2+k*2*PI/N;pts.push([ox+R*r*Math.cos(a),oy+R*r*Math.sin(a)]);}
+    cur=nxt;}
+  // round off sharp corners so letters do not collide
+  const sw=Math.max(1,Math.round(fs*.35/Math.max(1,R*2*PI*.6/N)));
+  for(let pass=0;pass<2;pass++){const src=pts.map(q=>q.slice());for(let i=sw;i<pts.length-sw;i++){let x=0,y=0;for(let j=-sw;j<=sw;j++){x+=src[i+j][0];y+=src[i+j][1];}pts[i]=[x/(2*sw+1),y/(2*sw+1)];}}
+  const path=finalize(pts,[]);path.outer=outer;
+  path.center={x:ox,y:oy,r:Math.max(0,(F.Dmax-K*g)*R-fs*.9)};
+  return path;
+}
+function buildSnake(rect,fs,gapMul){
+  const A=fs*.3,pitch=fs*gapMul+2*A,r=pitch/2;
+  const xL=rect.x+r+fs*.4,xR=rect.x+rect.w-r-fs*.4;
+  const yTop=rect.y+fs*.7+A,yBot=rect.y+rect.h-fs*.7-A;
+  const rows=Math.max(1,Math.floor((yBot-yTop)/pitch)+1);
+  const k=Math.max(1,Math.round((xR-xL)/(fs*8)));
+  const pts=[],segs=[];
+  for(let i=0;i<rows;i++){
+    const y=yTop+i*pitch,dir=i%2?-1:1,n=Math.max(2,Math.ceil((xR-xL)/3));
+    for(let s=0;s<=n;s++){const t=s/n,x=dir>0?xL+t*(xR-xL):xR-t*(xR-xL),ph=(x-xL)/(xR-xL);
+      if(s===0&&i>0)continue; pts.push([x,y+A*Math.sin(2*PI*k*ph)]);}
+    if(i<rows-1){const a0=pts.length-1,cx=dir>0?xR:xL,cy=y+r;
+      for(let s=1;s<=28;s++){const t=s/28,a=dir>0?-PI/2+t*PI:-PI/2-t*PI;pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}
+      segs.push([a0,pts.length-1]);}
+  }
+  return finalize(pts,segs);
+}
+function pointAt(path,s){
+  const c=path.cum,p=path.pts;if(s<=0)return p[0];if(s>=path.L)return p[p.length-1];
+  let lo=0,hi=c.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(c[m]<s)lo=m;else hi=m;}
+  const t=(s-c[lo])/((c[hi]-c[lo])||1);return [p[lo][0]+t*(p[hi][0]-p[lo][0]),p[lo][1]+t*(p[hi][1]-p[lo][1])];
+}
+
+
+/* ================= randomness & noise ================= */
+function rngFrom(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
+const pick=(arr,r)=>arr[Math.floor(r()*arr.length)];
+function shuffle(a,r){for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const FREQ='eeeeeeeeeeeetttttttttaaaaaaaaooooooooiiiiiiinnnnnnnsssssshhhhhhrrrrrrddddlllluuucccmmmwwffggyyppbbvkjxqz';
+const ONS=['b','c','d','f','g','h','j','k','l','m','n','p','r','s','t','v','w','z','bl','br','cl','cr','dr','fl','fr','gl','gr','pl','pr','sl','sn','sp','st','tr','sh','ch','th'];
+const VOW=['a','e','i','o','u','a','e','i','o','ai','ea','oo','ou','ie'];
+const COD=['','','','n','m','t','p','k','l','r','s','st','nd','nk','sh'];
+const COMMON=new Set('the and for are but not you all any can had her was one our out day get has him his how man new now old see two way who boy did its let put say she too use dad mom cat dog sun fun run sit hat bat ten pen red bed big pig box fox cup bus bag leg arm eye ear car bar far jar map cap tap top hop pop mop pot hot lot not rat mat pat sat fat net wet yet bet set get met let pet jet vet tin win pin bin fin kin sin kit fit hit lit pit sit bit dot cot got lot rot tot bun gun nun pun sun hut nut cut but rub tub cub sub bed fed led red wed lip dip hip rip sip tip zip mud bud bus sad mad bad dad had lad pad rag tag wag bag nag sag gas has was his this that them then than they there these those what when where which while with will wish ship shop shot show slow snow stop step star stay talk walk ball tall wall call fall hall mall bell tell well sell fell shell smell spell nice rice mice dice home hope rope note vote bone cone tone stone phone shine line fine mine nine pine wine kite bite site time lime dime make take cake lake bake wake sale tale pale male name game same came tame fame play stay day may pay say way bay hay lay ray tray gray pray clay sea tea pea read lead bead seat heat meat neat beat feat good food mood wood hood book look took cook hook shook room boom zoom moon soon noon spoon you out our sour hour four pour tour your love live give dove move have wave cave save gave brave'.split(' '));
+function pseudoWord(r,banned){
+  for(let t=0;t<40;t++){const n=r()<.55?1:2;let w='';for(let i=0;i<n;i++)w+=pick(ONS,r)+pick(VOW,r)+(i===n-1||r()<.4?pick(COD,r):'');
+    if(w.length<3||w.length>8||COMMON.has(w)||banned.has(w))continue;return w;}
+  return 'zib';
+}
+function misspell(phrase,r){
+  const parts=phrase.split(' ');let idx=0;parts.forEach((p,i)=>{if(p.length>parts[idx].length)idx=i;});
+  let w=parts[idx];if(w.length<2)return null;
+  const V='aeiou',op=Math.floor(r()*4);
+  if(op===0&&w.length>=4){const i=1+Math.floor(r()*(w.length-3));w=w.slice(0,i)+w[i+1]+w[i]+w.slice(i+2);}
+  else if(op===1){const vs=[...w].map((c,i)=>V.includes(c)?i:-1).filter(i=>i>=0);if(!vs.length)return null;const i=pick(vs,r);let c;do{c=pick([...V],r);}while(c===w[i]);w=w.slice(0,i)+c+w.slice(i+1);}
+  else if(op===2&&w.length>=4){const i=1+Math.floor(r()*(w.length-2));w=w.slice(0,i)+w.slice(i+1);}
+  else{const i=Math.floor(r()*w.length);w=w.slice(0,i+1)+w[i]+w.slice(i+1);}
+  parts[idx]=w;return parts.join(' ');
+}
+const norm=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
+
+/* ================= inputs ================= */
+const $=s=>document.querySelector(s);
+const SAMPLE=`go out = to leave your home to go somewhere, often for fun | We go out for a walk after school.
+look after = to keep someone or something safe and well | I look after my little sister after school.
+pass down = to give skills or things to younger people in your family | Craftspeople pass down their skills to young people.
+run out of = to have no more of something left | We run out of milk, so we need to buy some.
+cut down on = to eat, drink or use less of something | We should cut down on sugary drinks.
+cut off = to stop the supply of water, gas or electricity | The storm may cut off electricity in our village.
+find out = to get information or learn a fact | We want to find out more about local crafts.
+look around = to walk through a place and see what is there | Visitors look around the local market.
+come back = to return to a place | Please come back to our village next summer.
+get on with = to have a friendly relationship with someone | I get on with my neighbours.
+get around = to travel from place to place | People get around the city by bus.
+carry out = to do a planned piece of work, like a survey | Our class will carry out a survey about transport.
+take care of = to protect someone or something and give them what they need | We take care of the trees in our school garden.
+hang out = to spend free time with friends in a relaxed way | I hang out with my friends at the park.
+look up = to find information in a dictionary or online | You can look up new words in a dictionary.
+come down with = to start to have an illness that is not serious | You may come down with a cold in this weather.
+look for = to try to find something or someone | Tourists look for a quiet place to stay.
+turn on = to make a light or machine start working | Please turn on the lights.
+turn off = to make a light or machine stop working | Remember to turn off the lights before you leave.
+bring out = to make a new book or product available to buy | The village will bring out a book about its history.`;
+function parseItems(){
+  const out=[],seen=new Set();
+  for(const raw of $('#items').value.split('\n')){const line=raw.trim();if(!line)continue;
+    const m=line.split(/\s*(?:=|\t|\s[-–:]\s)\s*/);const en=(m[0]||'').trim().replace(/\s+/g,' ');const rest=m.slice(1).join(' - ').trim();const [hint,ex]=rest.split(/\s*\|\s*/);
+    if(!en||!norm(en)||seen.has(norm(en)))continue;seen.add(norm(en));out.push({en,hint:(hint||'').trim(),ex:(ex||'').trim()});}
+  return out;
+}
+const VI_INSTR={
+  en:'Tìm {n} từ và cụm từ ở dưới trong hình. Khoanh tròn mỗi từ và đánh dấu (✓) vào ô.',
+  hint:'Đọc định nghĩa. Tìm từ phù hợp trong hình, khoanh tròn và viết vào dòng kẻ.',
+  pic:'Nhìn tranh. Tìm từ phù hợp trong hình, khoanh tròn và viết vào dòng kẻ.',
+  count:'Có {n} từ và cụm từ giấu trong hình. Khoanh tròn và viết chúng ra.',
+  none:'Có {n} từ và cụm từ giấu trong hình. Hãy tìm và khoanh tròn.'};
+const DEFAULT_INSTR={
+  en:'Find the {n} words and phrases below. They are hidden in the shape. Circle each one and tick (✓) it in the box.',
+  hint:'Read the definitions. Find the matching words and phrases in the shape, circle them and write them on the lines.',
+  pic:'Look at the pictures. Find the matching words and phrases in the shape, circle them and write them on the lines.',
+  count:'There are {n} words and phrases hidden in the shape. Circle them and write them on the lines.',
+  none:'There are {n} words and phrases hidden in the shape. Find and circle them.'
+};
+const st={pal:'rainbow',dseed:(Math.random()*2**31)|0,pics:new Map(),pageCount:1,shape:'circle',instrDirty:false,centerImg:null,seed:(Math.random()*2**31)|0,tab:'S'};
+function setInstrDefault(){if(st.instrDirty)return;let t=DEFAULT_INSTR[$('#box').value];if($('#reverse').checked)t+=' Some are written backwards.';$('#instr').value=t;}
+function store(){try{localStorage.setItem('ttct2',JSON.stringify({i:$('#items').value,t:$('#title').value,f:$('#footer').value}));}catch(e){}}
+function restore(){try{return JSON.parse(localStorage.getItem('ttct2')||'null');}catch(e){return null;}}
+
+/* ================= stream generation ================= */
+function prepTokens(items,decoyN,opts,r){
+  const show=s=>opts.upper?s.toUpperCase():s;
+  const targets=items.map((it,i)=>{const rev=opts.reverse&&r()<.35&&norm(it.en).length>2;let d=show(it.en);if(rev)d=[...d].reverse().join('');return{...it,i,rev,disp:d};});
+  const tn=targets.map(t=>norm(t.en));
+  const decoys=[],dn=new Set();let guard=0;
+  while(decoys.length<decoyN&&targets.length&&guard++<400){const t=pick(targets,r);const m=misspell(t.en.toLowerCase(),r);if(!m)continue;const n=norm(m);
+    if(dn.has(n)||tn.some(x=>x===n||n.includes(x)||x.includes(n)))continue;dn.add(n);
+    let d=show(m);if(t.rev)d=[...d].reverse().join('');decoys.push({en:m,disp:d});}
+  return{targets,decoys};
+}
+function buildStream(targets,decoys,opts,capUnits,wOf,r){
+  const words=true;
+  const toks=shuffle([...targets.map(t=>({s:t.disp,tag:t.i+1})),...decoys.map(d=>({s:d.disp,tag:-1}))],r);
+  const sp=wOf(' ');
+  let tokW=0;for(const t of toks){for(const c of t.s)tokW+=wOf(c);if(words)tokW+=sp;}
+  const k=toks.length+1,ws=[];let sum=0;for(let i=0;i<k;i++){const w=(i===0||i===k-1?.5:1)*(.45+r()*1.1);ws.push(w);sum+=w;}
+  const budget=Math.max(0,capUnits-tokW);
+  const banned=new Set(targets.map(t=>t.en.toLowerCase()));
+  let str='';const tag=[];
+  const push=(s,tg)=>{for(const c of s){str+=c;tag.push(tg);}};
+  const up=s=>opts.upper?s.toUpperCase():s;
+  for(let g=0;g<k;g++){
+    let b=budget*ws[g]/sum,w=0;
+    while(w<b){let piece;
+      if(opts.noise==='letters'){const L=2+Math.floor(r()*6);piece='';for(let j=0;j<L;j++)piece+=pick([...FREQ],r);if(COMMON.has(piece)||banned.has(piece))continue;piece+=' ';}
+      else piece=pseudoWord(r,banned)+' ';
+      piece=up(piece);let pw=0;for(const c of piece)pw+=wOf(c);
+      if(w+pw>b+pw*.5)break;
+      push(piece,0);w+=pw;}
+    if(g<toks.length){push(toks[g].s,toks[g].tag);if(words)push(' ',0);}
+  }
+  return cleanStream(str,tag,targets,opts,r);
+}
+// remove accidental extra copies of targets inside the noise
+function cleanStream(str,tag,targets,opts,r){
+  const chars=[...str];
+  const forms=[];for(const t of targets){const n=norm(t.en);if(n.length<2)continue;forms.push(n);if(opts.reverse)forms.push([...n].reverse().join(''));}
+  for(let pass=0;pass<300;pass++){
+    let nstr='',idx=[];chars.forEach((c,i)=>{if(/[a-z0-9]/i.test(c)){nstr+=c.toLowerCase();idx.push(i);}});
+    let bad=null;
+    outer:for(const f of forms){let p=nstr.indexOf(f);while(p>=0){const span=idx.slice(p,p+f.length);if(span.some(i=>tag[i]===0)){bad=span.filter(i=>tag[i]===0);break outer;}p=nstr.indexOf(f,p+1);}}
+    if(!bad)break;
+    const i=pick(bad,r);let c;do{c=pick([...FREQ],r);}while(c.toLowerCase()===chars[i].toLowerCase());
+    chars[i]=opts.upper?c.toUpperCase():c;
+  }
+  return{str:chars.join(''),tag};
+}
+
+/* ================= page rendering ================= */
+const PW=1654,PH=2339,M=118;
+const pageS=document.createElement('canvas'),pageA=document.createElement('canvas');
+[pageS,pageA].forEach(c=>{c.width=PW;c.height=PH;});
+const INK='#1a1a1a',SOFT='#6b6b6b',RED='#C0281F',GREEN='#1B7A4B',MARK='#FFE27A';
+function wrap(ctx,text,maxW){const out=[];for(const para of text.split('\n')){let line='';for(const w of para.split(/\s+/)){const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){out.push(line);line=w;}else line=t;}out.push(line);}return out;}
+function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function drawTick(ctx,x,y,s){ctx.strokeStyle=GREEN;ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x+s*.2,y+s*.55);ctx.lineTo(x+s*.42,y+s*.78);ctx.lineTo(x+s*.85,y+s*.22);ctx.stroke();}
+function arrow(c,x,y,a,s,col){c.save();c.translate(x,y);c.rotate(a);c.fillStyle=col;c.beginPath();c.moveTo(s*.6,0);c.lineTo(-s*.5,-s*.5);c.lineTo(-s*.5,s*.5);c.closePath();c.fill();c.restore();}
+function maskWord(en){return en.split(' ').map(w=>w[0]+'_'.repeat(Math.max(1,w.length-1))).join(' ');}
+
+function boxRows(c,mode,items,font,W){
+  if(!items.length||mode==='none')return null;
+  const mk=(cols,hf,o)=>{const colW=(W-40)/cols,rows=[];for(let i=0;i<items.length;i+=cols){const cells=[];let h=0;
+    for(let j=i;j<Math.min(i+cols,items.length);j++){cells.push({it:items[j],i:j});h=Math.max(h,hf(items[j],j,colW));}rows.push({h,cells});}
+    return{mode,cols,colW,rows,padTop:10,padBot:6,...o};};
+  c.font=`400 32px "${font}"`;
+  if(mode==='en'){const maxW=Math.max(...items.map(i=>c.measureText(i.en).width))+70;const cols=maxW<=(W-40)/4?4:maxW<=(W-40)/3?3:maxW<=(W-40)/2?2:1;
+    return mk(cols,()=>56,{padTop:22,padBot:22,frame:true});}
+  if(mode==='count')return mk(items.length>6?3:2,()=>62,{});
+  if(mode==='hint'){c.font=`400 29px "${font}"`;return mk(2,(it,i,colW)=>wrap(c,(i+1)+'. '+(it.hint||maskWord(it.en)),colW-40).length*38+66,{});}
+  if(mode==='pic'){const cols=items.length<=3?Math.max(2,items.length):4;const ih=((W-40)/cols-30)*.72;return mk(cols,()=>ih+96,{ih});}
+  return null;
+}
+function drawBlock(c,B,rows,top,answer,font,W){
+  let y=top+B.padTop;
+  for(const row of rows){row.cells.forEach((cell,k)=>drawCell(c,B,cell,M+20+k*B.colW,y,answer,font));y+=row.h;}
+  if(B.frame){c.strokeStyle='#333';c.lineWidth=2.5;rrect(c,M,top,W,y+B.padBot-top,18);c.stroke();}
+}
+function drawCell(c,B,{it,i},x,y,answer,font){
+  c.textAlign='left';c.textBaseline='alphabetic';const colW=B.colW;
+  if(B.mode==='en'){c.font=`400 32px "${font}"`;c.strokeStyle='#333';c.lineWidth=2;c.strokeRect(x,y+6,32,32);if(answer)drawTick(c,x,y+6,32);
+    c.fillStyle=INK;c.fillText(it.en,x+48,y+33);
+    if(answer&&it.rev){c.fillStyle=RED;c.font=`700 26px "${font}"`;c.fillText(' ←',x+54+c.measureText(it.en).width*32/26,y+33);}
+    return;}
+  if(B.mode==='count'){c.font=`400 32px "${font}"`;const lab=(i+1)+'.';c.fillStyle=INK;c.fillText(lab,x,y+38);const lx=x+c.measureText(lab).width+16;
+    c.strokeStyle='#9a9a9a';c.lineWidth=2;c.beginPath();c.moveTo(lx,y+44);c.lineTo(x+colW-40,y+44);c.stroke();
+    if(answer){c.fillStyle=RED;c.fillText(it.en+(it.rev?' ←':''),lx+10,y+34);}return;}
+  if(B.mode==='hint'){c.font=`400 29px "${font}"`;c.fillStyle=INK;const ls=wrap(c,(i+1)+'. '+(it.hint||maskWord(it.en)),colW-40);
+    ls.forEach((l,k)=>c.fillText(l,x,y+32+k*38));const ly=y+ls.length*38+40,lx=x+38;
+    c.strokeStyle='#9a9a9a';c.lineWidth=2;c.beginPath();c.moveTo(lx,ly);c.lineTo(x+colW-40,ly);c.stroke();
+    if(answer){c.fillStyle=RED;c.font=`400 30px "${font}"`;c.fillText(it.en+(it.rev?' ←':''),lx+8,ly-8);}return;}
+  if(B.mode==='pic'){const bw=colW-30,bh=B.ih;c.strokeStyle='#b5b5b5';c.lineWidth=2;rrect(c,x,y,bw,bh,14);c.stroke();
+    const pic=st.pics.get(norm(it.en));
+    if(pic){const img=pic.img,sc=Math.min((bw-24)/img.width,(bh-24)/img.height);c.save();rrect(c,x,y,bw,bh,14);c.clip();
+      c.drawImage(img,x+(bw-img.width*sc)/2,y+(bh-img.height*sc)/2,img.width*sc,img.height*sc);c.restore();}
+    else{c.font=`400 24px "${font}"`;c.fillStyle=SOFT;c.textAlign='center';const ls=wrap(c,it.hint||maskWord(it.en),bw-36).slice(0,5);
+      ls.forEach((l,k)=>c.fillText(l,x+bw/2,y+bh/2-(ls.length-1)*16+k*32+8));c.textAlign='left';}
+    c.font=`700 26px "${font}"`;c.fillStyle='#fff';c.beginPath();c.arc(x+26,y+26,19,0,2*PI);c.fill();c.strokeStyle='#333';c.lineWidth=2;c.stroke();
+    c.fillStyle=INK;c.textAlign='center';c.fillText(String(i+1),x+26,y+35);c.textAlign='left';
+    const ly=y+bh+66;c.strokeStyle='#9a9a9a';c.lineWidth=2;c.beginPath();c.moveTo(x+4,ly);c.lineTo(x+bw-4,ly);c.stroke();
+    if(answer){c.fillStyle=RED;c.font=`400 28px "${font}"`;c.textAlign='center';c.fillText(it.en+(it.rev?' ←':''),x+bw/2,ly-10);c.textAlign='left';}}
+}
+const pages={S:[],A:[]};
+function getPage(kind,i){const arr=pages[kind];while(arr.length<=i){const cv=document.createElement('canvas');cv.width=PW;cv.height=PH;cv.hidden=true;arr.push(cv);$('#paper').append(cv);}return arr[i];}
+
+/* ================= kids decorations ================= */
+const PALETTES={
+  rainbow:{name:'Cầu vồng',c:[['#FF9A8F','#D64545'],['#FFD45C','#B57B00'],['#7EDDD3','#138A80'],['#93BDFF','#2F6FD6'],['#CDAAF7','#7B3FC4'],['#A4E39F','#3E8F49']]},
+  pastel:{name:'Pastel',c:[['#FFC8DD','#C2577F'],['#FFE5A5','#A07A1C'],['#BDE0FE','#3B78B8'],['#CDEAC0','#4C8A3E'],['#E2C6FF','#7A4FB0'],['#FFD6A5','#B8742E']]},
+  ocean:{name:'Biển xanh',c:[['#A8DADC','#2A7A7E'],['#7FB7E8','#1D5FA0'],['#FFE8A3','#A57B12'],['#8ECAE6','#22789E'],['#C3E8D8','#2E8B6A'],['#B5E2FA','#1A7FA8']]},
+  candy:{name:'Kẹo ngọt',c:[['#FFB3D1','#C2185B'],['#FFE08A','#A9790B'],['#E0B3FF','#8E44AD'],['#FF8FAB','#B23A63'],['#C9A7F5','#6A3FB5'],['#FFC2A8','#B45A3A']]},
+  forest:{name:'Rừng xanh',c:[['#B7E4C7','#2D6A4F'],['#FFE5A0','#A0801A'],['#D8C3A5','#7F5539'],['#95D5B2','#40916C'],['#A9D18E','#4F772D'],['#E6B98A','#9C6136']]},
+  sunset:{name:'Hoàng hôn',c:[['#FFB4A2','#C44536'],['#FFD166','#A97C00'],['#F4A261','#B4581F'],['#E5989B','#A84D59'],['#F9C74F','#A36F00'],['#FFCDB2','#B5653A']]},
+  berry:{name:'Tím mộng mơ',c:[['#D7C4F2','#6A4C9C'],['#FFD3E8','#B0457A'],['#BFD7FF','#3C62B0'],['#F2C6DE','#9C3D78'],['#C8B6FF','#5B3FB5'],['#FFE3B3','#A6741A']]},
+  mono:{name:'Xanh đơn sắc',c:[['#DCEBFF','#1E4E9A'],['#BFD7FF','#2560B8'],['#A3C4FF','#1B3F7A'],['#CFE3FF','#2B6CC4'],['#B6CCF5','#24508F'],['#E3EEFF','#1F5AA8']]},
+  neon:{name:'Rực rỡ',c:[['#FF8FB1','#B0124A'],['#FFE066','#A07900'],['#8EE3A0','#227A33'],['#8CB8FF','#1C4FB0'],['#D3A6FF','#6A16B0'],['#FFB37A','#A84A00']]},
+  mint:{name:'Bạc hà',c:[['#B2F2E5','#0F766E'],['#FFF1B8','#9A7B00'],['#C7E9FB','#1F6F9E'],['#CDEFD1','#2F7D45'],['#E0D4FF','#5B45A8'],['#FFD3C9','#B0452E']]},
+  coral:{name:'San hô',c:[['#FFB4A2','#B23A2A'],['#FFD6A5','#B06A16'],['#9BF6FF','#0E7C86'],['#CAFFBF','#3C8A2E'],['#BDB2FF','#4B3FB0'],['#FFC6FF','#A0379E']]},
+  icecream:{name:'Kem dâu',c:[['#FFD1DC','#B5446E'],['#FFF3B0','#9C7C00'],['#D8F3DC','#2D6A4F'],['#CDE7FF','#2F5C9E'],['#F1E4FF','#6A42B0'],['#FFE0C2','#A35A1F']]},
+  autumn:{name:'Mùa thu',c:[['#F6B26B','#B45F06'],['#FFD966','#9C7A00'],['#E99A8A','#A61C1C'],['#D9B48F','#7A4F2A'],['#C8DDA8','#4E7A3A'],['#F9CB9C','#B4581F']]},
+  winter:{name:'Mùa đông',c:[['#CFE8FF','#2B5C9E'],['#E9F5FF','#3D6FA8'],['#B3E5FC','#0B6E99'],['#D9CCF0','#5E4AA0'],['#D5F5F6','#00796B'],['#EEF1F5','#4A5568']]},
+  xmas:{name:'Giáng sinh',c:[['#F6A39C','#B3261E'],['#FFE082','#A67C00'],['#A8D5A2','#2E7D32'],['#F8BBD0','#AD1457'],['#C5E1A5','#33691E'],['#FFFFFF','#B3261E']]},
+  tet:{name:'Tết',c:[['#FF9A8F','#C62828'],['#FFD54F','#B07A00'],['#FFB199','#BF360C'],['#FFE7A0','#9E6F00'],['#F7A6C4','#AD1457'],['#A5D6A7','#2E7D32']]},
+  halloween:{name:'Halloween',c:[['#FFB74D','#C25E00'],['#FFE082','#9E6F00'],['#B39DDB','#5E35B1'],['#CE93D8','#7B1FA2'],['#A5D6A7','#2E7D32'],['#CFCFCF','#424242']]},
+  earth:{name:'Đất nung',c:[['#E8C4A0','#8A5A2B'],['#F2D98A','#8A6D2B'],['#CCD5AE','#56663A'],['#D4A373','#7F4F1F'],['#E3EBC4','#6B7A3A'],['#F1B9A0','#9C4A2E']]},
+  gray:{name:'Xám (in đen trắng)',c:[['#EEEEEE','#333333'],['#DDDDDD','#444444'],['#E6E6E6','#555555'],['#D4D4D4','#3A3A3A'],['#F2F2F2','#4A4A4A'],['#CCCCCC','#2F2F2F']]}
+};
+const palOf=k=>(PALETTES[k]||PALETTES.rainbow).c.map(([f,s])=>({f,s}));
+let PAL=palOf('rainbow');
+const THEMES={
+  stars:{main:'star',items:['star','heart','sparkle','star','heart','dot'],corner:['star','heart','star','heart']},
+  nature:{main:'sun',items:['flower','cloud','leaf','sparkle','flower','rainbow'],corner:['sun','flower','cloud','leaf']},
+  sea:{main:'fish',items:['fish','bubble','starfish','shell','bubble','fish'],corner:['starfish','fish','shell','bubble']},
+  space:{main:'planet',items:['planet','star','rocket','moon','sparkle','dot'],corner:['rocket','planet','moon','star']},
+  party:{main:'balloon',items:['balloon','heart','sparkle','star','balloon','dot'],corner:['balloon','star','balloon','heart'],pal:'candy'},
+  school:{main:'book',items:['pencil','book','apple','star','pencil','dot'],corner:['pencil','apple','book','star'],pal:'rainbow'},
+  pets:{main:'paw',items:['paw','bone','heart','fish','paw','dot'],corner:['paw','bone','paw','heart'],pal:'sunset'},
+  garden:{main:'butterfly',items:['butterfly','ladybug','flower','leaf','butterfly','dot'],corner:['ladybug','butterfly','flower','ladybug'],pal:'mint'},
+  fruits:{main:'apple',items:['apple','strawberry','cherry','leaf','apple','dot'],corner:['strawberry','apple','cherry','strawberry'],pal:'coral'},
+  sweets:{main:'cupcake',items:['candy','lollipop','cupcake','donut','heart','dot'],corner:['lollipop','donut','candy','cupcake'],pal:'icecream'},
+  music:{main:'note',items:['note','star','sparkle','note','heart','dot'],corner:['note','star','note','sparkle'],pal:'berry'},
+  transport:{main:'car',items:['car','boat','rocket','cloud','star','dot'],corner:['car','boat','rocket','cloud'],pal:'neon'},
+  autumn:{main:'acorn',items:['leaf','acorn','mushroom','leaf','cloud','dot'],corner:['leaf','mushroom','acorn','leaf'],pal:'autumn'},
+  winter:{main:'snowflake',items:['snowflake','xtree','gift','star','snowflake','dot'],corner:['snowflake','xtree','gift','snowflake'],pal:'xmas'},
+  tet:{main:'lantern',items:['lantern','firework','flower','sparkle','lantern','dot'],corner:['lantern','firework','lantern','flower'],pal:'tet'},
+  halloween:{main:'pumpkin',items:['pumpkin','ghost','moon','star','sparkle','dot'],corner:['pumpkin','ghost','moon','pumpkin'],pal:'halloween'}
+};
+THEMES.stars.pal='rainbow';THEMES.nature.pal='forest';THEMES.sea.pal='ocean';THEMES.space.pal='berry';
+const DINK='#2b2b2b';
+function starPts(n,ro,ri,rot=-PI/2){const v=[];for(let k=0;k<n*2;k++){const a=rot+k*PI/n,r=k%2?ri:ro;v.push([Math.cos(a)*r,Math.sin(a)*r]);}return v;}
+function polyPath(c,v){c.beginPath();v.forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.closePath();}
+// union draw: stroke all parts wide, then fill all parts -> one clean outline
+function unionDraw(c,parts,fill,lw){c.lineJoin='round';c.strokeStyle=DINK;c.lineWidth=lw*2;for(const f of parts){f();c.stroke();}c.fillStyle=fill;for(const f of parts){f();c.fill();}}
+function doodle(c,type,x,y,s,col,colorMode,rot=0){
+  const F=t=>colorMode==='color'?t:'#ffffff';const lw=Math.max(2.4,s*.04);
+  c.save();c.translate(x,y);c.rotate(rot);c.lineCap='round';c.lineJoin='round';c.lineWidth=lw;c.strokeStyle=DINK;
+  const fillStroke=fill=>{c.fillStyle=fill;c.fill();c.stroke();};
+  const circ=(cx,cy,r)=>()=>{c.beginPath();c.arc(cx,cy,r,0,2*PI);};
+  switch(type){
+    case 'star':polyPath(c,chaikin(starPts(5,s*.5,s*.24),.12,2));fillStroke(F(col.f));break;
+    case 'sparkle':{c.beginPath();const r=s*.42,q=s*.08;c.moveTo(0,-r);c.quadraticCurveTo(q,-q,r,0);c.quadraticCurveTo(q,q,0,r);c.quadraticCurveTo(-q,q,-r,0);c.quadraticCurveTo(-q,-q,0,-r);fillStroke(F(col.f));break;}
+    case 'dot':c.beginPath();c.arc(0,0,s*.16,0,2*PI);fillStroke(F(col.f));break;
+    case 'heart':{const k=s/32;c.beginPath();c.moveTo(0,10*k);c.bezierCurveTo(-18*k,-2*k,-12*k,-17*k,0,-8*k);c.bezierCurveTo(12*k,-17*k,18*k,-2*k,0,10*k);fillStroke(F(col.f));break;}
+    case 'sun':{c.beginPath();for(let k=0;k<12;k++){const a=k*PI/6;c.moveTo(Math.cos(a)*s*.36,Math.sin(a)*s*.36);c.lineTo(Math.cos(a)*s*.49,Math.sin(a)*s*.49);}c.stroke();
+      c.beginPath();c.arc(0,0,s*.28,0,2*PI);fillStroke(F(PAL[1].f));
+      c.fillStyle=DINK;c.beginPath();c.arc(-s*.09,-s*.05,s*.025,0,2*PI);c.arc(s*.09,-s*.05,s*.025,0,2*PI);c.fill();
+      c.beginPath();c.arc(0,s*.02,s*.11,.2*PI,.8*PI);c.stroke();break;}
+    case 'cloud':unionDraw(c,[circ(-s*.2,s*.05,s*.18),circ(0,-s*.08,s*.24),circ(s*.22,s*.04,s*.18),()=>{c.beginPath();c.rect(-s*.2,s*.02,s*.42,s*.21);}],F('#E8F3FF'),lw);break;
+    case 'flower':{const parts=[];for(let k=0;k<5;k++){const a=-PI/2+k*2*PI/5;parts.push(circ(Math.cos(a)*s*.24,Math.sin(a)*s*.24,s*.17));}
+      unionDraw(c,parts,F(col.f),lw);c.beginPath();c.arc(0,0,s*.13,0,2*PI);fillStroke(F(PAL[1].f));break;}
+    case 'leaf':{c.beginPath();c.moveTo(-s*.4,s*.3);c.quadraticCurveTo(-s*.35,-s*.35,s*.4,-s*.32);c.quadraticCurveTo(s*.32,s*.35,-s*.4,s*.3);fillStroke(F(PAL[5].f));
+      c.beginPath();c.moveTo(-s*.3,s*.2);c.quadraticCurveTo(0,-s*.05,s*.3,-s*.24);c.stroke();break;}
+    case 'rainbow':{const cols=[PAL[0].f,PAL[1].f,PAL[2].f,PAL[3].f];for(let k=0;k<4;k++){c.beginPath();c.arc(0,s*.2,s*(.46-k*.08),PI,2*PI);c.lineWidth=s*.08;c.strokeStyle=colorMode==='color'?cols[k]:'#fff';c.stroke();
+        c.lineWidth=lw*.6;c.strokeStyle=DINK;c.beginPath();c.arc(0,s*.2,s*(.5-k*.08),PI,2*PI);c.stroke();}
+      c.beginPath();c.arc(0,s*.2,s*.18,PI,2*PI);c.stroke();break;}
+    case 'fish':unionDraw(c,[()=>{c.beginPath();c.ellipse(-s*.06,0,s*.32,s*.21,0,0,2*PI);},()=>{polyPath(c,[[s*.2,0],[s*.46,-s*.2],[s*.46,s*.2]]);}],F(col.f),lw);
+      c.fillStyle=DINK;c.beginPath();c.arc(-s*.22,-s*.04,s*.035,0,2*PI);c.fill();c.beginPath();c.arc(s*.02,0,s*.12,-.4*PI,.4*PI);c.stroke();break;
+    case 'bubble':c.beginPath();c.arc(0,0,s*.3,0,2*PI);fillStroke(F('#E3F4FF'));c.beginPath();c.arc(0,0,s*.2,1.1*PI,1.45*PI);c.stroke();break;
+    case 'starfish':polyPath(c,chaikin(starPts(5,s*.5,s*.26),.2,3));fillStroke(F(col.f));
+      c.fillStyle=DINK;for(let k=0;k<5;k++){const a=-PI/2+k*2*PI/5;c.beginPath();c.arc(Math.cos(a)*s*.22,Math.sin(a)*s*.22,s*.025,0,2*PI);c.fill();}break;
+    case 'shell':{c.beginPath();c.moveTo(-s*.08,s*.32);c.lineTo(-s*.4,-s*.02);c.quadraticCurveTo(0,-s*.6,s*.4,-s*.02);c.lineTo(s*.08,s*.32);c.closePath();fillStroke(F(PAL[0].f));
+      for(const t of [-.22,0,.22]){c.beginPath();c.moveTo(0,s*.3);c.lineTo(t*s*1.2,-s*.25);c.stroke();}break;}
+    case 'planet':c.beginPath();c.arc(0,0,s*.27,0,2*PI);fillStroke(F(col.f));
+      c.beginPath();c.ellipse(0,0,s*.48,s*.13,-.35,0,2*PI);c.stroke();
+      c.save();c.beginPath();c.arc(0,0,s*.27-lw/2,0,2*PI);c.clip();c.beginPath();c.ellipse(0,0,s*.48,s*.13,-.35,PI,2*PI);c.lineWidth=lw*3;c.strokeStyle=c.fillStyle;c.stroke();c.restore();
+      c.beginPath();c.ellipse(0,0,s*.48,s*.13,-.35,0,PI);c.stroke();break;
+    case 'moon':c.beginPath();c.arc(0,0,s*.36,.35*PI,1.65*PI);c.arc(s*.18,-s*.02,s*.3,1.5*PI,.55*PI,true);c.closePath();fillStroke(F(PAL[1].f));break;
+    case 'rocket':{c.rotate(.6);polyPath(c,[[-s*.12,s*.2],[-s*.24,s*.36],[-s*.12,s*.36]]);fillStroke(F(PAL[0].f));polyPath(c,[[s*.12,s*.2],[s*.24,s*.36],[s*.12,s*.36]]);fillStroke(F(PAL[0].f));
+      c.beginPath();c.moveTo(0,-s*.46);c.quadraticCurveTo(s*.18,-s*.25,s*.13,s*.32);c.lineTo(-s*.13,s*.32);c.quadraticCurveTo(-s*.18,-s*.25,0,-s*.46);fillStroke(F('#E8EEF9'));
+      c.beginPath();c.arc(0,-s*.08,s*.07,0,2*PI);fillStroke(F(PAL[3].f));
+      c.beginPath();c.moveTo(-s*.08,s*.36);c.lineTo(0,s*.5);c.lineTo(s*.08,s*.36);fillStroke(F(PAL[1].f));break;}
+    case 'balloon':c.beginPath();c.moveTo(0,s*.26);c.bezierCurveTo(-s*.08,s*.36,s*.08,s*.42,-s*.02,s*.52);c.stroke();
+      c.beginPath();c.ellipse(0,-s*.08,s*.25,s*.32,0,0,2*PI);fillStroke(F(col.f));polyPath(c,[[-s*.05,s*.28],[s*.05,s*.28],[0,s*.22]]);fillStroke(F(col.f));
+      c.beginPath();c.arc(-s*.08,-s*.18,s*.08,1.05*PI,1.4*PI);c.stroke();break;
+    case 'pencil':c.rotate(-.6);c.beginPath();c.rect(-s*.3,-s*.08,s*.48,s*.16);fillStroke(F(col.f));c.beginPath();c.rect(-s*.4,-s*.08,s*.1,s*.16);fillStroke(F(PAL[0].f));
+      polyPath(c,[[s*.18,-s*.08],[s*.4,0],[s*.18,s*.08]]);fillStroke(F('#F6D7A7'));polyPath(c,[[s*.33,-s*.025],[s*.4,0],[s*.33,s*.025]]);c.fillStyle=DINK;c.fill();break;
+    case 'book':polyPath(c,[[-s*.42,-s*.22],[0,-s*.14],[0,s*.3],[-s*.42,s*.22]]);fillStroke(F(col.f));polyPath(c,[[s*.42,-s*.22],[0,-s*.14],[0,s*.3],[s*.42,s*.22]]);fillStroke(F(PAL[(PAL.indexOf(col)+2)%PAL.length].f));
+      for(const k of [0,1,2]){c.beginPath();c.moveTo(-s*.34,-s*.08+k*s*.1);c.lineTo(-s*.08,-s*.03+k*s*.1);c.moveTo(s*.34,-s*.08+k*s*.1);c.lineTo(s*.08,-s*.03+k*s*.1);c.stroke();}break;
+    case 'apple':c.beginPath();c.moveTo(0,-s*.2);c.quadraticCurveTo(s*.04,-s*.36,s*.1,-s*.4);c.stroke();
+      unionDraw(c,[circ(-s*.12,s*.04,s*.24),circ(s*.12,s*.04,s*.24)],F(PAL[0].f),lw);c.beginPath();c.ellipse(s*.14,-s*.3,s*.12,s*.06,-.5,0,2*PI);fillStroke(F(PAL[5].f));break;
+    case 'paw':c.beginPath();c.ellipse(0,s*.12,s*.2,s*.16,0,0,2*PI);fillStroke(F(col.f));
+      for(const [x,y] of [[-s*.24,-s*.08],[-s*.09,-s*.24],[s*.09,-s*.24],[s*.24,-s*.08]]){c.beginPath();c.ellipse(x,y,s*.08,s*.1,0,0,2*PI);fillStroke(F(col.f));}break;
+    case 'bone':c.rotate(-.5);unionDraw(c,[()=>{c.beginPath();c.rect(-s*.3,-s*.07,s*.6,s*.14);},circ(-s*.32,-s*.08,s*.1),circ(-s*.32,s*.08,s*.1),circ(s*.32,-s*.08,s*.1),circ(s*.32,s*.08,s*.1)],F('#FFF7E8'),lw);break;
+    case 'snowflake':c.strokeStyle=colorMode==='color'?col.s:DINK;c.lineWidth=lw*1.3;for(let k=0;k<6;k++){c.save();c.rotate(k*PI/3);c.beginPath();c.moveTo(0,0);c.lineTo(0,-s*.45);
+        c.moveTo(0,-s*.28);c.lineTo(-s*.1,-s*.38);c.moveTo(0,-s*.28);c.lineTo(s*.1,-s*.38);c.moveTo(0,-s*.14);c.lineTo(-s*.08,-s*.22);c.moveTo(0,-s*.14);c.lineTo(s*.08,-s*.22);c.stroke();c.restore();}break;
+    case 'xtree':c.beginPath();c.rect(-s*.05,s*.3,s*.1,s*.14);fillStroke(F(PAL[3].f||'#C9A27E'));
+      unionDraw(c,[()=>polyPath(c,[[0,-s*.42],[s*.2,-s*.12],[-s*.2,-s*.12]]),()=>polyPath(c,[[0,-s*.24],[s*.28,s*.08],[-s*.28,s*.08]]),()=>polyPath(c,[[0,-s*.06],[s*.36,s*.32],[-s*.36,s*.32]])],F(PAL[2].f),lw);
+      c.save();c.translate(0,-s*.44);polyPath(c,chaikin(starPts(5,s*.1,s*.05),.1,1));fillStroke(F(PAL[1].f));c.restore();break;
+    case 'gift':c.beginPath();c.rect(-s*.3,-s*.1,s*.6,s*.42);fillStroke(F(col.f));c.beginPath();c.rect(-s*.34,-s*.2,s*.68,s*.12);fillStroke(F(col.f));
+      c.beginPath();c.moveTo(0,-s*.2);c.lineTo(0,s*.32);c.lineWidth=lw*2.2;c.strokeStyle=colorMode==='color'?PAL[0].s:DINK;c.stroke();c.lineWidth=lw;c.strokeStyle=DINK;
+      c.beginPath();c.ellipse(-s*.1,-s*.28,s*.1,s*.06,-.4,0,2*PI);fillStroke(F(PAL[0].f));c.beginPath();c.ellipse(s*.1,-s*.28,s*.1,s*.06,.4,0,2*PI);fillStroke(F(PAL[0].f));break;
+    case 'strawberry':c.beginPath();c.moveTo(0,s*.4);c.bezierCurveTo(-s*.42,s*.1,-s*.32,-s*.28,0,-s*.22);c.bezierCurveTo(s*.32,-s*.28,s*.42,s*.1,0,s*.4);fillStroke(F(PAL[0].f));
+      c.fillStyle=DINK;for(const [x,y] of [[-.12,-.05],[.1,-.06],[0,.08],[-.14,.14],[.13,.13],[0,.26]]){c.beginPath();c.ellipse(x*s,y*s,s*.015,s*.025,0,0,2*PI);c.fill();}
+      polyPath(c,[[-s*.18,-s*.24],[0,-s*.32],[s*.18,-s*.24],[s*.06,-s*.2],[0,-s*.26],[-s*.06,-s*.2]]);fillStroke(F(PAL[5].f));break;
+    case 'cherry':c.beginPath();c.moveTo(-s*.16,s*.1);c.quadraticCurveTo(-s*.1,-s*.2,s*.08,-s*.38);c.moveTo(s*.16,s*.14);c.quadraticCurveTo(s*.14,-s*.15,s*.08,-s*.38);c.stroke();
+      c.beginPath();c.arc(-s*.18,s*.2,s*.15,0,2*PI);fillStroke(F(PAL[0].f));c.beginPath();c.arc(s*.17,s*.24,s*.15,0,2*PI);fillStroke(F(PAL[0].f));
+      c.beginPath();c.ellipse(s*.18,-s*.36,s*.1,s*.05,.3,0,2*PI);fillStroke(F(PAL[5].f));break;
+    case 'butterfly':for(const sg of [-1,1]){c.beginPath();c.ellipse(sg*s*.2,-s*.12,s*.2,s*.16,sg*.5,0,2*PI);fillStroke(F(col.f));c.beginPath();c.ellipse(sg*s*.16,s*.16,s*.13,s*.11,-sg*.5,0,2*PI);fillStroke(F(PAL[(PAL.indexOf(col)+1)%PAL.length].f));}
+      c.beginPath();c.ellipse(0,0,s*.05,s*.28,0,0,2*PI);fillStroke(F('#7a6a5a'));c.beginPath();c.moveTo(-s*.02,-s*.26);c.quadraticCurveTo(-s*.08,-s*.4,-s*.14,-s*.42);c.moveTo(s*.02,-s*.26);c.quadraticCurveTo(s*.08,-s*.4,s*.14,-s*.42);c.stroke();break;
+    case 'ladybug':c.beginPath();c.arc(0,-s*.28,s*.12,0,2*PI);fillStroke(F('#555'));c.beginPath();c.arc(0,s*.02,s*.3,0,2*PI);fillStroke(F(PAL[0].f));
+      c.beginPath();c.moveTo(0,-s*.28);c.lineTo(0,s*.32);c.stroke();c.fillStyle=DINK;for(const [x,y] of [[-.15,-.06],[.15,-.06],[-.16,.14],[.16,.14],[-.06,.22],[.07,.22]]){c.beginPath();c.arc(x*s,y*s,s*.045,0,2*PI);c.fill();}break;
+    case 'note':c.lineWidth=lw*1.3;c.beginPath();c.moveTo(-s*.06,s*.24);c.lineTo(-s*.06,-s*.34);c.lineTo(s*.26,-s*.42);c.lineTo(s*.26,s*.14);c.stroke();
+      c.beginPath();c.ellipse(-s*.16,s*.26,s*.12,s*.09,-.4,0,2*PI);fillStroke(F(col.f));c.beginPath();c.ellipse(s*.16,s*.16,s*.12,s*.09,-.4,0,2*PI);fillStroke(F(col.f));break;
+    case 'candy':polyPath(c,[[-s*.2,0],[-s*.44,-s*.16],[-s*.44,s*.16]]);fillStroke(F(PAL[(PAL.indexOf(col)+1)%PAL.length].f));polyPath(c,[[s*.2,0],[s*.44,-s*.16],[s*.44,s*.16]]);fillStroke(F(PAL[(PAL.indexOf(col)+1)%PAL.length].f));
+      c.beginPath();c.ellipse(0,0,s*.24,s*.18,0,0,2*PI);fillStroke(F(col.f));c.beginPath();c.moveTo(-s*.1,-s*.15);c.lineTo(s*.04,s*.17);c.moveTo(s*.06,-s*.17);c.lineTo(s*.16,s*.1);c.stroke();break;
+    case 'lollipop':c.beginPath();c.moveTo(0,s*.05);c.lineTo(0,s*.48);c.lineWidth=lw*1.6;c.stroke();c.lineWidth=lw;c.beginPath();c.arc(0,-s*.12,s*.24,0,2*PI);fillStroke(F(col.f));
+      c.beginPath();for(let t=0;t<14;t+=.2){const r=s*.016*t;const x=Math.cos(t)*r,y=-s*.12+Math.sin(t)*r;t?c.lineTo(x,y):c.moveTo(x,y);}c.stroke();break;
+    case 'cupcake':polyPath(c,[[-s*.24,0],[s*.24,0],[s*.17,s*.36],[-s*.17,s*.36]]);fillStroke(F(PAL[(PAL.indexOf(col)+2)%PAL.length].f));
+      for(const x of [-.1,0,.1]){c.beginPath();c.moveTo(x*s,s*.04);c.lineTo(x*s*.75,s*.34);c.stroke();}
+      unionDraw(c,[circ(-s*.16,-s*.04,s*.13),circ(s*.16,-s*.04,s*.13),circ(0,-s*.14,s*.17)],F(col.f),lw);c.beginPath();c.arc(0,-s*.34,s*.06,0,2*PI);fillStroke(F(PAL[0].f));break;
+    case 'donut':c.beginPath();c.arc(0,0,s*.36,0,2*PI);fillStroke(F('#E8C08E'));c.beginPath();c.arc(0,0,s*.3,0,2*PI);c.arc(0,0,s*.11,0,2*PI,true);c.fillStyle=F(col.f);c.fill('evenodd');c.stroke();
+      c.beginPath();c.arc(0,0,s*.11,0,2*PI);c.fillStyle='#fff';c.fill();c.stroke();c.lineWidth=lw*1.2;for(let k=0;k<9;k++){const a=k*.7,r=s*(.18+(k%3)*.035);c.strokeStyle=colorMode==='color'?PAL[k%PAL.length].s:DINK;c.beginPath();c.moveTo(Math.cos(a)*r,Math.sin(a)*r);c.lineTo(Math.cos(a)*r+s*.04,Math.sin(a)*r+s*.02);c.stroke();}break;
+    case 'car':c.beginPath();c.moveTo(-s*.42,s*.12);c.lineTo(-s*.42,-s*.02);c.lineTo(-s*.24,-s*.06);c.lineTo(-s*.12,-s*.24);c.lineTo(s*.16,-s*.24);c.lineTo(s*.28,-s*.06);c.lineTo(s*.42,-s*.02);c.lineTo(s*.42,s*.12);c.closePath();fillStroke(F(col.f));
+      polyPath(c,[[-s*.08,-s*.2],[s*.13,-s*.2],[s*.22,-s*.07],[-s*.17,-s*.07]]);fillStroke(F('#E3F4FF'));for(const x of [-.24,.24]){c.beginPath();c.arc(x*s,s*.14,s*.09,0,2*PI);fillStroke(F('#555'));}break;
+    case 'boat':c.beginPath();c.moveTo(-s*.42,s*.08);c.lineTo(s*.42,s*.08);c.lineTo(s*.3,s*.28);c.lineTo(-s*.3,s*.28);c.closePath();fillStroke(F(col.f));
+      c.beginPath();c.moveTo(0,s*.08);c.lineTo(0,-s*.42);c.stroke();polyPath(c,[[s*.02,-s*.4],[s*.3,s*.0],[s*.02,s*.0]]);fillStroke(F('#FFFFFF'));polyPath(c,[[-s*.02,-s*.3],[-s*.24,s*.0],[-s*.02,s*.0]]);fillStroke(F(PAL[1].f));break;
+    case 'lantern':c.beginPath();c.moveTo(0,-s*.46);c.lineTo(0,-s*.34);c.stroke();c.beginPath();c.rect(-s*.12,-s*.34,s*.24,s*.06);fillStroke(F(PAL[1].f));
+      c.beginPath();c.ellipse(0,-s*.02,s*.3,s*.28,0,0,2*PI);fillStroke(F(PAL[0].f));for(const k of [-.15,0,.15]){c.beginPath();c.ellipse(0,-s*.02,Math.abs(k)*s*1.4+.1,s*.28,0,0,2*PI);if(k)c.stroke();}
+      c.beginPath();c.rect(-s*.12,s*.24,s*.24,s*.06);fillStroke(F(PAL[1].f));c.strokeStyle=colorMode==='color'?PAL[0].s:DINK;for(const x of [-.06,0,.06]){c.beginPath();c.moveTo(x*s,s*.3);c.lineTo(x*s,s*.46);c.stroke();}break;
+    case 'firework':for(let k=0;k<12;k++){const a=k*PI/6;c.strokeStyle=colorMode==='color'?PAL[k%PAL.length].s:DINK;c.lineWidth=lw*1.2;c.beginPath();c.moveTo(Math.cos(a)*s*.12,Math.sin(a)*s*.12);c.lineTo(Math.cos(a)*s*.4,Math.sin(a)*s*.4);c.stroke();
+        c.fillStyle=colorMode==='color'?PAL[(k+2)%PAL.length].f:DINK;c.beginPath();c.arc(Math.cos(a)*s*.46,Math.sin(a)*s*.46,s*.03,0,2*PI);c.fill();}break;
+    case 'pumpkin':c.beginPath();c.moveTo(0,-s*.26);c.quadraticCurveTo(s*.02,-s*.38,s*.1,-s*.42);c.lineWidth=lw*1.6;c.stroke();c.lineWidth=lw;
+      unionDraw(c,[()=>{c.beginPath();c.ellipse(-s*.18,s*.04,s*.2,s*.28,0,0,2*PI);},()=>{c.beginPath();c.ellipse(s*.18,s*.04,s*.2,s*.28,0,0,2*PI);},()=>{c.beginPath();c.ellipse(0,s*.04,s*.2,s*.3,0,0,2*PI);}],F(col===PAL[0]?PAL[0].f:PAL[0].f),lw);
+      c.beginPath();c.ellipse(0,s*.04,s*.08,s*.28,0,0,2*PI);c.stroke();break;
+    case 'ghost':c.beginPath();c.moveTo(-s*.28,s*.36);c.lineTo(-s*.28,-s*.08);c.arc(0,-s*.08,s*.28,PI,2*PI);c.lineTo(s*.28,s*.36);
+      for(let k=0;k<4;k++){const x=s*.28-k*s*.14;c.quadraticCurveTo(x-s*.035,s*.26,x-s*.07,s*.36);c.quadraticCurveTo(x-s*.105,s*.46,x-s*.14,s*.36);}c.closePath();fillStroke(F('#FFFFFF'));
+      c.fillStyle=DINK;c.beginPath();c.ellipse(-s*.1,-s*.08,s*.04,s*.06,0,0,2*PI);c.ellipse(s*.1,-s*.08,s*.04,s*.06,0,0,2*PI);c.fill();break;
+    case 'acorn':c.beginPath();c.ellipse(0,s*.08,s*.2,s*.28,0,0,2*PI);fillStroke(F(PAL[0].f));c.beginPath();c.ellipse(0,-s*.14,s*.26,s*.13,0,0,2*PI);fillStroke(F(PAL[3].f));
+      c.beginPath();c.moveTo(0,-s*.26);c.lineTo(s*.04,-s*.38);c.lineWidth=lw*1.5;c.stroke();break;
+    case 'mushroom':c.beginPath();c.rect(-s*.09,-s*.02,s*.18,s*.36);fillStroke(F('#FFF3E0'));c.beginPath();c.moveTo(-s*.4,s*.02);c.quadraticCurveTo(-s*.38,-s*.4,0,-s*.4);c.quadraticCurveTo(s*.38,-s*.4,s*.4,s*.02);c.closePath();fillStroke(F(PAL[0].f));
+      c.fillStyle='#fff';for(const [x,y,r] of [[-.18,-.14,.06],[.06,-.26,.05],[.2,-.1,.06]]){c.beginPath();c.arc(x*s,y*s,r*s,0,2*PI);c.fill();c.stroke();}break;
+  }
+  c.restore();
+}
+function distToPoly(px,py,v){let d=Infinity;for(let i=0;i<v.length;i+=2){const q=v[i];const e=(q[0]-px)**2+(q[1]-py)**2;if(e<d)d=e;}return Math.sqrt(d);}
+function inPoly(px,py,v){let ins=false;for(let i=0,j=v.length-1;i<v.length;j=i++){const a=v[i],b=v[j];if((a[1]>py)!==(b[1]>py)&&px<(b[0]-a[0])*(py-a[1])/(b[1]-a[1])+a[0])ins=!ins;}return ins;}
+function planDecor(theme,path,fs,box,seed,titleBox){
+  const T=THEMES[theme];if(!T)return[];const r=rngFrom(seed);const out=[];
+  const ok=(x,y,sz)=>out.every(d=>Math.hypot(d.x-x,d.y-y)>(d.s+sz)*.56);
+  let outer=path?.outer;
+  if(!outer&&path){let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;for(const q of path.pts){x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);y0=Math.min(y0,q[1]);y1=Math.max(y1,q[1]);}
+    outer=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]];const dense=[];for(let i=0;i<4;i++){const a=outer[i],b=outer[(i+1)%4];for(let t=0;t<1;t+=.01)dense.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}outer=dense;}
+  let ci=0;
+  for(const sz of [150,130,115,100,90,80,72,64,64,58]){
+    for(let tries=0;tries<260;tries++){
+      const x=box.x0+sz/2+r()*(box.x1-box.x0-sz),y=box.y0+sz/2+r()*(box.y1-box.y0-sz);
+      if(outer&&(inPoly(x,y,outer)||distToPoly(x,y,outer)<sz*.52+fs*.9))continue;
+      if(!ok(x,y,sz))continue;
+      out.push({x,y,s:sz,type:T.items[ci%T.items.length],col:PAL[ci%PAL.length],rot:(r()-.5)*.5});ci++;break;}
+    if(out.length>=9)break;
+  }
+  if(titleBox&&titleBox.x1-titleBox.x0>140){let x=titleBox.x1-36;for(let k=0;k<3&&x-36>titleBox.x0;k++){const sz=k===1?54:66;out.push({x,y:titleBox.y,s:sz,type:T.items[(ci+k)%T.items.length],col:PAL[(ci+k+2)%PAL.length],rot:(r()-.5)*.6});x-=sz+26;}}
+  return out;
+}
+function drawBorder(c,theme,colorMode){
+  const T=THEMES[theme]||THEMES.stars,ins=34;
+  c.save();c.lineWidth=5;c.strokeStyle=colorMode==='color'?PAL[3].s:DINK;rrect(c,ins,ins,PW-2*ins,PH-2*ins,40);c.stroke();
+  c.lineWidth=1.6;c.setLineDash([10,10]);c.strokeStyle=colorMode==='color'?PAL[3].f:'#9a9a9a';rrect(c,ins+14,ins+14,PW-2*ins-28,PH-2*ins-28,30);c.stroke();c.setLineDash([]);c.restore();
+  const pts=[[ins+18,ins+18],[PW-ins-18,ins+18],[PW-ins-18,PH-ins-18],[ins+18,PH-ins-18]];
+  pts.forEach(([x,y],k)=>{c.fillStyle='#fff';c.beginPath();c.arc(x,y,44,0,2*PI);c.fill();doodle(c,T.corner[k],x,y,78,PAL[(k*2)%PAL.length],colorMode,(k%2?.2:-.2));});
+}
+function drawFooter(c,foot,font,border){
+  if(!foot)return;c.font=`400 24px "${font}"`;c.textAlign='center';
+  if(border){c.textBaseline='middle';const w=c.measureText(foot).width+36;c.fillStyle='#fff';c.fillRect(PW/2-w/2,PH-34-18,w,36);c.fillStyle=SOFT;c.fillText(foot,PW/2,PH-34);c.textBaseline='alphabetic';}
+  else{c.fillStyle=SOFT;c.fillText(foot,PW/2,PH-40);}
+}
+function drawTitle(c,text,x,y,font,kids,colorMode,size){
+  c.textAlign='left';c.textBaseline='alphabetic';
+  if(!kids){c.fillStyle=INK;c.font=`700 ${size}px "${font}"`;c.fillText(text,x,y);return x+c.measureText(text).width;}
+  c.font=`700 ${Math.round(size*1.12)}px "Baloo 2","${font}"`;let cx=x,k=0;
+  for(const ch of text){const w=c.measureText(ch).width;
+    if(colorMode==='color'){c.fillStyle=ch===' '?INK:PAL[k%PAL.length].s;c.fillText(ch,cx,y);}
+    else{c.lineWidth=3;c.strokeStyle=DINK;c.fillStyle='#fff';c.strokeText(ch,cx,y);}
+    if(ch!==' ')k++;cx+=w;}
+  return cx;
+}
+const pageW=document.createElement('canvas');pageW.width=PW;pageW.height=PH;pageW.hidden=true;pageW.style.order='2';
+function drawSentencePage(o){
+  const c=pageW.getContext('2d');c.setTransform(1,0,0,1,0,0);c.fillStyle='#fff';c.fillRect(0,0,PW,PH);
+  if(o.useBorder)drawBorder(c,o.decor,o.dcol);
+  drawTitle(c,o.title,M,M+44,o.font,o.kidsTitle,o.dcol,44);
+  c.textAlign='left';c.textBaseline='alphabetic';const W=PW-2*M;
+  if(o.nameLine){c.font=`400 30px "${o.font}"`;c.fillStyle=INK;c.strokeStyle='#9a9a9a';c.lineWidth=2;const y=M+102;let x=M;
+    for(const [lab,frac] of [['Name:',.5],['Class:',.25],['Date:',.25]]){const seg=W*frac;c.fillText(lab,x,y);const lw=c.measureText(lab).width+12;c.beginPath();c.moveTo(x+lw,y+6);c.lineTo(x+seg-30,y+6);c.stroke();x+=seg;}}
+  c.font=`400 33px "${o.font}"`;c.fillStyle=INK;const ls=wrap(c,o.instr,W);let y=M+(o.nameLine?170:120);ls.forEach((l,i)=>c.fillText(l,M,y+i*46));y+=ls.length*46+30;
+  const bottom=PH-(o.useBorder?110:100),n=o.n,kids=o.style==='kids';
+  const block=(bottom-y)/n;
+  const accent=o.decor!=='none'&&o.dcol==='color';
+  for(let i=0;i<n;i++){const by=y+i*block;
+    const numCol=accent?PAL[i%PAL.length].s:INK;
+    c.font=`700 30px "${o.font}"`;c.fillStyle=numCol;c.fillText((i+1)+'.',M,by+40);
+    let x0=M+52;
+    if(o.wordMode!=='none'){c.font=`400 30px "${o.font}"`;c.fillStyle=INK;c.fillText('Word:',x0,by+40);const wx=x0+c.measureText('Word:').width+12;
+      if(o.wordMode==='given'&&o.words[i]){c.font=`700 30px "${o.font}"`;c.fillStyle=numCol;c.fillText(o.words[i],wx+6,by+40);}
+      else{c.strokeStyle='#9a9a9a';c.lineWidth=2;c.beginPath();c.moveTo(wx,by+46);c.lineTo(wx+360,by+46);c.stroke();}}
+    const top=by+(o.wordMode!=='none'||true?64:0),avail=block-(top-by)-14;
+    if(kids){const rows=Math.max(1,Math.min(2,Math.floor(avail/130)));const rowH=avail/rows;
+      for(let r=0;r<rows;r++){const base=top+r*rowH+rowH*.72,h=Math.min(rowH*.5,90);
+        c.strokeStyle=accent?PAL[i%PAL.length].s:'#777';c.lineWidth=2;c.setLineDash([]);c.beginPath();c.moveTo(x0,base);c.lineTo(PW-M,base);c.stroke();
+        c.strokeStyle='#b5b5b5';c.lineWidth=1.5;c.setLineDash([10,9]);c.beginPath();c.moveTo(x0,base-h/2);c.lineTo(PW-M,base-h/2);c.stroke();
+        c.setLineDash([]);c.beginPath();c.moveTo(x0,base-h);c.lineTo(PW-M,base-h);c.stroke();}}
+    else{const rows=Math.max(1,Math.min(3,Math.floor(avail/72))),gap=Math.min(90,avail/rows);
+      for(let r=0;r<rows;r++){const ly=top+(r+1)*gap-14;c.strokeStyle='#9a9a9a';c.lineWidth=2;c.beginPath();c.moveTo(x0,ly);c.lineTo(PW-M,ly);c.stroke();}}
+  }
+  drawFooter(c,o.foot,o.font,o.useBorder);
+}
+const pageD=document.createElement('canvas');pageD.width=PW;pageD.height=PH;pageD.hidden=true;pageD.style.order='2';
+function drawDrawingPage(o){
+  const c=pageD.getContext('2d');c.setTransform(1,0,0,1,0,0);c.fillStyle='#fff';c.fillRect(0,0,PW,PH);
+  if(o.useBorder)drawBorder(c,o.decor,o.dcol);
+  drawTitle(c,o.title,M,M+44,o.font,o.kidsTitle,o.dcol,44);
+  c.textAlign='left';c.textBaseline='alphabetic';
+  if(o.nameLine){c.font=`400 30px "${o.font}"`;c.fillStyle=INK;c.strokeStyle='#9a9a9a';c.lineWidth=2;const y=M+102;let x=M;
+    for(const [lab,frac] of [['Name:',.5],['Class:',.25],['Date:',.25]]){const seg=(PW-2*M)*frac;c.fillText(lab,x,y);const lw=c.measureText(lab).width+12;c.beginPath();c.moveTo(x+lw,y+6);c.lineTo(x+seg-30,y+6);c.stroke();x+=seg;}}
+  c.font=`400 33px "${o.font}"`;c.fillStyle=INK;const W=PW-2*M;const ls=wrap(c,o.instr,W);let y=M+(o.nameLine?170:120);ls.forEach((l,i)=>c.fillText(l,M,y+i*46));y+=ls.length*46+20;
+  const n=o.n,cols=n<=2?1:2,rows=Math.ceil(n/cols),gap=40,capH=o.line?84:0;
+  const bottom=PH-(o.useBorder?110:100),cellW=(W-(cols-1)*gap)/cols,cellH=(bottom-y-(rows-1)*gap)/rows,boxH=cellH-capH;
+  for(let i=0;i<n;i++){const col=i%cols,row=Math.floor(i/cols),x=M+col*(cellW+gap),by=y+row*(cellH+gap);
+    c.strokeStyle=o.decor!=='none'&&o.dcol==='color'?PAL[i%PAL.length].s:'#555';c.lineWidth=3;c.setLineDash(o.decor!=='none'?[]:[]);rrect(c,x,by,cellW,boxH,22);c.stroke();
+    c.fillStyle='#fff';c.beginPath();c.arc(x+30,by+30,21,0,2*PI);c.fill();c.strokeStyle='#333';c.lineWidth=2;c.stroke();
+    c.font=`700 26px "${o.font}"`;c.fillStyle=INK;c.textAlign='center';c.fillText(String(i+1),x+30,by+39);c.textAlign='left';
+    if(o.line){const ly=by+boxH+62;c.font=`400 30px "${o.font}"`;c.fillStyle=INK;c.fillText('Word:',x,ly);const lx=x+c.measureText('Word:').width+14;
+      c.strokeStyle='#9a9a9a';c.lineWidth=2;c.beginPath();c.moveTo(lx,ly+6);c.lineTo(x+cellW,ly+6);c.stroke();}}
+  drawFooter(c,o.foot,o.font,o.useBorder);
+}
+let renderSeq=0,timer=null;
+const measureCv=document.createElement('canvas').getContext('2d');
+
+async function render(){
+  const seq=++renderSeq;
+  const font=$('#font').value;
+  try{await Promise.all([document.fonts.load(`400 40px "${font}"`),document.fonts.load(`700 40px "${font}"`),document.fonts.load('700 40px "Baloo 2"')]);}catch(e){}
+  if(seq!==renderSeq)return;
+
+  const items=parseItems();
+  const fwdMode=LAYOUTS.includes($('#layoutMode').value);
+  const opts={noise:$('#noise').value,upper:$('#upper').checked,reverse:!fwdMode&&$('#reverse').checked};
+  const decoyN=Math.max(0,Math.min(30,+$('#decoys').value||0));
+  const boxMode=$('#box').value, shape=st.shape, gapMul=+$('#gap').value, startMark=$('#startMark').checked;
+  let hole=+$('#hole').value;if(st.centerImg&&shape!=='snake')hole=Math.max(hole,.3);
+  const r=rngFrom(st.seed);
+  const {targets,decoys}=prepTokens(items,decoyN,opts,r);
+
+  // word box items (shuffled, stable per seed)
+  const boxItems=shuffle(targets.slice(),rngFrom(st.seed^0x9e3779b9));
+
+  const ctx=pageS.getContext('2d');const W=PW-2*M;
+  let y=M;const titleY=y+56;y+=86;
+  const nameY=y+34;if($('#nameLine').checked)y+=78;
+  ctx.font=`400 33px "${font}"`;
+  const instrText=($('#instr').value+($('#instrVi').checked?'\n'+(VI_INSTR[boxMode]||VI_INSTR.en):'')).replace(/\{n\}/g,targets.length);
+  const instrLines=instrText.trim()?wrap(ctx,instrText,W):[];
+  const instrY=y+30;y+=instrLines.length*47+(instrLines.length?16:0);
+  const topicOn=$('#topicLine').checked,topicY=y+34;if(topicOn)y+=66;
+  const shapeTop=y+14;
+
+  const B=boxRows(ctx,boxMode,boxItems,font,W);
+  const blockH=rows=>B.padTop+rows.reduce((h,r)=>h+r.h,0)+B.padBot;
+  let boxH=0,extra=[];
+  if(B){const full=blockH(B.rows);
+    if(PH-112-full-30-shapeTop>=1000) boxH=full;
+    else{const avail=PH-112-(M+120);let cur=[];for(const row of B.rows){if(cur.length&&blockH([...cur,row])>avail){extra.push(cur);cur=[];}cur.push(row);}if(cur.length)extra.push(cur);}}
+  const boxBottom=PH-112,boxTop=boxBottom-boxH,shapeBottom=(boxH?boxTop:boxBottom)-30;
+  let rect={x:M,y:shapeTop,w:W,h:Math.max(200,shapeBottom-shapeTop)};
+
+  // widths
+  measureCv.font=`400 100px "${font}"`;
+  const wc={};const LS=.04;
+  const wOf=ch=>{if(wc[ch]===undefined)wc[ch]=measureCv.measureText(ch).width/100*(ch===' '?1.6:1)+LS;return wc[ch];};
+
+  // choose font size: requested, shrink if targets do not fit
+  const wantFs=+$('#size').value/72*200;
+  let fs=wantFs,path,cap,shrunk=false;
+  let tokW=0;for(const t of [...targets,...decoys])for(const c of t.disp)tokW+=wOf(c)+wOf(' ')/(t.disp.length||1);
+  const minNoise=(targets.length+decoys.length+1)*1.6;
+  for(let it=0;it<40;it++){
+    path=buildPath(shape,rect,fs,hole,gapMul,ALL_LAYOUTS.includes($('#layoutMode').value)?$('#layoutMode').value:'forward');
+    const avail=(path.L-path.skipL)*.985-fs*(startMark?1.6:.4)-path.skips.length*fs*.6;
+    cap=avail/fs/($('#layoutMode').value==='upright'?1.3:['rows','forward','ring'].includes($('#layoutMode').value)?1.12:1);
+    if(cap>=tokW+minNoise||fs<12)break;
+    fs*=.94;shrunk=true;
+  }
+  const orient=$('#layoutMode').value;
+  const doLayout=capU=>{
+    const rs=rngFrom(st.seed^0x5bd1e995);
+    const stm=targets.length?buildStream(targets,decoys,opts,capU,wOf,rs):{str:'',tag:[]};
+    const ch=[...stm.str],lay=[];let ov=false;const ls=LS*fs;let cur=startMark?fs*1.5:fs*.3;
+    const origLen=ch.length;let stopFill=!targets.length,dead=false;const banned=new Set(targets.map(t=>t.en.toLowerCase()));
+    const forms=[];for(const t of targets){const n=norm(t.en);if(n){forms.push(n);forms.push([...n].reverse().join(''));}}
+    const makesCopy=wd=>{const prev=norm(ch.slice(-40).join('')),all=prev+norm(wd);
+      return forms.some(f=>{let k=all.indexOf(f);while(k>=0){if(k+f.length>prev.length)return true;k=all.indexOf(f,k+1);}return false;});};
+    const addFiller=()=>{let wd=null;
+      for(let t=0;t<40;t++){let c;if(opts.noise==='letters'){const L=2+Math.floor(rs()*6);c='';for(let j=0;j<L;j++)c+=pick([...FREQ],rs);}else c=pseudoWord(rs,banned);
+        if(!makesCopy(c)){wd=c;break;}}
+      if(!wd){stopFill=true;return;}
+      if(opts.upper)wd=wd.toUpperCase();for(const c of ' '+wd){ch.push(c);stm.tag.push(0);}};
+    for(let i=0;i<ch.length;i++){if(dead){lay.push(null);continue;}let w=(wOf(ch[i])-LS)*fs;
+      if(orient==='upright'){const q0=pointAt(path,cur),q1=pointAt(path,cur+w),an=Math.atan2(q1[1]-q0[1],q1[0]-q0[0]);
+        w=ch[i]===' '?w*(.6+.6*Math.abs(Math.sin(an))):w*Math.abs(Math.cos(an))+fs*.74*Math.abs(Math.sin(an));}
+      if(path.wrap){
+        const atStart=cur<fs*1.6&&i===0||path.skips.some(([,bb])=>Math.abs(cur-(bb+fs*.15))<.5);
+        if(ch[i]===' '&&atStart){lay.push(null);continue;}
+        if(ch[i]!==' '&&(i===0||ch[i-1]===' ')){const tg=stm.tag[i];let ww=0;
+          if(tg!==0&&(i===0||stm.tag[i-1]!==tg)){for(let j=i;j<ch.length&&stm.tag[j]===tg;j++)ww+=(wOf(ch[j])-LS)*fs+ls;}
+          else{for(let j=i;j<ch.length&&ch[j]!==' ';j++)ww+=(wOf(ch[j])-LS)*fs+ls;}
+          if(tg===0||i===0||stm.tag[i-1]!==tg){
+            for(let g=0;g<40;g++){const nx=path.skips.find(([aa])=>aa>=cur-.5);if(!nx||cur+ww<=nx[0])break;cur=nx[1]+fs*.15;}
+            if(i>=origLen&&cur+ww>path.L){dead=true;stopFill=true;lay.push(null);continue;}}}}
+      for(const [aa,bb] of path.skips){if(cur+w>aa&&cur<bb)cur=bb+fs*.3;}
+      if(cur+w>path.L){lay.push(null);if(stm.tag[i]>0)ov=true;if(i>=origLen){dead=true;stopFill=true;}continue;}
+      const p0=pointAt(path,cur),p1=pointAt(path,cur+w),pm=pointAt(path,cur+w/2);
+      const an=Math.atan2(p1[1]-p0[1],p1[0]-p0[0]);
+      const row=path.wrap?path.skips.filter(([,bb])=>bb<=cur+.01).length:0;
+      lay.push({x:pm[0],y:pm[1],a:an,w,row,s:cur,ga:orient==='upright'||path.rows?0:orient==='forward'||orient==='ring'||LAYOUTS.includes(orient)?an:orient==='soft'&&Math.cos(an)<-.02?an+PI:an});cur+=w+ls;
+      if(path.wrap&&i===ch.length-1&&!ov&&!stopFill&&cur<path.L-fs*2.5&&ch.length<origLen+4000)addFiller();}
+    stm.str=ch.join('');
+    return{stm,ch,lay,ov,cur};
+  };
+  let res=doLayout(cap);
+  if(path.wrap&&targets.length){
+    let best=res.ov?null:res,bc=cap;
+    for(let k=0;k<12;k++){if(res.ov)cap*=.95;else if(res.cur<path.L*.96)cap*=Math.min(1.5,path.L*.985/Math.max(1,res.cur));else break;
+      res=doLayout(cap);if(!res.ov&&(!best||res.cur>best.cur)){best=res;bc=cap;}}
+    if(best)res=best;
+    // justify each full line (straight or curved) so the text fills the shape edge to edge
+    {const lay=res.lay,ch=res.ch,byRow=new Map();lay.forEach((L,i)=>{if(L){if(!byRow.has(L.row))byRow.set(L.row,[]);byRow.get(L.row).push(i);}});
+    const lastRow=Math.max(-1,...byRow.keys()),sk=path.skips;
+    for(const [rw,idx] of byRow){if(rw===lastRow)continue;const nonsp=idx.filter(i=>ch[i]!==' ');if(!nonsp.length)continue;
+      const segStart=rw===0?0:sk[rw-1][1],segEnd=rw<sk.length?sk[rw][0]:path.L;
+      const first=nonsp[0],last=nonsp[nonsp.length-1],Lz=lay[last];
+      const extra=segEnd-fs*.15-(Lz.s+Lz.w);if(extra<=0)continue;
+      const tg=res.stm.tag;
+      const sp=idx.filter(i=>ch[i]===' '&&i>first&&i<last&&!(tg[i-1]!==0&&tg[i-1]===tg[i+1]));
+      const shift=new Map();
+      if(!sp.length){for(const i of idx)shift.set(i,extra/2);}
+      else{const per=Math.min(extra/sp.length,fs*1.4),rest=extra-per*sp.length,spSet=new Set(sp);let acc=rest/2;
+        for(const i of idx){if(spSet.has(i)){acc+=per;continue;}shift.set(i,acc);}}
+      for(const [i,d] of shift){const L=lay[i];L.s+=d;const p0=pointAt(path,L.s),p1=pointAt(path,L.s+L.w),pm=pointAt(path,L.s+L.w/2);
+        L.x=pm[0];L.y=pm[1];L.a=Math.atan2(p1[1]-p0[1],p1[0]-p0[0]);L.ga=path.rows?0:L.a;}}}
+  }
+  const stream=res.stm,chars=res.ch,layout=res.lay,overflow=res.ov;
+
+  PAL=palOf(st.pal);
+  const decor=$('#decor').value,dcol=$('#decorColor').value,useBorder=decor!=='none'&&$('#border').checked,kidsTitle=decor!=='none'&&$('#kidsTitle').checked,wordColor=$('#wordColor').checked;
+  const titleText=$('#title').value||'';
+  ctx.font=kidsTitle?`700 ${Math.round(60*1.12)}px "Baloo 2","${font}"`:`700 60px "${font}"`;const titleEnd=M+ctx.measureText(titleText).width;
+  let decorList=[];
+  if(decor!=='none'&&chars.length){
+    const ib=useBorder?100:56;
+    decorList=planDecor(decor,path,fs,{x0:ib,x1:PW-ib,y0:shapeTop-6,y1:shapeBottom+6},st.dseed,{x0:titleEnd+30,x1:PW-M-270,y:titleY-20});
+    if(!st.centerImg&&path.center&&path.center.r>60){const T=THEMES[decor];decorList.push({x:path.center.x,y:path.center.y,s:Math.min(path.center.r*1.7,260),type:T.main,col:PAL[1],rot:0});}
+  }
+  const wIdx=[];{let w=0;for(const ch of chars){if(ch===' ')w++;wIdx.push(w);}}
+  if(seq!==renderSeq)return;
+  for(const answer of [false,true]){
+    const c=(answer?pageA:pageS).getContext('2d');
+    c.setTransform(1,0,0,1,0,0);c.fillStyle='#fff';c.fillRect(0,0,PW,PH);
+    if(useBorder)drawBorder(c,decor,dcol);
+    for(const d of decorList)doodle(c,d.type,d.x,d.y,d.s,d.col,dcol,d.rot);
+    drawTitle(c,titleText,M,titleY,font,kidsTitle,dcol,60);
+    if(st.verLabel&&!answer){c.font=`700 30px "${font}"`;c.fillStyle=INK;c.textAlign='right';c.fillText(st.verLabel,PW-M,titleY-6);c.textAlign='left';}
+    c.fillStyle=INK;c.textAlign='left';c.textBaseline='alphabetic';
+    if(answer){c.font=`700 30px "${font}"`;c.fillStyle=RED;c.textAlign='right';c.fillText('ANSWER KEY'+(st.verLabel?' · '+st.verLabel:''),PW-M,titleY-6);c.textAlign='left';}
+    if($('#nameLine').checked){c.font=`400 32px "${font}"`;c.fillStyle=INK;c.strokeStyle='#9a9a9a';c.lineWidth=2;
+      let x=M;for(const [lab,frac] of [['Name:',.5],['Class:',.25],['Date:',.25]]){const seg=W*frac;c.fillText(lab,x,nameY);const lw=c.measureText(lab).width+12;
+        c.beginPath();c.moveTo(x+lw,nameY+6);c.lineTo(x+seg-30,nameY+6);c.stroke();x+=seg;}}
+    c.font=`400 33px "${font}"`;c.fillStyle=INK;instrLines.forEach((l,i)=>c.fillText(l,M,instrY+i*47));
+    if(topicOn){const q=$('#topicQ').value.trim()||"What do you think today's topic is?";c.font=`700 33px "${font}"`;c.fillStyle=INK;c.textAlign='left';c.fillText(q,M,topicY);
+      const lx=M+c.measureText(q).width+16;c.strokeStyle='#9a9a9a';c.lineWidth=2;c.beginPath();c.moveTo(lx,topicY+6);c.lineTo(PW-M,topicY+6);c.stroke();
+      const ta=$('#topicA').value.trim();if(answer&&ta){c.font=`400 33px "${font}"`;c.fillStyle=RED;c.fillText(ta,lx+12,topicY);}}
+
+    if(chars.length){
+      const ls=LS*fs;
+      if(path.segs.length){c.strokeStyle='#bdbdbd';c.lineWidth=Math.max(2,fs*.07);c.setLineDash([fs*.25,fs*.25]);
+        for(const [a,b] of path.segs){c.beginPath();for(let i=a+3;i<=b-3;i++){const p=path.pts[i];i===a+3?c.moveTo(p[0],p[1]):c.lineTo(p[0],p[1]);}c.stroke();
+          const p=path.pts[b-3],q=path.pts[b-2];arrow(c,q[0],q[1],Math.atan2(q[1]-p[1],q[0]-p[0]),fs*.35,'#bdbdbd');}
+        c.setLineDash([]);}
+      if(st.centerImg&&path.center&&path.center.r>20){const {x,y:cy,r:rr}=path.center,img=st.centerImg;
+        c.save();c.beginPath();c.arc(x,cy,rr,0,2*PI);c.clip();const sc=Math.max(2*rr/img.width,2*rr/img.height);
+        c.drawImage(img,x-img.width*sc/2,cy-img.height*sc/2,img.width*sc,img.height*sc);c.restore();}
+      if($('#outline').checked&&path.outer&&path.outer.length>8){const o=path.outer,n=o.length;let cx0=0,cy0=0;for(const q of o){cx0+=q[0];cy0+=q[1];}cx0/=n;cy0/=n;
+        c.save();c.beginPath();for(let i=0;i<n;i++){const a=o[(i-3+n)%n],b2=o[(i+3)%n],tx=b2[0]-a[0],ty=b2[1]-a[1],tl=Math.hypot(tx,ty)||1;let nx=ty/tl,ny=-tx/tl;
+            if((o[i][0]-cx0)*nx+(o[i][1]-cy0)*ny<0){nx=-nx;ny=-ny;}const x=o[i][0]+nx*fs*.62,y=o[i][1]+ny*fs*.62;i?c.lineTo(x,y):c.moveTo(x,y);}
+          c.closePath();c.lineJoin='round';c.lineWidth=Math.max(3,fs*.09);c.strokeStyle=decor!=='none'&&dcol==='color'?PAL[3].s:'#8a8f99';c.globalAlpha=.75;c.stroke();c.restore();}
+      if(startMark&&path.L>0){const p0=pointAt(path,fs*.15),p1=pointAt(path,fs*.95);arrow(c,p1[0],p1[1],Math.atan2(p1[1]-p0[1],p1[0]-p0[0]),fs*.55,'#E07A1F');}
+      if(answer){c.fillStyle=MARK;for(let i=0;i<layout.length;i++){const L=layout[i];if(!L||stream.tag[i]<=0)continue;c.save();c.translate(L.x,L.y);c.rotate(L.a);c.fillRect(-L.w/2-ls/2-.5,-fs*.62,L.w+ls+1,fs*1.24);c.restore();}}
+      c.font=`400 ${fs}px "${font}"`;c.textAlign='center';c.textBaseline='middle';
+      for(let i=0;i<layout.length;i++){const L=layout[i];if(!L||chars[i]===' ')continue;c.save();c.translate(L.x,L.y);c.rotate(L.ga);
+        c.fillStyle=answer&&stream.tag[i]>0?RED:answer&&stream.tag[i]<0?'#8a8a8a':(wordColor&&!answer?PAL[wIdx[i]%PAL.length].s:INK);c.fillText(chars[i],0,0);c.restore();}
+    }else{c.font=`400 34px "${font}"`;c.fillStyle=SOFT;c.textAlign='center';c.fillText('Nhập từ cần tìm để tạo hình',PW/2,(shapeTop+shapeBottom)/2);}
+
+    if(boxH)drawBlock(c,B,B.rows,boxTop,answer,font,W);
+    if(answer&&decoys.length){c.font=`400 24px "${font}"`;c.fillStyle=SOFT;c.textAlign='left';
+      const t='Bẫy (chữ xám, không tính): '+decoys.map(d=>d.en).join(', ');wrap(c,t,W).slice(0,2).forEach((l,i)=>c.fillText(l,M,PH-96+i*30));}
+    const foot=$('#footer').value.trim();
+    drawFooter(c,foot,font,useBorder);
+    extra.forEach((rows,k)=>{const pc=getPage(answer?'A':'S',k+1).getContext('2d');
+      pc.setTransform(1,0,0,1,0,0);pc.fillStyle='#fff';pc.fillRect(0,0,PW,PH);
+      if(useBorder)drawBorder(pc,decor,dcol);
+      drawTitle(pc,titleText,M,M+44,font,kidsTitle,dcol,44);
+      pc.textAlign='left';pc.textBaseline='alphabetic';pc.fillStyle=INK;
+      pc.font=`400 28px "${font}"`;pc.fillStyle=SOFT;pc.fillText(boxMode==='pic'?'Pictures':boxMode==='hint'?'Definitions':'Word list',M,M+86);
+      if(answer){pc.font=`700 30px "${font}"`;pc.fillStyle=RED;pc.textAlign='right';pc.fillText('ANSWER KEY',PW-M,M+40);}
+      drawBlock(pc,B,rows,M+120,answer,font,W);
+      drawFooter(pc,foot,font,useBorder);});
+  }
+  st.sentOn=$('#sentBox').checked;
+  if(st.sentOn)drawSentencePage({font,decor,dcol,useBorder,kidsTitle,title:titleText,foot:$('#footer').value.trim(),nameLine:$('#nameLine').checked,
+    instr:$('#sentInstr').value.trim(),n:+$('#sentN').value,style:$('#sentStyle').value,wordMode:$('#sentWordMode').value,words:items.map(i=>i.en)});
+  st.drawOn=$('#drawBox').checked;
+  if(st.drawOn)drawDrawingPage({font,decor,dcol,useBorder,kidsTitle,title:titleText,foot:$('#footer').value.trim(),nameLine:$('#nameLine').checked,
+    instr:$('#drawInstr').value.trim(),n:+$('#drawN').value,line:$('#drawWord').value==='line'});
+  st.play={layout,chars,tags:stream.tag,fs,font,targets,boxMode,title:titleText,instr:instrText,instrEn:$('#instr').value.replace(/\{n\}/g,targets.length),instrVi:$('#instrVi').checked?(VI_INSTR[boxMode]||VI_INSTR.en).replace(/\{n\}/g,targets.length):'',
+    crop:{x:0,y:Math.max(0,shapeTop-40),w:PW,h:Math.min(PH,shapeBottom+40)-Math.max(0,shapeTop-40)}};
+  st.pageCount=1+extra.length;setTab(st.tab);
+  updateShare();
+
+  const noiseCount=chars.filter((ch,i)=>stream.tag[i]===0&&ch!==' ').length;
+  const pt=(fs/200*72).toFixed(1);
+  $('#sizeVal').textContent=(+$('#size').value)+' pt';
+  $('#stats').textContent=`${targets.length} từ cần tìm · ${decoys.length} bẫy · ${noiseCount} chữ cái nhiễu · cỡ chữ ${pt} pt`
+    +(shrunk?' (đã tự giảm cho vừa)':'')+(overflow?' · Không đủ chỗ cho mọi từ, hãy bớt từ hoặc giảm giãn dòng':'')
+    +(!overflow&&targets.length&&(targets.length>(st.maxWords||25)||noiseCount<targets.length*8)?' · Phiếu khá đặc, từ cần tìm dễ bị đoán: nên chia danh sách làm 2 phiếu, giảm cỡ chữ hoặc chọn hình to hơn':'');
+  if(!P.student)saveLast();
+}
+function schedule(){clearTimeout(timer);timer=setTimeout(render,200);}
+
+/* ================= shape picker ================= */
+function inkColor(){return getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#1C2740';}
+function drawIcons(){
+  const col=inkColor();
+  document.querySelectorAll('.shape canvas').forEach(cv=>{const ctx=cv.getContext('2d'),d=2;cv.width=52*d;cv.height=52*d;ctx.scale(d,d);
+    ctx.strokeStyle=col;ctx.lineWidth=1.1;
+    if(cv.dataset.shape==='snake'){const p=buildSnake({x:3,y:3,w:46,h:46},2.6,1.5);ctx.beginPath();p.pts.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.stroke();return;}
+    const O=prepareOutline(cv.dataset.shape),k=21/Math.max(O.bw,O.bh);
+    for(const sc of [1,.68,.36]){ctx.beginPath();O.pts.forEach((q,i)=>{const x=26+k*(O.gx+(q[0]-O.gx)*sc),y=26+k*(O.gy+(q[1]-O.gy)*sc);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.closePath();ctx.stroke();}});
+}
+function buildShapeButtons(){
+  for(const [list,box] of [[SHAPES,$('#shapes')],[KIDS_SHAPES,$('#shapesKids')],[MORE_SHAPES,$('#shapesMore')]])list.forEach(([id,name])=>{const b=document.createElement('button');b.type='button';b.className='shape';b.id='shape-'+id;b.setAttribute('aria-pressed',id===st.shape);
+    const cv=document.createElement('canvas');cv.dataset.shape=id;b.append(cv,document.createTextNode(name));
+    b.onclick=()=>selectShape(id);box.append(b);});
+  drawIcons();
+}
+function buildPalettes(){const box=$('#palettes');
+  for(const [k,P] of Object.entries(PALETTES)){const b=document.createElement('button');b.type='button';b.className='pal';b.id='pal-'+k;b.setAttribute('aria-pressed',k===st.pal);
+    const sw=document.createElement('span');sw.className='sw';for(const [f,s2] of P.c){const i=document.createElement('i');i.style.background=f;i.style.borderColor=s2;sw.append(i);}
+    b.append(sw,document.createTextNode(P.name));b.onclick=()=>{st.pal=k;document.querySelectorAll('.pal').forEach(x=>x.setAttribute('aria-pressed',x.id==='pal-'+k));schedule();};box.append(b);}}
+function selectShape(id){st.shape=id;document.querySelectorAll('.shape').forEach(b=>b.setAttribute('aria-pressed',b.id==='shape-'+id));schedule();}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawIcons);}catch(e){}
+new MutationObserver(drawIcons).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+
+/* ================= share link ================= */
+const SHARE_IDS=['instrVi','speakMode','quizOn','quizN','quizLevel','quizType','askName','sheetUrl','outline','layoutMode','items','noise','decoys','upper','reverse','font','size','gap','hole','startMark','decor','decorColor','border','kidsTitle','wordColor','box','title','instr'];
+function snapshot(){const o={v:1,shape:st.shape,seed:st.seed,dseed:st.dseed,pal:st.pal,f:{}};
+  for(const id of SHARE_IDS){const el=$('#'+id);o.f[id]=el.type==='checkbox'?el.checked:el.value;}return o;}
+function applySnapshot(o){if(!o||!o.f)return;
+  if('orient' in o.f&&!('layoutMode' in o.f))o.f.layoutMode=o.f.orient;
+  if(o.f.layoutMode&&!ALL_LAYOUTS.includes(o.f.layoutMode))o.f.layoutMode='forward';
+  st.shape=o.shape||st.shape;st.seed=o.seed|0;st.dseed=o.dseed|0;if(o.pal)st.pal=o.pal;
+  for(const id of SHARE_IDS){const el=$('#'+id);if(!el||!(id in o.f))continue;if(el.type==='checkbox')el.checked=!!o.f[id];else el.value=o.f[id];}
+  st.instrDirty=true;try{syncOrient();}catch(e){}}
+const b64u={enc:u8=>{let s='';for(let i=0;i<u8.length;i+=8192)s+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');},
+  dec:t=>{t=t.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';const s=atob(t),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}};
+async function packCode(o){const raw=new TextEncoder().encode(JSON.stringify(o));
+  if(window.CompressionStream){try{const cs=new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw'));return 'z'+b64u.enc(new Uint8Array(await new Response(cs).arrayBuffer()));}catch(e){}}
+  return 'j'+b64u.enc(raw);}
+async function unpackCode(code){const kind=code[0],u=b64u.dec(code.slice(1));
+  if(kind==='z'){const ds=new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return JSON.parse(await new Response(ds).text());}
+  return JSON.parse(new TextDecoder().decode(u));}
+let shareTimer=null;
+function shareBase(){return($('#shareBase').value.trim()||'').split('#')[0];}
+function updateShare(){clearTimeout(shareTimer);shareTimer=setTimeout(async()=>{try{const code=await packCode(snapshot());st.shareCode=code;st.editCode=await packCode({v:2,snap:snapshot(),extra:collectExtra()});
+  const base=shareBase();$('#shareOut').value=base?base+'#play.'+code:'#play.'+code;
+  $('#shareMsg').textContent=base?'':'Dán link trang vào ô trên để có link đầy đủ. Hoặc gửi link trang kèm đoạn bắt đầu bằng #play ở cuối.';}catch(e){}},300);}
+$('#quizOn').addEventListener('change',()=>{$('#quizFields').hidden=!$('#quizOn').checked;});
+['#quizN','#quizLevel','#quizType','#items'].forEach(x=>$(x).addEventListener('input',updateQuizInfo));
+['#speakMode','#quizOn','#quizN','#quizLevel','#quizType','#askName','#sheetUrl'].forEach(x=>$(x).addEventListener('input',updateShare));
+$('#shareBase').addEventListener('input',()=>{try{localStorage.setItem('ttct-base',$('#shareBase').value.trim());}catch(e){}updateShare();});
+$('#editShareBtn').onclick=()=>{const base=shareBase();if(!st.editCode)return;const t=(base||'')+'#edit.'+st.editCode;
+  const ok=()=>{$('#shareMsg').textContent=base?'Đã sao chép link soạn đề. Đồng nghiệp mở link sẽ thấy đề này trong phần soạn và sửa tiếp được.':'Đã sao chép phần mã. Hãy dán link trang ở ô trên để có link đầy đủ.';};
+  try{navigator.clipboard.writeText(t).then(ok,()=>{$('#shareOut').value=t;$('#shareOut').select();});}catch(e){$('#shareOut').value=t;$('#shareOut').select();}};
+$('#shareBtn').onclick=()=>{const t=$('#shareOut').value;if(!t)return;const ok=()=>{$('#shareMsg').textContent='Đã sao chép link. Gửi cho học sinh qua Zalo, email hoặc Google Classroom.';};
+  try{navigator.clipboard.writeText(t).then(ok,()=>{$('#shareOut').select();$('#shareMsg').textContent='Hãy bôi đen và sao chép link trong ô trên.';});}catch(e){$('#shareOut').select();}};
+
+/* ================= play mode ================= */
+const TTS={ok:'speechSynthesis' in window,on:true,voice:null};
+function pickVoice(){if(!TTS.ok)return;const vs=speechSynthesis.getVoices();
+  TTS.voice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/Google|Samantha|Jenny|Aria|Natural/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs.find(v=>/en[-_]GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null;}
+if(TTS.ok){pickVoice();try{speechSynthesis.addEventListener('voiceschanged',pickVoice);}catch(e){}}
+function say(text,rate=.85){if(!TTS.ok||!TTS.on||!text)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=TTS.voice?.lang||'en-US';if(TTS.voice)u.voice=TTS.voice;u.rate=rate;speechSynthesis.speak(u);}catch(e){}}
+const P={on:false,found:new Set(),sel:null,anchor:null,start:0,timer:null,student:false,hl:[]};
+const pc=$('#pCanvas'),pctx=pc.getContext('2d');
+function fmtTime(ms){const t=Math.floor(ms/1000);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');}
+function openPlay(student){
+  const d=st.play;if(!d||!d.chars.length)return;
+  P.on=true;P.student=!!student;P.found=new Set();P.sel=null;P.anchor=null;P.hl=[];P.start=Date.now();P.hints=0;P.wrong=0;P.doneAt=0;P.quiz=null;P.foundAt={};P.hinted=new Set();
+  $('#pFinish').hidden=false;$('#pFinish').textContent='Nộp bài';delete $('#pFinish').dataset.c;
+  P.teams=+$('#pTeams').value||0;P.team=0;P.score=Array(P.teams).fill(0);renderTeams();$('#pQuiz').hidden=true;
+  $('#pExit').hidden=P.student;$('#pDone').hidden=true;
+  $('#pTitle').textContent=d.title||'Word Hunt';
+  const mode=d.boxMode;
+  $('#pInstr').textContent=(mode==='hint'||mode==='pic'?'Read the definitions. Find the words in the shape.':mode==='en'?'Find these words in the shape.':`Find ${d.targets.length} hidden words in the shape.`)+(d.instrVi?' — '+d.instrVi:'');
+  const ol=$('#pWords');ol.textContent='';
+  d.targets.forEach((t,k)=>{const li=document.createElement('li');li.dataset.i=t.i;
+    li.textContent=mode==='en'?t.en:(mode==='hint'||mode==='pic')?(t.hint||maskWord(t.en)):'?';ol.append(li);});
+  pc.width=d.crop.w;pc.height=d.crop.h;P.zoom=0;
+  $('#play').hidden=false;document.body.style.overflow='hidden';
+  drawPlay();requestAnimationFrame(()=>fitPlay(true));updateStat();clearInterval(P.timer);P.timer=setInterval(updateStat,500);
+  if(P.student&&$('#askName').checked&&!P.name){$('#pName').hidden=false;setTimeout(()=>$('#pNameIn').focus(),50);P.paused=true;}
+}
+function fitPlay(auto){const d=st.play;if(!d||!P.on)return;const b=$('.pboard'),bw=b.clientWidth-4,bh=b.clientHeight-4;if(bw<=0)return;
+  const fit=Math.max(50,Math.min(bw,bh*d.crop.w/d.crop.h));
+  if(auto||!P.zoom){const letter=d.fs*fit/d.crop.w;P.zoom=letter<13?Math.min(3,Math.ceil((15/letter)*4)/4):1;}
+  pc.style.width=fit*P.zoom+'px';pc.style.marginTop=P.zoom===1?Math.max(0,(bh-fit*d.crop.h/d.crop.w)/2)+'px':'0';
+  pc.style.touchAction=P.zoom>1?'pan-x pan-y':'none';$('#pZoomVal').textContent=Math.round(P.zoom*100)+'%';
+  if(auto&&P.zoom>1){const L=d.layout.find(Boolean);if(L){const sc=fit*P.zoom/d.crop.w;b.scrollLeft=Math.max(0,(L.x-d.crop.x)*sc-bw/3);b.scrollTop=Math.max(0,(L.y-d.crop.y)*sc-bh/3);}
+    toast('Đã phóng to. Vuốt để di chuyển, chạm chữ đầu rồi chữ cuối để khoanh');}}
+function setZoom(z){const b=$('.pboard'),cx=(b.scrollLeft+b.clientWidth/2)/Math.max(1,pc.clientWidth),cy=(b.scrollTop+b.clientHeight/2)/Math.max(1,pc.clientHeight);
+  P.zoom=Math.max(1,Math.min(4,Math.round(z*4)/4));fitPlay(false);b.scrollLeft=cx*pc.clientWidth-b.clientWidth/2;b.scrollTop=cy*pc.clientHeight-b.clientHeight/2;}
+$('#pZoomIn').onclick=()=>setZoom((P.zoom||1)+.5);$('#pZoomOut').onclick=()=>setZoom((P.zoom||1)-.5);
+addEventListener('resize',()=>{if(P.on)fitPlay(false);});
+const STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17.1l-5.9 3.2 1.3-6.5L2.5 9.3l6.6-.8z" fill="FILL" stroke="#8a6a00" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+const BADGES=[['first','Thợ săn đầu tiên',p=>p.games>=1],['g5','Chơi 5 ván',p=>p.games>=5],['g20','Chơi 20 ván',p=>p.games>=20],['w10','Tìm 10 từ',p=>p.words>=10],['w50','Tìm 50 từ',p=>p.words>=50],['w200','Tìm 200 từ',p=>p.words>=200],
+  ['nohint','Không cần gợi ý',(p,r)=>r.all&&r.hints===0],['fast','Siêu tốc',(p,r)=>r.all&&r.secs<=r.total*12],['perfect3','3 ván trọn vẹn',p=>p.perfect>=3]];
+function showStars(){const d=st.play,n=d.targets.length,f=P.found.size,secs=Math.round((P.doneAt-P.start)/1000);
+  const stars=f===n&&P.hints===0&&P.wrong<=2?3:f===n?2:f>=n/2?1:0;$('#pStars').innerHTML=[0,1,2].map(k=>STAR.replace('FILL',k<stars?'#FFD25E':'#EDEDED')).join('');$('#pStars').setAttribute('aria-label',stars+' sao');
+  const box=$('#pBadges');box.textContent='';$('#pReview').hidden=f===n||P.teams>0;
+  if(P.teams)return;
+  let pr={games:0,words:0,perfect:0,badges:[]};try{pr=Object.assign(pr,JSON.parse(localStorage.getItem('ttct-progress')||'{}'));}catch(e){}
+  pr.games++;pr.words+=f;if(stars===3)pr.perfect++;const r={all:f===n,hints:P.hints,secs,total:n};const newB=[];
+  for(const [id,name,test] of BADGES)if(!pr.badges.includes(id)&&test(pr,r)){pr.badges.push(id);newB.push(name);}
+  try{localStorage.setItem('ttct-progress',JSON.stringify(pr));}catch(e){}
+  for(const nm of newB){const sp=document.createElement('span');sp.textContent='Huy hiệu mới: '+nm;box.append(sp);}
+  const tot=document.createElement('span');tot.style.background='var(--field)';tot.style.borderColor='var(--line)';tot.textContent=`Tổng cộng: ${pr.words} từ · ${pr.games} ván · ${pr.badges.length}/${BADGES.length} huy hiệu`;box.append(tot);}
+$('#pReview').onclick=async()=>{const d=st.play,miss=d.targets.filter(t=>!P.found.has(t.i));if(!miss.length)return;
+  if(!st.reviewBackup)st.reviewBackup={items:$('#items').value,seed:st.seed};
+  $('#items').value=miss.map(t=>t.hint?`${t.en} = ${t.hint}${t.ex?' | '+t.ex:''}`:t.en).join('\n');st.seed=(Math.random()*2**31)|0;
+  await render();openPlay(P.student);toast('Ôn lại '+miss.length+' từ còn thiếu');};
+function closePlay(){if(st.reviewBackup&&!P.student){$('#items').value=st.reviewBackup.items;st.seed=st.reviewBackup.seed;st.reviewBackup=null;schedule();}P.on=false;$('#play').hidden=true;document.body.style.overflow='';clearInterval(P.timer);}
+function updateStat(){const d=st.play;if(P.paused){P.start=Date.now();}$('#pFound').textContent=`${P.found.size}/${d.targets.length}`;if(!P.doneAt)$('#pTime').textContent=fmtTime(Date.now()-P.start);}
+function hlPath(c,idx,color,w){const d=st.play,cr=d.crop;const pts=idx.map(i=>d.layout[i]).filter(Boolean);if(!pts.length)return;
+  c.save();c.translate(-cr.x,-cr.y);c.globalCompositeOperation='multiply';c.strokeStyle=color;c.lineWidth=w;c.lineCap='round';c.lineJoin='round';
+  c.beginPath();pts.forEach((p,k)=>{const x=p.x-Math.cos(p.a)*p.w*(k===0?.5:0),y=p.y-Math.sin(p.a)*p.w*(k===0?.5:0);k?c.lineTo(p.x,p.y):c.moveTo(x,y);});
+  const L=pts[pts.length-1];c.lineTo(L.x+Math.cos(L.a)*L.w*.5,L.y+Math.sin(L.a)*L.w*.5);c.stroke();c.restore();}
+function drawPlay(){const d=st.play,cr=d.crop;pctx.setTransform(1,0,0,1,0,0);pctx.clearRect(0,0,pc.width,pc.height);
+  pctx.drawImage(pageS,cr.x,cr.y,cr.w,cr.h,0,0,cr.w,cr.h);
+  for(const h of P.hl)hlPath(pctx,h.idx,h.color,d.fs*1.25);
+  if(P.sel){const [a,b]=P.sel,idx=[];for(let i=Math.min(a,b);i<=Math.max(a,b);i++)idx.push(i);hlPath(pctx,idx,'#B9C6DA',d.fs*1.25);}
+  else if(P.anchor!=null)hlPath(pctx,[P.anchor],'#FFD45C',d.fs*1.4);}
+function toPage(e){const r=pc.getBoundingClientRect(),d=st.play;return[(e.clientX-r.left)*d.crop.w/r.width+d.crop.x,(e.clientY-r.top)*d.crop.h/r.height+d.crop.y];}
+function nearest(x,y,near){const d=st.play;let best=-1,bd=Infinity;const lo=near==null?0:Math.max(0,near-90),hi=near==null?d.layout.length-1:Math.min(d.layout.length-1,near+90);
+  for(let i=lo;i<=hi;i++){const L=d.layout[i];if(!L||d.chars[i]===' ')continue;const e=(L.x-x)**2+(L.y-y)**2;if(e<bd){bd=e;best=i;}}
+  return{i:best,dist:Math.sqrt(bd)};}
+function toast(t){const el=$('#pToast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,1300);}
+function checkSel(a,b){const d=st.play;let lo=Math.min(a,b),hi=Math.max(a,b);
+  while(lo<hi&&d.chars[lo]===' ')lo++;while(hi>lo&&d.chars[hi]===' ')hi--;
+  const tag=d.tags[lo];
+  if(tag>0&&d.tags[hi]===tag&&(lo===0||d.tags[lo-1]!==tag)&&(hi===d.chars.length-1||d.tags[hi+1]!==tag)){
+    let ok=true;for(let i=lo;i<=hi;i++)if(d.tags[i]!==tag&&d.chars[i]!==' '){ok=false;break;}
+    if(ok){const t=d.targets.find(x=>x.i+1===tag);if(P.found.has(t.i)){toast('Bạn đã tìm từ này rồi');return;}
+      P.found.add(t.i);P.foundAt[t.i]=Math.round((Date.now()-P.start)/100)/10;const idx=[];for(let i=lo;i<=hi;i++)idx.push(i);P.hl.push({idx,color:PAL[P.found.size%PAL.length].f});if(t.ex&&$(`#pWords li[data-i="${t.i}"]`))setTimeout(()=>{const li=$(`#pWords li[data-i="${t.i}"]`);if(li){const e=document.createElement('div');e.className='hint';e.textContent=t.ex;li.append(e);}},0);
+      const li=$(`#pWords li[data-i="${t.i}"]`);if(li){li.classList.add('found');li.textContent='✓ '+t.en+((d.boxMode==='hint'||d.boxMode==='pic')&&t.hint?' — '+t.hint:'');li.classList.add('flash');setTimeout(()=>li.classList.remove('flash'),900);li.scrollIntoView({block:'nearest'});}
+      toast('Đúng rồi! '+t.en);speakFound(t);
+      if(P.teams){P.score[P.team]++;P.hl[P.hl.length-1].color=PAL[P.team%PAL.length].f;P.hl[P.hl.length-1].team=P.team;P.team=(P.team+1)%P.teams;renderTeams();}
+      updateStat();drawPlay();
+      if(P.found.size===d.targets.length){P.doneAt=Date.now();finish();}
+      return;}}
+  const n=d.chars.slice(lo,hi+1).join('');
+  P.wrong++;toast(d.tags.slice(lo,hi+1).some(v=>v<0)?'Gần đúng! Từ này viết sai chính tả':'Chưa đúng, thử lại nhé');
+}
+function finish(){const d=st.play;$('#pFinish').hidden=true;showStars();$('#pTime').textContent=fmtTime(P.doneAt-P.start);
+  $('#pQuizBtn').hidden=!($('#quizOn').checked&&buildQuiz().length);$('#pSendMsg').textContent='';sendResult('play');
+  const all=P.found.size===d.targets.length;$('#pBig').textContent=all?'Great job!':P.found.size>=d.targets.length/2?'Good work!':'Nice try!';
+  $('#pReveal').hidden=all;
+  $('#pDoneMsg').textContent=(all?`Bạn đã tìm đủ ${d.targets.length} từ`:`Bạn đã tìm được ${P.found.size}/${d.targets.length} từ`)+` trong ${fmtTime(P.doneAt-P.start)}`+(P.hints?` (dùng ${P.hints} gợi ý)`:'')+'.';
+  if(P.teams){const mx=Math.max(...P.score),win=P.score.map((v,k)=>v===mx?'Đội '+(k+1):null).filter(Boolean);$('#pDoneMsg').textContent=(win.length>1?'Hòa: ':'Đội thắng: ')+win.join(', ')+' với '+mx+' từ.';}
+  $('#pDone').hidden=false;if(all||P.teams)confetti();setTimeout(()=>say($('#pBig').textContent,.95),900);}
+function confetti(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const cv=$('#pConfetti'),c=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;
+  const ps=Array.from({length:140},()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*3,r:4+Math.random()*5,c:PAL[Math.floor(Math.random()*PAL.length)].f,a:Math.random()*6}));
+  let f=0;(function step(){c.clearRect(0,0,cv.width,cv.height);for(const p of ps){p.x+=p.vx;p.y+=p.vy;p.a+=.1;c.fillStyle=p.c;c.save();c.translate(p.x,p.y);c.rotate(p.a);c.fillRect(-p.r,-p.r/2,p.r*2,p.r);c.restore();}
+    if(++f<220)requestAnimationFrame(step);else c.clearRect(0,0,cv.width,cv.height);})();}
+let down=null;
+pc.addEventListener('pointerdown',e=>{if(!P.on||P.doneAt)return;e.preventDefault();pc.setPointerCapture(e.pointerId);const [x,y]=toPage(e),n=nearest(x,y);
+  if(n.i<0||n.dist>st.play.fs*1.2){P.anchor=null;P.sel=null;drawPlay();return;}
+  down={i:n.i,moved:false};P.sel=[n.i,n.i];drawPlay();});
+pc.addEventListener('pointermove',e=>{if(!down)return;const [x,y]=toPage(e),n=nearest(x,y,down.i);if(n.i<0)return;if(n.i!==down.i)down.moved=true;P.sel=[down.i,n.i];drawPlay();});
+pc.addEventListener('pointerup',e=>{if(!down)return;const d0=down;down=null;
+  if(d0.moved){const [a,b]=P.sel;P.sel=null;P.anchor=null;checkSel(a,b);drawPlay();return;}
+  P.sel=null;
+  if(P.anchor==null){P.anchor=d0.i;drawPlay();toast('Chạm chữ cuối của từ');}
+  else{const a=P.anchor;P.anchor=null;if(Math.abs(a-d0.i)>90){toast('Hai chữ cách nhau quá xa');drawPlay();return;}checkSel(a,d0.i);drawPlay();}});
+pc.addEventListener('pointercancel',()=>{down=null;P.sel=null;drawPlay();});
+$('#pHint').onclick=()=>{const d=st.play;const left=d.targets.filter(t=>!P.found.has(t.i));if(!left.length)return;const t=left[Math.floor(Math.random()*left.length)];
+  const i=d.tags.findIndex(v=>v===t.i+1);if(i<0)return;P.hints++;P.hinted.add(t.i);P.anchor=null;
+  const L=d.layout[i];if(!L)return;let k=0;const blink=()=>{drawPlay();if(k%2===0)hlPath(pctx,[i],'#FF8A80',d.fs*1.6);if(++k<6)setTimeout(blink,260);};blink();toast('Từ này bắt đầu ở chữ nhấp nháy');};
+$('#pSound').hidden=!TTS.ok;
+$('#pSound').onclick=()=>{TTS.on=!TTS.on;$('#pSound').setAttribute('aria-pressed',TTS.on);$('#pSound').textContent='Đọc to: '+(TTS.on?'Bật':'Tắt');if(TTS.on)say('Sound on');else try{speechSynthesis.cancel();}catch(e){}};
+$('#pWords').addEventListener('click',e=>{const liAny=e.target.closest('li');if(liAny&&!liAny.classList.contains('found')){const t=st.play.targets.find(x=>String(x.i)===liAny.dataset.i);if(t&&t.hint&&(st.play.boxMode==='hint'||st.play.boxMode==='pic')){const on=TTS.on;TTS.on=true;say(t.hint);TTS.on=on;}return;}const li=e.target.closest('li.found');if(!li)return;const t=st.play.targets.find(x=>String(x.i)===li.dataset.i);if(t){const on=TTS.on;TTS.on=true;say(t.en);TTS.on=on;}});
+function speakFound(t){const m=$('#speakMode').value;say(m==='def'&&t.hint?t.en+'. '+t.hint:m==='ex'&&t.ex?t.en+'. '+t.ex:t.en);}
+function renderTeams(){const bar=$('#pTeamBar');bar.hidden=!P.teams;bar.textContent='';
+  for(let k=0;k<P.teams;k++){const b=document.createElement('button');b.type='button';b.className='team';b.setAttribute('aria-pressed',k===P.team);
+    b.style.background=PAL[k%PAL.length].f;b.style.borderColor=PAL[k%PAL.length].s;b.style.color='#1a1a1a';
+    b.append(document.createTextNode('Đội '+(k+1)+(k===P.team?' (đang chơi)':'')));const sc=document.createElement('b');sc.textContent=P.score[k];b.append(sc);
+    b.onclick=()=>{P.team=k;renderTeams();};bar.append(b);}}
+$('#pTeams').addEventListener('change',()=>{if(P.on)openPlay(P.student);});
+$('#pNameForm').addEventListener('submit',e=>{e.preventDefault();P.name=$('#pNameIn').value.trim();P.cls=$('#pClassIn').value.trim();if(!P.name)return;
+  $('#pName').hidden=true;P.paused=false;P.start=Date.now();try{localStorage.setItem('ttct-student',JSON.stringify({n:P.name,c:P.cls}));}catch(_){}});
+try{const sv=JSON.parse(localStorage.getItem('ttct-student')||'null');if(sv){$('#pNameIn').value=sv.n||'';$('#pClassIn').value=sv.c||'';}}catch(_){}
+
+/* ---- mini quiz ---- */
+const IRRQ={go:'went|gone|goes|going',come:'came|comes|coming',get:'got|gets|getting|gotten',take:'took|taken|takes|taking',run:'ran|runs|running',bring:'brought|brings|bringing',
+  find:'found|finds|finding',hang:'hung|hangs|hanging',give:'gave|given|gives|giving',make:'made|makes|making',put:'puts|putting',cut:'cuts|cutting',set:'sets|setting',
+  turn:'turns|turned|turning',look:'looks|looked|looking',pass:'passes|passed|passing',carry:'carries|carried|carrying',grow:'grew|grown|grows|growing',
+  wake:'woke|woken|wakes|waking',fall:'fell|fallen|falls|falling',keep:'kept|keeps|keeping',hold:'held|holds|holding',write:'wrote|written|writes|writing'};
+function gapSentence(t){if(!t.ex)return null;const w=t.en.toLowerCase().split(/\s+/);const esc2=x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const first='(?:'+esc2(w[0])+'[a-z]*'+(IRRQ[w[0]]?'|'+IRRQ[w[0]]:'')+')';
+  const re=new RegExp('(^|[^A-Za-z])('+first+(w.length>1?'(?:\\s+[a-z]+)?\\s+'+w.slice(1).map(esc2).join('\\s+'):'')+')(?![A-Za-z])','i');
+  const m=t.ex.match(re);if(!m)return null;const at=m.index+m[1].length;return t.ex.slice(0,at)+'________'+t.ex.slice(at+m[2].length);}
+function quizCapacity(){const T=(st.play?.targets||parseItems());return Math.min(20,Math.max(T.length,0)*(T.some(t=>t.hint)?3:2));}
+function buildQuiz(){const d=st.play,T=d.targets.filter(t=>t.en);if(T.length<2)return[];
+  const r=rngFrom((st.seed^0x1234567)+(P.start|0));
+  const lvl=$('#quizLevel').value,nOpt=lvl==='easy'?3:4,want=Math.min(20,+$('#quizN').value||8),kind=$('#quizType').value;
+  const withDef=T.filter(t=>t.hint).length>=Math.min(nOpt,T.length);
+  const sim=(a,b)=>{const A=a.toLowerCase().split(' '),B=b.toLowerCase().split(' ');let s=0;if(A[0]===B[0])s+=2;if(A.slice(1).join(' ')===B.slice(1).join(' '))s+=1.5;for(const x of A)if(B.includes(x))s+=.5;return s;};
+  const pickOthers=(t,list,key)=>{let c=list.filter(x=>x!==t);if(lvl==='hard')c=c.map(x=>({x,s:sim(t.en,x.en)+r()})).sort((a,b)=>b.s-a.s).map(o=>o.x);else c=shuffle(c.slice(),r);return c.slice(0,nOpt-1).map(key);};
+  const spellOpts=t=>{const o=new Set([t.en]);for(let g=0;g<60&&o.size<nOpt;g++){const m=misspell(t.en.toLowerCase(),r);if(m&&norm(m)!==norm(t.en))o.add(m);}return shuffle([...o],r);};
+  const make={
+    def:t=>withDef&&t.hint?{type:'def',q:t.hint,ans:t.en,opts:shuffle([t.en,...pickOthers(t,T,x=>x.en)],r),word:t.en}:null,
+    mean:t=>withDef&&t.hint?{type:'mean',q:t.en,ans:t.hint,opts:shuffle([t.hint,...pickOthers(t,T.filter(x=>x.hint),x=>x.hint)],r),word:t.en}:null,
+    gap:t=>{const g=gapSentence(t);return g?{type:'gap',q:g,ans:t.en,opts:shuffle([t.en,...pickOthers(t,T,x=>x.en)],r),word:t.en}:null;},
+    listen:t=>TTS.ok?{type:'listen',q:'',ans:t.en,opts:spellOpts(t),word:t.en}:null,
+    spell:t=>({type:'spell',q:'',ans:t.en,opts:spellOpts(t),word:t.en})};
+  const order=kind==='mix'?(lvl==='easy'?['def','listen','spell','gap']:lvl==='hard'?['gap','mean','def','listen']:['def','gap','mean','listen','spell']):[kind];
+  const words=shuffle(T.slice(),r),qs=[],used=new Set();
+  for(let round=0;round<order.length*2&&qs.length<want;round++){
+    for(const t of words){if(qs.length>=want)break;
+      for(let k=0;k<order.length;k++){const ty=order[(round+k+words.indexOf(t))%order.length],key=t.en+'|'+ty;if(used.has(key))continue;
+        const q=make[ty](t);if(q&&q.opts.length>=2){used.add(key);qs.push(q);break;}}}}
+  if(!qs.length&&kind!=='spell')for(const t of words.slice(0,want))qs.push(make.spell(t));
+  return shuffle(qs,r).slice(0,want);}
+function updateQuizInfo(){const T=parseItems(),hasDef=T.filter(t=>t.hint).length,hasEx=T.filter(t=>t.ex).length,k=$('#quizType').value;
+  let msg=`${T.length} từ, ${hasDef} có định nghĩa, ${hasEx} có câu ví dụ.`;
+  if((k==='def'||k==='mean')&&hasDef<3)msg+=' Dạng này cần định nghĩa, nếu thiếu sẽ đổi sang chọn cách viết.';
+  if(k==='gap'&&!hasEx)msg+=' Dạng điền từ cần câu ví dụ (thêm sau dấu |).';
+  if(k!=='mix'&&T.length<+$('#quizN').value)msg+=` Một dạng chỉ hỏi mỗi từ 1 lần, nên tối đa ${T.length} câu. Chọn "Trộn các dạng" để có đủ câu.`;
+  $('#quizInfo').textContent=msg;}
+function showQ(){const Q=P.quiz,q=Q.qs[Q.k];$('#qProg').textContent=`Câu ${Q.k+1}/${Q.qs.length} · Đúng ${Q.ok}`;$('#qNext').hidden=true;
+  $('#qQ').textContent=q.type==='def'?'Which word matches this meaning? “'+q.q+'”':q.type==='mean'?'What does “'+q.q+'” mean?':q.type==='gap'?'Complete the sentence: '+q.q:q.type==='listen'?'Listen and choose the correct spelling.':'Which spelling is correct?';
+  $('#qListen').hidden=q.type!=='listen';if(q.type==='listen'){const on=TTS.on;TTS.on=true;say(q.word);TTS.on=on;}
+  const box=$('#qOpts');box.textContent='';
+  for(const o of q.opts){const b=document.createElement('button');b.type='button';b.textContent=o;b.onclick=()=>{if(Q.answered)return;Q.answered=true;
+      const right=o===q.ans;if(right){Q.ok++;b.classList.add('right');}else{b.classList.add('wrong');[...box.children].find(x=>x.textContent===q.ans)?.classList.add('right');}
+      say(q.word);$('#qProg').textContent=`Câu ${Q.k+1}/${Q.qs.length} · Đúng ${Q.ok}`;$('#qNext').hidden=false;$('#qNext').textContent=Q.k+1<Q.qs.length?'Câu tiếp':'Xem kết quả';};box.append(b);}
+  Q.answered=false;}
+$('#pQuizBtn').onclick=()=>{const qs=buildQuiz();if(!qs.length)return;P.quiz={qs,k:0,ok:0};$('#pDone').hidden=true;$('#pQuiz').hidden=false;$('#qTitle').textContent='Mini quiz';showQ();};
+$('#qListen').onclick=()=>{const q=P.quiz?.qs[P.quiz.k];if(q){const on=TTS.on;TTS.on=true;say(q.word);TTS.on=on;}};
+$('#qNext').onclick=()=>{const Q=P.quiz;if(Q.k+1<Q.qs.length){Q.k++;showQ();return;}
+  $('#qQ').textContent=`Bạn trả lời đúng ${Q.ok}/${Q.qs.length} câu.`;$('#qOpts').textContent='';$('#qNext').hidden=true;$('#qListen').hidden=true;$('#qTitle').textContent=Q.ok===Q.qs.length?'Perfect!':'Well done!';
+  if(Q.ok===Q.qs.length)confetti();sendResult('quiz');};
+$('#qClose').onclick=()=>{$('#pQuiz').hidden=true;if(P.doneAt)$('#pDone').hidden=false;};
+
+/* ---- results ---- */
+let DB=null,USER=null;
+(async()=>{if(!window.claude?.use)return;try{DB=await claude.use('db');USER=await claude.use('user');}catch(e){DB=null;}
+  if(!DB)$('#resClaude').querySelector('.hint').textContent='Trang đang mở ngoài Claude, nên phần lưu kết quả trong trang không dùng được. Hãy dùng Google Sheet bên dưới.';})();
+function resultRow(kind){const d=st.play;return{name:P.name||'(giáo viên thử)',cls:P.cls||'',title:d.title||'',kind,found:P.found.size,total:d.targets.length,
+  secs:Math.round(((P.doneAt||Date.now())-P.start)/1000),hints:P.hints||0,wrong:P.wrong||0,qok:P.quiz?.ok??'',qn:P.quiz?P.quiz.qs.length:'',at:new Date().toISOString(),code:(st.shareCode||'').slice(0,24),
+  words:d.targets.filter(t=>P.found.has(t.i)).map(t=>t.en+' ('+P.foundAt[t.i]+'s'+(P.hinted.has(t.i)?', gợi ý':'')+')').join('; '),
+  missed:d.targets.filter(t=>!P.found.has(t.i)).map(t=>t.en).join('; '),
+  wlist:d.targets.map(t=>({w:t.en,ok:P.found.has(t.i),s:P.foundAt[t.i]??null,h:P.hinted.has(t.i)}))};}
+async function sendResult(kind){if(!P.student)return;const row=resultRow(kind);const msgs=[];
+  if(DB&&USER){try{const id=await USER.id();if(id){const ref=DB.doc('results/'+id);const snap=await ref.get();const runs=snap.exists?(snap.data().runs||[]).slice(-49):[];
+      runs.push(row);await ref.set({name:row.name,cls:row.cls,runs,last:row.at});msgs.push('Đã gửi kết quả cho giáo viên.');}}catch(e){}}
+  const url=$('#sheetUrl').value.trim();
+  if(url&&/^https:\/\/script\.google\.com\//.test(url)&&!window.claude?.use){try{await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(row)});msgs.push('Đã gửi kết quả cho giáo viên.');}catch(e){}}
+  $('#pSendMsg').textContent=msgs[0]||'';}
+let resRows=[];
+$('#resRefresh').onclick=async()=>{const box=$('#resTable');if(!DB){box.textContent='Chưa xem được: trang cần mở trên claude.ai.';return;}
+  box.textContent='Đang tải…';try{const q=await DB.collection('results').get();resRows=[];
+    q.docs.forEach(d=>{const v=d.data()||{};(v.runs||[]).forEach(r=>resRows.push(r));});resRows.sort((a,b)=>String(b.at).localeCompare(String(a.at)));
+    if(!resRows.length){box.textContent='Chưa có kết quả nào. Kết quả hiện ở đây khi học sinh có quyền ghi chơi xong.';return;}
+    const t=document.createElement('table');t.innerHTML='<thead><tr><th>Thời gian</th><th>Tên</th><th>Lớp</th><th>Đề</th><th>Loại</th><th>Tìm được</th><th>Giây</th><th>Gợi ý</th><th>Sai</th><th>Quiz</th></tr></thead>';
+    const tb=document.createElement('tbody');for(const r of resRows){const tr=document.createElement('tr');
+      for(const v of [new Date(r.at).toLocaleString('vi-VN'),r.name,r.cls,r.title,r.kind==='quiz'?'Quiz':'Tìm từ',`${r.found}/${r.total}`,r.secs,r.hints,r.wrong,r.qn!==''?`${r.qok}/${r.qn}`:'']){const td=document.createElement('td');td.textContent=v;tr.append(td);}tb.append(tr);}
+    t.append(tb);box.textContent='';box.append(t);
+    const agg=new Map();for(const r of resRows){if(r.kind!=='play'||!r.wlist)continue;for(const w of r.wlist){const a=agg.get(w.w)||{w:w.w,n:0,miss:0,hint:0,secs:[]};a.n++;if(!w.ok)a.miss++;if(w.h)a.hint++;if(w.s!=null)a.secs.push(w.s);agg.set(w.w,a);}}
+    if(agg.size){const rows=[...agg.values()].map(a=>({...a,rate:(a.miss+a.hint*.5)/a.n,avg:a.secs.length?a.secs.reduce((x,y)=>x+y,0)/a.secs.length:null})).sort((x,y)=>y.rate-x.rate||(y.avg||0)-(x.avg||0));
+      const h=document.createElement('h3');h.textContent='Từ khó nhất với cả lớp';h.style.margin='14px 0 4px';
+      const t2=document.createElement('table');t2.className='wordstat';t2.innerHTML='<thead><tr><th>Từ</th><th>Lượt chơi</th><th>Không tìm được</th><th>Phải gợi ý</th><th>Tìm trung bình (giây)</th><th>Độ khó</th></tr></thead>';
+      const b2=document.createElement('tbody');for(const a of rows){const tr=document.createElement('tr');for(const v of [a.w,a.n,a.miss,a.hint,a.avg==null?'':a.avg.toFixed(1)]){const td=document.createElement('td');td.textContent=v;tr.append(td);}
+        const td=document.createElement('td');td.className='bar';const i=document.createElement('i');i.style.width=Math.round(Math.min(1,a.rate)*100)+'%';td.append(i);tr.append(td);b2.append(tr);}
+      t2.append(b2);const btn=document.createElement('button');btn.type='button';btn.textContent='Tạo đề ôn tập từ 8 từ khó nhất';btn.style.marginTop='8px';
+      btn.onclick=()=>{const hard=rows.filter(a=>a.rate>0).slice(0,8).map(a=>a.w);if(!hard.length){btn.textContent='Chưa có từ nào khó: cả lớp đều tìm được';return;}
+        const cur=new Map(parseItems().map(it=>[norm(it.en),it]));$('#items').value=hard.map(w=>{const it=cur.get(norm(w));return it&&it.hint?`${w} = ${it.hint}${it.ex?' | '+it.ex:''}`:w;}).join('\n');
+        st.seed=(Math.random()*2**31)|0;store();goStep(1);schedule();btn.textContent='Đã đưa '+hard.length+' từ vào danh sách ở bước 1';};
+      box.append(h,t2,btn);}
+  }catch(e){box.textContent='Không đọc được kết quả: chỉ chủ trang hoặc Editor xem được.';}};
+$('#resCsv').onclick=async()=>{if(!resRows.length){$('#resTable').textContent='Bấm "Xem kết quả" trước.';return;}
+  const head=['at','name','cls','title','kind','found','total','secs','hints','wrong','qok','qn','words','missed'];const csv='﻿'+[head.join(','),...resRows.map(r=>head.map(h=>'"'+String(r[h]??'').replace(/"/g,'""')+'"').join(','))].join('\n');
+  if(downloads){try{await downloads.save({filename:'ket-qua-word-hunt.csv',data:csv});}catch(e){}}else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ket-qua-word-hunt.csv';a.click();}};
+$('#gasCopy').onclick=()=>{try{navigator.clipboard.writeText($('#gasCode').value).then(()=>$('#gasCopy').textContent='Đã sao chép',()=>$('#gasCode').select());}catch(e){$('#gasCode').select();}};
+
+/* ---- presets ---- */
+const PRESETS={
+  prea1:{size:22,layoutMode:'rows',noise:'words',decoys:0,reverse:false,upper:false,gap:1.6,font:'Andika',quizLevel:'easy',quizN:'5',quizType:'listen',speakMode:'word',sentStyle:'kids',max:8,
+    msg:'Pre-A1: chữ to, chữ thường, dòng thẳng, không bẫy, quiz nghe 5 câu. Nên dùng 4–8 từ.'},
+  a1:{size:18,layoutMode:'forward',noise:'words',decoys:2,reverse:false,upper:false,gap:1.55,font:'Andika',quizLevel:'easy',quizN:'8',quizType:'mix',speakMode:'word',sentStyle:'kids',max:12,
+    msg:'A1: chữ to, dòng cong theo hình, 2 bẫy, quiz dễ 8 câu. Nên dùng 8–12 từ.'},
+  a2:{size:14,layoutMode:'ring',noise:'words',decoys:4,reverse:false,upper:true,gap:1.5,font:'Lexend',quizLevel:'medium',quizN:'10',quizType:'mix',speakMode:'def',sentStyle:'single',max:20,
+    msg:'A2: chạy vòng xuôi, 4 bẫy, đọc to cả định nghĩa, quiz 10 câu. Nên dùng 12–20 từ.'},
+  b1:{size:12,layoutMode:'soft',noise:'letters',decoys:6,reverse:false,upper:true,gap:1.45,font:'Lexend',quizLevel:'hard',quizN:'15',quizType:'mix',speakMode:'ex',sentStyle:'single',max:25,
+    msg:'B1+: xoắn ốc, nhiễu chữ cái ngẫu nhiên, 6 bẫy, đọc câu ví dụ, quiz khó 15 câu. Nên dùng 15–25 từ.'},
+  expert:{size:11,layoutMode:'path',noise:'letters',decoys:8,reverse:true,upper:true,gap:1.4,font:'Lexend',quizLevel:'hard',quizN:'20',quizType:'mix',speakMode:'ex',sentStyle:'single',max:30,
+    msg:'Thử thách: xoắn ốc có chữ úp và từ viết ngược, 8 bẫy, quiz 20 câu.'}};
+document.querySelectorAll('.preset').forEach(b=>b.onclick=()=>{const p=PRESETS[b.dataset.p];
+  for(const [k,v] of Object.entries(p)){if(k==='max'||k==='msg')continue;const el=$('#'+k);if(!el)continue;if(el.type==='checkbox')el.checked=v;else el.value=v;}
+  st.maxWords=p.max;st.age=b.dataset.p;document.querySelectorAll('.preset').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  st.instrDirty=false;syncOrient();setInstrDefault();updateQuizInfo();$('#sizeVal').textContent=(+$('#size').value)+' pt';
+  $('#presetMsg').textContent=p.msg;schedule();});
+$('#qPdf').onclick=()=>$('#pdfBtn').click();$('#qPlay').onclick=()=>$('#playBtn').click();
+$('#qShare').onclick=()=>{$('#shareBtn').click();$('#qMsg').textContent=$('#shareBase').value.trim()?'Đã sao chép link cho học sinh.':'Hãy dán link trang ở bước 5 để có link đầy đủ.';};
+
+/* ---- saved puzzles ---- */
+function collectExtra(){const e={};for(const id of SAVE_EXTRA){const el=$('#'+id);if(el)e[id]=el.type==='checkbox'?el.checked:el.value;}return e;}
+let saveLastT=null;function saveLast(){clearTimeout(saveLastT);saveLastT=setTimeout(()=>{try{localStorage.setItem('ttct-last',JSON.stringify({snap:snapshot(),extra:collectExtra()}));}catch(e){}},400);}
+function applyAll(snap,extra){applySnapshot(snap);for(const [id,v] of Object.entries(extra||{})){const el=$('#'+id);if(!el)continue;if(el.type==='checkbox')el.checked=v;else el.value=v;}
+  ['#topicLine','#drawBox','#sentBox','#quizOn'].forEach(x=>$(x)?.dispatchEvent(new Event('change')));
+  document.querySelectorAll('.shape').forEach(b=>b.setAttribute('aria-pressed',b.id==='shape-'+st.shape));document.querySelectorAll('.pal').forEach(x=>x.setAttribute('aria-pressed',x.id==='pal-'+st.pal));
+  $('#sizeVal').textContent=(+$('#size').value)+' pt';syncOrient();renderPicList();updateQuizInfo();}
+const SAVE_EXTRA=['versions','topicLine','topicQ','topicA','drawBox','drawN','drawWord','drawInstr','sentBox','sentN','sentStyle','sentWordMode','sentInstr','nameLine','footer','withKey'];
+function loadSaved(){try{return JSON.parse(localStorage.getItem('ttct-saved')||'[]');}catch(e){return[];}}
+function storeSaved(a){try{localStorage.setItem('ttct-saved',JSON.stringify(a));return true;}catch(e){return false;}}
+function renderSaved(){const box=$('#savedList');box.textContent='';const a=loadSaved();
+  if(!a.length){const h=document.createElement('span');h.className='hint';h.textContent='Chưa có đề nào được lưu.';box.append(h);return;}
+  a.forEach((it,k)=>{const row=document.createElement('div');row.className='saved';const n=document.createElement('span');n.textContent=it.name;n.title=new Date(it.at).toLocaleString('vi-VN');
+    const o=document.createElement('button');o.type='button';o.textContent='Mở';o.onclick=()=>{applySnapshot(it.snap);for(const [id,v] of Object.entries(it.extra||{})){const el=$('#'+id);if(!el)continue;if(el.type==='checkbox')el.checked=v;else el.value=v;}
+      ['#topicLine','#drawBox','#sentBox'].forEach(x=>$(x).dispatchEvent(new Event('change')));
+      document.querySelectorAll('.shape').forEach(b=>b.setAttribute('aria-pressed',b.id==='shape-'+st.shape));document.querySelectorAll('.pal').forEach(x=>x.setAttribute('aria-pressed',x.id==='pal-'+st.pal));
+      $('#saveName').value=it.name;store();renderPicList();schedule();};
+    const del=document.createElement('button');del.type='button';del.textContent='Xóa';del.onclick=()=>{if(del.dataset.c){const b=loadSaved();b.splice(k,1);storeSaved(b);renderSaved();}else{del.dataset.c='1';del.textContent='Bấm lần nữa để xóa';}};
+    row.append(n,o,del);box.append(row);});}
+$('#saveBtn').onclick=()=>{const name=$('#saveName').value.trim()||($('#title').value||'Word Hunt')+' – '+new Date().toLocaleDateString('vi-VN');
+  const extra={};for(const id of SAVE_EXTRA){const el=$('#'+id);if(el)extra[id]=el.type==='checkbox'?el.checked:el.value;}
+  const a=loadSaved().filter(x=>x.name!==name);a.unshift({name,at:Date.now(),snap:snapshot(),extra});if(!storeSaved(a.slice(0,60)))$('#presetMsg').textContent='Không lưu được: trình duyệt chặn bộ nhớ.';$('#saveName').value=name;renderSaved();};
+$('#pFinish').onclick=()=>{const b=$('#pFinish');if(P.doneAt)return;
+  if(!b.dataset.c){b.dataset.c='1';b.textContent='Bấm lần nữa để nộp';clearTimeout(b._t);b._t=setTimeout(()=>{delete b.dataset.c;b.textContent='Nộp bài';},3500);return;}
+  delete b.dataset.c;b.textContent='Nộp bài';P.anchor=null;P.sel=null;P.doneAt=Date.now();drawPlay();finish();};
+$('#pReveal').onclick=()=>{const d=st.play;for(const t of d.targets){if(P.found.has(t.i))continue;const idx=[];d.tags.forEach((v,i)=>{if(v===t.i+1)idx.push(i);});
+    if(idx.length)P.hl.push({idx,color:'#D9D9D9',missed:true});const li=$(`#pWords li[data-i="${t.i}"]`);if(li){li.textContent=t.en+(t.hint&&(d.boxMode==='hint'||d.boxMode==='pic')?' — '+t.hint:'');li.classList.add('missed');}}
+  $('#pDone').hidden=true;$('#pReveal').hidden=true;drawPlay();toast('Từ chưa tìm được tô màu xám');};
+function sayLang(text,lang){if(!TTS.ok||!text)return;try{const vs=speechSynthesis.getVoices();const v=vs.find(x=>x.lang&&x.lang.toLowerCase().startsWith(lang));
+  if(!v&&lang!=='en')return false;const u=new SpeechSynthesisUtterance(text);u.lang=v?.lang||lang;if(v)u.voice=v;u.rate=.9;speechSynthesis.speak(u);return true;}catch(e){return false;}}
+$('#pListen').onclick=()=>{const d=st.play;try{speechSynthesis.cancel();}catch(e){}sayLang(d.instrEn||$('#pInstr').textContent,'en');if(d.instrVi&&sayLang(d.instrVi,'vi')===false)toast('Máy này chưa có giọng đọc tiếng Việt');};
+$('#pType').addEventListener('submit',e=>{e.preventDefault();if(P.doneAt)return;const d=st.play,v=norm($('#pTypeIn').value);if(!v)return;
+  const t=d.targets.find(x=>norm(x.en)===v);
+  if(!t){toast(norm(v)&&d.targets.length?'Không có từ này trong danh sách cần tìm':'Chưa đúng');P.wrong++;return;}
+  if(P.found.has(t.i)){toast('Bạn đã tìm từ này rồi');return;}
+  const idx=[];d.tags.forEach((g,i)=>{if(g===t.i+1)idx.push(i);});if(!idx.length)return;checkSel(idx[0],idx[idx.length-1]);$('#pTypeIn').value='';});
+$('#pRestart').onclick=()=>openPlay(P.student);$('#pAgain').onclick=()=>openPlay(P.student);
+$('#pExit').onclick=closePlay;
+$('#playBtn').onclick=()=>{clearTimeout(timer);render().then(()=>openPlay(false));};
+$('#playBtn2').onclick=$('#playBtn').onclick;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&P.on&&!P.student)closePlay();});
+
+/* ================= steps ================= */
+function goStep(n){n=Math.max(1,Math.min(5,+n||1));
+  document.querySelectorAll('.step').forEach(x=>x.classList.toggle('on',+x.dataset.step===n));
+  document.querySelectorAll('.steps button').forEach(b=>{const k=+b.dataset.go;if(k===n)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');b.classList.toggle('done',k<n);});
+  try{localStorage.setItem('ttct-step',n);}catch(e){}
+  const c=$('.controls');if(c&&c.getBoundingClientRect().top<0)c.scrollIntoView({block:'start'});}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)goStep(b.dataset.go);});
+const ORIENT_HINT={forward:'Chữ chạy thành các dòng liền nhau, cong lên ở nửa trên và cong xuống ở nửa dưới theo dáng hình. Mọi chữ đều đọc trái → phải, không có chữ ngược hay dựng đứng.',
+  rows:'Chữ chạy thành dòng thẳng như đọc sách, lấp đầy hình. Dễ nhất, hợp với trẻ nhỏ.',
+  arch:'Mọi dòng cong lên như cầu vồng. Chữ nghiêng nhẹ, vẫn đọc trái → phải.',
+  wave:'Các dòng lượn sóng nhẹ nhàng, vui mắt cho trẻ em. Vẫn đọc trái → phải.',
+  diagUp:'Các dòng chạy chéo đi lên khoảng 17°. Khó hơn một chút nhưng không có chữ ngược.',
+  diagDown:'Các dòng chạy chéo đi xuống khoảng 17°. Khó hơn một chút nhưng không có chữ ngược.',
+  ring:'Chữ chạy thành từng vòng quanh hình. Nửa trên và nửa dưới đều đọc trái → phải; hai bên hình chữ dựng đứng. Hợp với học sinh tiểu học lớp trên, THCS.',
+  soft:'Một đường xoắn ốc liền từ ngoài vào trong. Chữ không bị úp, nhưng nửa dưới đọc từ phải sang trái. Hợp với THCS trở lên.',
+  path:'Xoắn ốc liền, chữ xoay theo đường nên nửa dưới bị úp ngược. Khó nhất, hợp với THPT, sinh viên.',
+  upright:'Xoắn ốc liền, từng chữ cái đứng thẳng nhưng nửa dưới đọc từ phải sang trái. Hợp với THCS trở lên.',
+  path:'Một đường xoắn liền: chữ ở nửa dưới bị úp ngược. Dành cho học sinh khá.',
+  soft:'Xoắn liền, chữ không bị úp nhưng nửa dưới đọc từ phải sang trái.',
+  upright:'Xoắn liền, từng chữ đứng thẳng nhưng nửa dưới đọc từ phải sang trái.'};
+function syncOrient(){const o=$('#layoutMode').value,fw=LAYOUTS.includes(o);$('#orientHint').textContent=ORIENT_HINT[o]||'';
+  const rv=$('#reverse');rv.disabled=fw;if(fw)rv.checked=false;const w=$('#reverseWrap');if(w){w.style.opacity=fw?.5:1;w.title=fw?'Chỉ dùng được với kiểu chạy vòng':'';}}
+$('#layoutMode').addEventListener('change',()=>{syncOrient();setInstrDefault();});
+
+/* ================= events ================= */
+$('#items').addEventListener('input',()=>{store();renderPicList();schedule();});
+function loadImg(file){return new Promise((res,rej)=>{const url=URL.createObjectURL(file);const img=new Image();img.onload=()=>res({img,url});img.onerror=rej;img.src=url;});}
+let picTarget=null;
+function renderPicList(){
+  const panel=$('#picPanel');panel.hidden=$('#box').value!=='pic';if(panel.hidden)return;
+  const list=$('#picList');list.textContent='';
+  for(const it of parseItems()){const key=norm(it.en),pic=st.pics.get(key);const row=document.createElement('div');row.className='picrow';
+    let th;if(pic){th=document.createElement('img');th.src=pic.url;th.alt='';}else{th=document.createElement('div');th.className='ph';}
+    const name=document.createElement('span');name.textContent=it.en;
+    const choose=document.createElement('button');choose.type='button';choose.textContent=pic?'Đổi ảnh':'Chọn ảnh';choose.onclick=()=>{picTarget=key;$('#picOne').click();};
+    row.append(th,name,choose);
+    if(pic){const rm=document.createElement('button');rm.type='button';rm.textContent='Bỏ';rm.onclick=()=>{st.pics.delete(key);renderPicList();schedule();};row.append(rm);}
+    list.append(row);}
+}
+$('#picBulk').onclick=()=>$('#picBulkFile').click();
+$('#picOne').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f||!picTarget)return;try{st.pics.set(picTarget,await loadImg(f));}catch(err){}renderPicList();schedule();});
+$('#picBulkFile').addEventListener('change',async e=>{const files=[...e.target.files];e.target.value='';const items=parseItems();const keys=items.map(i=>norm(i.en));
+  const rest=[];for(const f of files){const k=norm(f.name.replace(/\.[^.]+$/,''));if(keys.includes(k)){try{st.pics.set(k,await loadImg(f));}catch(err){}}else rest.push(f);}
+  for(const f of rest){const k=keys.find(k=>!st.pics.has(k));if(!k)break;try{st.pics.set(k,await loadImg(f));}catch(err){}}
+  renderPicList();schedule();});
+$('#defBtn').onclick=async()=>{
+  const items=parseItems();if(!items.length){ocrMsg('Hãy nhập từ cần tìm trước.',true);return;}
+  const sample=window.claude?.use?await claude.use('sample'):null;
+  if(!sample){ocrMsg('Viết định nghĩa chỉ chạy khi mở trang này trên claude.ai.',true);return;}
+  const lvl=$('#level').value;$('#defBtn').disabled=true;ocrMsg(`Đang viết định nghĩa mức ${lvl}…`);
+  const prompt=`Write a short learner's dictionary definition in simple English for each item below, for CEFR ${lvl} learners of English.
+Rules:
+- Use only common words a ${lvl} learner knows. 6 to 14 words.
+- Do not use the item's own main word (for "look after", do not use "look").
+- Start definitions of verbs and phrasal verbs with "to".
+- Each definition must clearly point to only one item in the list, so learners can tell similar items apart.
+- Keep the items in the same order and spelling.
+- Also write one short example sentence (6 to 12 words) for each item, at the same level, using the item naturally.
+Items:
+${items.map(i=>'- '+i.en).join('\n')}
+Reply with JSON only: {"items":[{"en":"look after","def":"to keep someone or something safe and well","ex":"I look after my little sister after school."}]}`;
+  try{const res=await sample.json(prompt,{modelTier:'default'});
+    const map=new Map((res?.items||[]).map(x=>[norm(String(x?.en||'')),{d:String(x?.def||'').trim(),e:String(x?.ex||'').trim()}]));
+    let n=0;$('#items').value=items.map(it=>{const g=map.get(norm(it.en))||{};const d=g.d||it.hint,e=g.e||it.ex;if(g.d)n++;return d?`${it.en} = ${d}${e?' | '+e:''}`:it.en;}).join('\n');
+    store();if($('#box').value==='en'||$('#box').value==='count'){$('#box').value='hint';setInstrDefault();}
+    ocrMsg(`Đã viết ${n} định nghĩa mức ${lvl}. Bạn có thể sửa trực tiếp trong ô trên.`);schedule();
+  }catch(err){const code=err?.code;ocrMsg(code==='not_granted'?'Bạn chưa cho phép trang dùng Claude.':code==='rate_limited'?'Đang quá tải, thử lại sau ít phút.':'Chưa viết được: '+(err?.message||'lỗi không rõ'),true);}
+  finally{$('#defBtn').disabled=false;}
+};
+$('#sampleBtn').onclick=()=>{$('#items').value=SAMPLE;store();schedule();};
+$('#reseed').onclick=()=>{st.seed=(Math.random()*2**31)|0;render();};
+$('#box').addEventListener('change',()=>{setInstrDefault();renderPicList();schedule();});
+$('#reverse').addEventListener('change',()=>{setInstrDefault();schedule();});
+$('#instr').addEventListener('input',()=>{st.instrDirty=true;schedule();});
+$('#sentBox').addEventListener('change',()=>{$('#sentFields').hidden=!$('#sentBox').checked;});
+['#sentBox','#sentN','#sentStyle','#sentWordMode','#sentInstr'].forEach(s=>$(s).addEventListener('input',schedule));
+$('#drawBox').addEventListener('change',()=>{$('#drawFields').hidden=!$('#drawBox').checked;});
+['#drawBox','#drawN','#drawWord','#drawInstr'].forEach(s=>$(s).addEventListener('input',schedule));
+$('#topicLine').addEventListener('change',()=>{$('#topicFields').hidden=!$('#topicLine').checked;});
+['#topicQ','#topicA','#topicLine'].forEach(s=>$(s).addEventListener('input',schedule));
+['#title','#footer'].forEach(s=>$(s).addEventListener('input',()=>{store();schedule();}));
+function setPal(k){st.pal=k;document.querySelectorAll('.pal').forEach(x=>x.setAttribute('aria-pressed',x.id==='pal-'+k));}
+$('#decor').addEventListener('change',()=>{const T=THEMES[$('#decor').value];if(T&&T.pal&&$('#autoPal').checked&&PALETTES[T.pal]){setPal(T.pal);schedule();}});
+$('#redecor').onclick=()=>{st.dseed=(Math.random()*2**31)|0;render();};
+['#decor','#decorColor','#border','#kidsTitle','#wordColor','#instrVi','#versions','#outline','#layoutMode','#noise','#decoys','#upper','#font','#size','#gap','#hole','#startMark','#nameLine'].forEach(s=>$(s).addEventListener('input',schedule));
+$('#size').addEventListener('input',()=>{$('#sizeVal').textContent=(+$('#size').value)+' pt';});
+$('#randShape').onclick=()=>{const o=ALL_SHAPES.map(s=>s[0]).filter(s=>s!==st.shape);selectShape(o[Math.floor(Math.random()*o.length)]);};
+function setTab(t){st.tab=t;$('#tabS').setAttribute('aria-pressed',t==='S');$('#tabA').setAttribute('aria-pressed',t==='A');
+  for(const k of ['S','A'])pages[k].forEach((cv,i)=>{cv.hidden=!(k===t&&i<st.pageCount);cv.style.order=k==='S'?'1':'3';});
+  pageD.hidden=!(t==='S'&&st.drawOn);pageW.hidden=!(t==='S'&&st.sentOn);}
+$('#tabS').onclick=()=>setTab('S');$('#tabA').onclick=()=>setTab('A');
+
+$('#centerBtn').onclick=()=>$('#centerFile').click();
+$('#centerFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);const img=new Image();
+  img.onload=()=>{st.centerImg=img;$('#centerThumb').src=url;$('#centerThumb').hidden=false;$('#centerClear').hidden=false;schedule();};img.src=url;e.target.value='';});
+$('#centerClear').onclick=()=>{st.centerImg=null;$('#centerThumb').hidden=true;$('#centerClear').hidden=true;schedule();};
+
+const OCR_PROMPT=`You are helping an English teacher make a word-hunt worksheet. Read the attached image and list the English vocabulary items in it.
+- If the image is a word list or vocabulary table, return every item in order.
+- If the image has sentences, return the key words or phrases that are marked (bold, underlined, highlighted, in a box). If nothing is marked, return the phrasal verbs or key vocabulary used, in base form.
+- If a meaning or definition is given next to an item, put it in "vi"; otherwise use an empty string.
+Reply with JSON only: {"items":[{"en":"look after","vi":"chăm sóc"}]}`;
+async function shrink(file){
+  try{const bmp=await createImageBitmap(file);const s=Math.min(1,1800/Math.max(bmp.width,bmp.height));const cv=document.createElement('canvas');
+    cv.width=Math.round(bmp.width*s);cv.height=Math.round(bmp.height*s);const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,cv.width,cv.height);c.drawImage(bmp,0,0,cv.width,cv.height);
+    return await new Promise(res=>cv.toBlob(b=>res(b||file),'image/jpeg',.9));}catch(e){return file;}
+}
+function ocrMsg(t,err){const el=$('#ocrStatus');el.textContent=t;el.classList.toggle('err',!!err);}
+$('#ocrBtn').onclick=()=>$('#ocrFile').click();
+$('#ocrFile').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  const sample=window.claude?.use?await claude.use('sample'):null;
+  if(!sample){ocrMsg('Lấy từ trong ảnh chỉ chạy trong bản trên claude.ai. Bạn có thể gõ hoặc dán từ vào ô trên.',true);return;}
+  const lim=await sample.limits().catch(()=>null);
+  if(!lim?.images){ocrMsg('Trang này hiện chưa gửi được ảnh. Hãy dán từ vào ô trên.',true);return;}
+  $('#ocrBtn').disabled=true;ocrMsg('Đang đọc ảnh…');
+  try{
+    const res=await sample.json(OCR_PROMPT,{images:[await shrink(f)],modelTier:'default'});
+    const list=(res?.items||[]).map(x=>({en:String(x?.en||'').trim(),vi:String(x?.vi||'').trim()})).filter(x=>x.en);
+    if(!list.length){ocrMsg('Không tìm thấy từ nào trong ảnh. Thử ảnh rõ nét hơn.',true);return;}
+    $('#items').value=list.map(x=>x.vi?`${x.en} = ${x.vi}`:x.en).join('\n');store();
+    ocrMsg(`Đã lấy ${list.length} từ. Kiểm tra lại trước khi in.`);schedule();
+  }catch(err){const code=err?.code;
+    ocrMsg(code==='not_granted'?'Bạn chưa cho phép trang dùng Claude để đọc ảnh.':code==='rate_limited'?'Đang quá tải, thử lại sau ít phút.':'Chưa đọc được ảnh: '+(err?.message||'lỗi không rõ'),true);}
+  finally{$('#ocrBtn').disabled=false;}
+});
+
+let downloads=null;
+const inClaude=!!window.claude?.use;
+(async()=>{
+  if(window.claude?.use){try{downloads=await claude.use('downloads');}catch(e){downloads=null;}}
+  $('#pdfBtn').disabled=false;
+  $('#pdfBtn').textContent=(downloads||!inClaude)?'Tải PDF':'Lưu phiếu (ảnh)';
+})();
+$('#pdfBtn').disabled=false;
+function fileBase(){return($('#title').value||'worksheet').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/gi,'d').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').toLowerCase()||'worksheet';}
+function pageList(){return[...pages.S.slice(0,st.pageCount).map((cv,i)=>[cv,'Trang '+(i+1)]),...(st.drawOn?[[pageD,'Trang vẽ']]:[]),...(st.sentOn?[[pageW,'Trang đặt câu']]:[]),...($('#withKey').checked?pages.A.slice(0,st.pageCount).map((cv,i)=>[cv,'Đáp án '+(i+1)]):[])];}
+async function collectPages(){const n=Math.max(1,+$('#versions').value||1);if(n===1)return pageList().map(([cv,lab])=>[cv.toDataURL('image/png'),lab]);
+  const base=st.seed,out=[];
+  try{for(let k=0;k<n;k++){st.seed=k?((base+k*7919)>>>0):base;st.verLabel='Version '+'ABCD'[k];await render();for(const [cv,lab] of pageList())out.push([cv.toDataURL('image/png'),st.verLabel+' – '+lab]);}}
+  finally{st.seed=base;st.verLabel='';await render();}
+  return out;}
+async function showImages(note){
+  const box=$('#saveImgList');box.textContent='';
+  for(const [src,lab] of await collectPages()){const f=document.createElement('figure');const img=document.createElement('img');img.src=src;img.alt=lab;
+    const cap=document.createElement('figcaption');cap.textContent=lab;f.append(img,cap);box.append(f);}
+  $('#saveImgs').hidden=false;$('#pdfStatus').textContent=note||'';
+  $('#saveImgs').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('#saveImgClose').onclick=()=>{$('#saveImgs').hidden=true;};
+$('#pdfBtn').onclick=async()=>{
+  const btn=$('#pdfBtn');btn.disabled=true;
+  try{
+    clearTimeout(timer);await render();
+    if(!downloads&&inClaude){showImages('Trình xem này không cho tải file trực tiếp, nên phiếu được hiện dưới dạng ảnh để bạn lưu.');return;}
+    if(!window.jspdf){showImages('Không tải được thư viện tạo PDF (cần kết nối mạng), nên phiếu được hiện dưới dạng ảnh để bạn lưu.');return;}
+    $('#pdfStatus').textContent='Đang tạo PDF…';
+    const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:'mm',format:'a4',compress:true});
+    (await collectPages()).forEach(([src],k)=>{if(k)pdf.addPage();pdf.addImage(src,'PNG',0,0,210,297,undefined,'FAST');});
+    const name=fileBase();
+    if(!downloads){const url=URL.createObjectURL(pdf.output('blob'));const a=document.createElement('a');a.href=url;a.download=name+'.pdf';document.body.append(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),60000);$('#pdfStatus').textContent='Đã tải '+name+'.pdf';return;}
+    await downloads.save({filename:name+'.pdf',data:pdf.output('arraybuffer')});
+    $('#pdfStatus').textContent='Đã lưu '+name+'.pdf';
+  }catch(err){const code=err?.code;
+    if(code==='declined')$('#pdfStatus').textContent='Bạn đã bấm từ chối tải xuống. Bấm Tải PDF lần nữa và chọn đồng ý.';
+    else if(code==='rate_limited')$('#pdfStatus').textContent='Đang có một hộp thoại tải xuống mở, thử lại sau.';
+    else showImages('Không tải PDF được trong trình xem này, nên phiếu được hiện dưới dạng ảnh để bạn lưu.');}
+  finally{btn.disabled=false;}
+};
+
+(function init(){
+  pages.S.push(pageS);pages.A.push(pageA);$('#paper').append(pageS,pageA,pageD,pageW);setTab('S');
+  const saved=restore();
+  $('#items').value=saved?.i?.trim()?saved.i:SAMPLE;
+  if(saved?.t)$('#title').value=saved.t;
+  if(saved&&typeof saved.f==='string')$('#footer').value=saved.f;
+  $('#sizeVal').textContent=(+$('#size').value)+' pt';
+  try{$('#shareBase').value=localStorage.getItem('ttct-base')||'';}catch(e){}
+  if(!$('#shareBase').value&&!window.claude?.use&&/^https?:/.test(location.href))$('#shareBase').value=location.href.split('#')[0];
+  let st0=1;try{st0=+localStorage.getItem('ttct-step')||1;}catch(e){}goStep(st0);syncOrient();
+  setInstrDefault();buildShapeButtons();buildPalettes();renderSaved();updateQuizInfo();
+  const h=location.hash.match(/^#play\.([A-Za-z0-9_-]+)/);
+  const he=location.hash.match(/^#edit\.([A-Za-z0-9_-]+)/);
+  if(he){unpackCode(he[1]).then(o=>{applyAll(o.snap,o.extra);render().then(()=>{$('#stats').textContent='Đã mở đề được chia sẻ. Bạn sửa tiếp và lưu vào "Đề đã lưu" nếu muốn giữ.';});}).catch(()=>{});}
+  else if(!h){try{const last=JSON.parse(localStorage.getItem('ttct-last')||'null');if(last&&last.snap)applyAll(last.snap,last.extra);}catch(e){}}
+  if(h){unpackCode(h[1]).then(async o=>{applySnapshot(o);document.querySelectorAll('.shape').forEach(b=>b.setAttribute('aria-pressed',b.id==='shape-'+st.shape));
+      document.querySelectorAll('.pal').forEach(x=>x.setAttribute('aria-pressed',x.id==='pal-'+st.pal));
+      try{await document.fonts.ready;}catch(e){}await render();openPlay(true);})
+    .catch(()=>{render();$('#stats').textContent='Link chơi bị lỗi hoặc thiếu. Hãy xin lại link từ giáo viên.';});}
+  else if(!he)render();
+  document.fonts.ready.then(()=>{drawIcons();if(!P.on)schedule();});
+})();
+</script>
+
+</body></html>
