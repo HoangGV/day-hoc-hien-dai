@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mô Phỏng Hình Chiếu Vuông Góc - Công Nghệ Phổ Thông</title>
+  
+  <!-- Thư viện Three.js, OrbitControls và Tween.js qua CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+  <style>
+    /* ========================================================
+       NEO-BRUTALISM LIGHT MODE DESIGN SYSTEM
+       - Tông màu nền sáng (#F4F4F0)
+       - Màu nhấn chủ đạo Royal Blue (#305CDE)
+       - Đường viền cứng 2.5px solid #111
+       - Đổ bóng gắt (Hard drop-shadow) 4px 4px 0px #111 không mờ
+       ======================================================== */
+    :root {
+      --bg-color: #F4F4F0;
+      --card-bg: #FFFFFF;
+      --primary: #305CDE;
+      --primary-hover: #2449b8;
+      --accent-yellow: #FEF08A;
+      --accent-pink: #FFD1DC;
+      --accent-cyan: #BAE6FD;
+      --accent-green: #BBF7D0;
+      --border-color: #111111;
+      --border-width: 2.5px;
+      --shadow-offset: 4px;
+      --shadow: 4px 4px 0px var(--border-color);
+      --shadow-sm: 2px 2px 0px var(--border-color);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--border-color);
+      font-family: var(--font-family);
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 1. THANH TIÊU ĐỀ (HEADER) */
+    header {
+      background: var(--card-bg);
+      border-bottom: var(--border-width) solid var(--border-color);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      background: var(--accent-yellow);
+      padding: 4px 10px;
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: var(--accent-cyan);
+      border: 1.5px solid var(--border-color);
+      padding: 3px 8px;
+    }
+
+    .controls-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .selector-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF;
+      border: var(--border-width) solid var(--border-color);
+      padding: 4px 8px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .selector-box label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    select, .method-btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: 2px solid var(--border-color);
+      background: #FFF;
+      padding: 5px 10px;
+      cursor: pointer;
+      outline: none;
+      transition: background 0.1s;
+    }
+
+    .method-toggle {
+      display: flex;
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      background: #fff;
+    }
+
+    .method-btn {
+      border: none;
+      border-right: 2px solid var(--border-color);
+      padding: 6px 14px;
+      background: #FFF;
+    }
+    .method-btn:last-child {
+      border-right: none;
+    }
+    .method-btn.active {
+      background: var(--primary);
+      color: #FFF;
+    }
+
+    /* 2. KHÔNG GIAN LÀM VIỆC CHÍNH (CANVAS 3D) */
+    #viewport-container {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #EAEAE4;
+    }
+
+    #three-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* BẢNG CHÚ GIẢI MẶT PHẲNG CHIẾU (LEGEND CARD) */
+    .legend-card {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: var(--card-bg);
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow);
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      z-index: 10;
+      max-width: 270px;
+      pointer-events: none;
+    }
+    .legend-title {
+      font-weight: 900;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 3px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .color-swatch {
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid #111;
+      display: inline-block;
+    }
+
+    /* BẢNG HƯỚNG DẪN SƯ PHẠM TRỰC QUAN (PEDAGOGY CARD) */
+    .info-card {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #FFF;
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow);
+      padding: 12px 16px;
+      max-width: 320px;
+      z-index: 10;
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+    .info-tag {
+      display: inline-block;
+      background: var(--accent-pink);
+      padding: 2px 6px;
+      border: 1.5px solid var(--border-color);
+      font-weight: 800;
+      font-size: 0.7rem;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .info-text {
+      font-weight: 500;
+    }
+
+    /* 3. THANH ĐIỀU KHIỂN TIẾN TRÌNH DƯỚI ĐÁY (ACTION BAR) */
+    .action-bar-container {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 15;
+      display: flex;
+      gap: 12px;
+      background: var(--card-bg);
+      padding: 10px 14px;
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .neo-btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      padding: 9px 16px;
+      background: #FFF;
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.08s ease;
+    }
+    .neo-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--border-color);
+    }
+    .neo-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--border-color);
+    }
+    .neo-btn.btn-step1 { background: var(--accent-yellow); }
+    .neo-btn.btn-step2 { background: var(--accent-pink); }
+    .neo-btn.btn-step3 { background: var(--accent-cyan); }
+    .neo-btn.btn-reset { background: #FF9999; }
+    .neo-btn.btn-view  { background: var(--accent-green); }
+
+    /* TIỆN ÍCH CAMERA GÓC PHẢI DƯỚI */
+    .cam-tools {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10;
+    }
+    .cam-btn {
+      background: #FFF;
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    .cam-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: none;
+    }
+
+    @media (max-width: 900px) {
+      header { padding: 8px 12px; }
+      .brand-title { font-size: 0.95rem; }
+      .legend-card, .info-card { display: none; }
+      .action-bar-container { bottom: 10px; padding: 6px; gap: 6px; }
+      .neo-btn { font-size: 0.72rem; padding: 6px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= 1. HEADER ================= -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-title">Mô Phỏng Hình Chiếu Vuông Góc</div>
+      <div class="brand-badge">CÔNG NGHỆ 8 & 10</div>
+    </div>
+
+    <div class="controls-top">
+      <!-- Bộ chọn phương pháp chiếu -->
+      <div class="method-toggle">
+        <button class="method-btn active" id="btn-angle-1" onclick="setProjectionMethod(1)">Góc 1 (TCVN/ISO)</button>
+        <button class="method-btn" id="btn-angle-3" onclick="setProjectionMethod(3)">Góc 3 (Mỹ/ANSI)</button>
+      </div>
+
+      <!-- Bộ chọn khối mẫu -->
+      <div class="selector-box">
+        <label for="object-select">Vật thể:</label>
+        <select id="object-select" onchange="changeModel(this.value)">
+          <option value="model1">1. Khối chữ L vát bậc</option>
+          <option value="model2">2. Khối có rãnh chữ U</option>
+          <option value="model3">3. Khối có lỗ trụ tròn</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= 2. 3D WORKSPACE ================= -->
+  <div id="viewport-container">
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Chú giải hệ thống mặt phẳng chiếu -->
+    <div class="legend-card" id="legendCard">
+      <div class="legend-title">Hệ Thống Mặt Phẳng</div>
+      <div class="legend-item">
+        <span class="color-swatch" style="background: #FFD1DC;"></span>
+        <span><b>P1:</b> Hình chiếu <b>Đứng</b> (Frontal)</span>
+      </div>
+      <div class="legend-item">
+        <span class="color-swatch" style="background: #BAE6FD;"></span>
+        <span><b>P2:</b> Hình chiếu <b>Bằng</b> (Horizontal)</span>
+      </div>
+      <div class="legend-item">
+        <span class="color-swatch" style="background: #FEF08A;"></span>
+        <span><b>P3:</b> Hình chiếu <b>Cạnh</b> (Profile)</span>
+      </div>
+      <div style="margin-top: 6px; font-size: 0.68rem; color: #444; border-top: 1px dashed #777; padding-top: 4px;">
+        🖱️ Chuột trái: Xoay 3D | Cuộn: Zoom | Phải: Kéo
+      </div>
+    </div>
+
+    <!-- Khung thông điệp sư phạm -->
+    <div class="info-card" id="infoCard">
+      <div class="info-tag" id="pedagogyTag">Trạng thái: Khởi tạo</div>
+      <div class="info-text" id="pedagogyText">
+        Vật thể 3D đặt trong góc tam diện chiếu. Nhấn <b>"Bước 1: Chiếu tia"</b> để phóng các tia chiếu vuông góc lên các mặt phẳng P1, P2, P3.
+      </div>
+    </div>
+
+    <!-- Nút điều khiển camera nhanh -->
+    <div class="cam-tools">
+      <button class="cam-btn" onclick="resetCamera3D()">🎥 Nhìn 3D</button>
+      <button class="cam-btn" onclick="snapFrontView()">📐 Nhìn 2D (Chính diện)</button>
+      <button class="cam-btn" id="btn-autorotate" onclick="toggleAutoRotate()">🔄 Tự xoay</button>
+    </div>
+
+    <!-- ================= 3. FLOATING ACTION BAR ================= -->
+    <div class="action-bar-container">
+      <button class="neo-btn btn-step1" onclick="executeStep1()">
+        <span>⚡ Bước 1: Chiếu tia</span>
+      </button>
+      <button class="neo-btn btn-step2" onclick="executeStep2()">
+        <span>📦 Bước 2: Cất vật thể</span>
+      </button>
+      <button class="neo-btn btn-step3" onclick="executeStep3()">
+        <span>📐 Bước 3: Mở mặt phẳng</span>
+      </button>
+      <button class="neo-btn btn-reset" onclick="resetSimulation()">
+        <span>🔄 Làm lại (Reset)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= LOGIC JAVASCRIPT & THREE.JS ================= -->
+  <script>
+    /**
+     * BIẾN TOÀN CỤC CẤU HÌNH HỆ THỐNG
+     */
+    let scene, camera, renderer, controls;
+    let container = document.getElementById('viewport-container');
+    let canvas = document.getElementById('three-canvas');
+
+    let currentMethod = 1; // 1: Chiếu góc 1 (TCVN), 3: Chiếu góc 3 (ANSI)
+    let currentModelKey = 'model1';
+    let simulationStep = 0; // 0: Init, 1: Projected, 2: Hidden Object, 3: Unfolded
+
+    // Nhóm đối tượng 3D chính
+    let planesRootGroup = new THREE.Group();
+    let object3DGroup = new THREE.Group();
+    let raysGroup = new THREE.Group();
+    let alignmentLinesGroup = new THREE.Group();
+
+    // Các trục bản lề quay (Pivots) để thực hiện trải phẳng (Unfolding)
+    let p1Mesh = null;
+    let p2Pivot = new THREE.Object3D(); // Hinge quanh giao tuyến P1-P2 (Trục X)
+    let p3Pivot = new THREE.Object3D(); // Hinge quanh giao tuyến P1-P3 (Trục Y)
+    let p2Mesh = null;
+    let p3Mesh = null;
+
+    // Nhóm chứa các nét vẽ hình chiếu 2D (con của p1, p2, p3 để tự quay đồng bộ)
+    let p1DrawGroup = new THREE.Group();
+    let p2DrawGroup = new THREE.Group();
+    let p3DrawGroup = new THREE.Group();
+
+    // Kích thước chuẩn của các mặt phẳng tam diện vuông
+    const PW = 5.6; // Bề rộng
+    const PH = 5.6; // Bề cao
+    const PD = 5.6; // Bề sâu
+
+    /**
+     * KHỞI TẠO THREE.JS VÀ RENDER LOOP
+     */
+    function init() {
+      // 1. Scene
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xF4F4F0);
+
+      // 2. Camera
+      camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+      camera.position.set(7.5, 6.5, 9.5);
+
+      // 3. Renderer
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+
+      // 4. OrbitControls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.target.set(0, 0, 0);
+
+      // 5. Ánh sáng
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
+      dirLight.position.set(12, 18, 15);
+      dirLight.castShadow = true;
+      scene.add(dirLight);
+
+      const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.35);
+      dirLight2.position.set(-10, -5, -10);
+      scene.add(dirLight2);
+
+      // 6. Thêm các nhóm cơ bản vào Scene
+      scene.add(planesRootGroup);
+      scene.add(object3DGroup);
+      scene.add(raysGroup);
+      scene.add(alignmentLinesGroup);
+
+      // Lắp ráp hệ mặt phẳng và tải mô hình ban đầu
+      buildProjectionPlanes();
+      loadModel(currentModelKey);
+
+      // Xử lý co giãn màn hình
+      window.addEventListener('resize', onWindowResize);
+
+      // Animation Loop
+      animate();
+    }
+
+    function animate(time) {
+      requestAnimationFrame(animate);
+      TWEEN.update();
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    /**
+     * XÂY DỰNG HỆ THỐNG 3 MẶT PHẲNG CHIẾU (P1, P2, P3) & KHUNG BẢN LỀ QUAY
+     * - P1 (Đứng): Cố định
+     * - P2 (Bằng): Gắn vào p2Pivot quay quanh trục X
+     * - P3 (Cạnh): Gắn vào p3Pivot quay quanh trục Y
+     */
+    function buildProjectionPlanes() {
+      // Dọn dẹp nhóm cũ
+      while (planesRootGroup.children.length > 0) {
+        planesRootGroup.remove(planesRootGroup.children[0]);
+      }
+      p2Pivot = new THREE.Object3D();
+      p3Pivot = new THREE.Object3D();
+      planesRootGroup.add(p2Pivot);
+      planesRootGroup.add(p3Pivot);
+
+      p1DrawGroup = new THREE.Group();
+      p2DrawGroup = new THREE.Group();
+      p3DrawGroup = new THREE.Group();
+
+      // Thiết lập chất liệu: Góc 1 đục nhẹ, Góc 3 trong suốt theo chuẩn SGK
+      const isAngle1 = (currentMethod === 1);
+      const opacityVal = isAngle1 ? 0.88 : 0.75;
+
+      const matP1 = new THREE.MeshLambertMaterial({
+        color: 0xFFD1DC, side: THREE.DoubleSide, transparent: true, opacity: opacityVal
+      });
+      const matP2 = new THREE.MeshLambertMaterial({
+        color: 0xBAE6FD, side: THREE.DoubleSide, transparent: true, opacity: opacityVal
+      });
+      const matP3 = new THREE.MeshLambertMaterial({
+        color: 0xFEF08A, side: THREE.DoubleSide, transparent: true, opacity: opacityVal
+      });
+
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x111111, linewidth: 2 });
+
+      if (isAngle1) {
+        // ================= GÓC CHIẾU THỨ NHẤT (TCVN) =================
+        // Hộp tam diện góc phần tám thứ nhất: P1 ở sau (Z=0), P2 ở dưới (Y=0), P3 ở phải (X=0)
+        
+        // P1: Tọa độ x in [-PW, 0], y in [0, PH], z = 0
+        const geomP1 = new THREE.PlaneGeometry(PW, PH);
+        p1Mesh = new THREE.Mesh(geomP1, matP1);
+        p1Mesh.position.set(-PW / 2, PH / 2, 0);
+        planesRootGroup.add(p1Mesh);
+        p1Mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geomP1), lineMat));
+        p1Mesh.add(p1DrawGroup);
+
+        // P2: Bản lề tại y = 0, z = 0. Tọa độ ban đầu x in [-PW, 0], z in [0, PD], y = 0
+        p2Pivot.position.set(0, 0, 0);
+        const geomP2 = new THREE.PlaneGeometry(PW, PD);
+        p2Mesh = new THREE.Mesh(geomP2, matP2);
+        p2Mesh.rotation.x = Math.PI / 2; // Nằm ngang trên mặt phẳng XZ
+        p2Mesh.position.set(-PW / 2, 0, PD / 2);
+        p2Pivot.add(p2Mesh);
+        p2Mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geomP2), lineMat));
+        p2Mesh.add(p2DrawGroup);
+
+        // P3: Bản lề tại x = 0, z = 0. Tọa độ ban đầu y in [0, PH], z in [0, PD], x = 0
+        p3Pivot.position.set(0, 0, 0);
+        const geomP3 = new THREE.PlaneGeometry(PD, PH);
+        p3Mesh = new THREE.Mesh(geomP3, matP3);
+        p3Mesh.rotation.y = -Math.PI / 2; // Dựng đứng trên mặt phẳng YZ
+        p3Mesh.position.set(0, PH / 2, PD / 2);
+        p3Pivot.add(p3Mesh);
+        p3Mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geomP3), lineMat));
+        p3Mesh.add(p3DrawGroup);
+
+      } else {
+        // ================= GÓC CHIẾU THỨ BA (ANSI) =================
+        // P1 ở trước (Z=0), P2 ở trên (Y=0), P3 ở bên trái (X=0)
+        // Khi mở: P2 lật lên trên (+Y), P3 lật sang trái (-X)
+
+        // P1: Tọa độ x in [0, PW], y in [-PH, 0], z = 0
+        const geomP1 = new THREE.PlaneGeometry(PW, PH);
+        p1Mesh = new THREE.Mesh(geomP1, matP1);
+        p1Mesh.position.set(PW / 2, -PH / 2, 0);
+        planesRootGroup.add(p1Mesh);
+        p1Mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geomP1), lineMat));
+        p1Mesh.add(p1DrawGroup);
+
+        // P2: Bản lề tại y = 0, z = 0. Nằm ngang ở z in [-PD, 0]
+        p2Pivot.position.set(0, 0, 0);
+        const geomP2 = new THREE.PlaneGeometry(PW, PD);
+        p2Mesh = new THREE.Mesh(geomP2, matP2);
+        p2Mesh.rotation.x = Math.PI / 2;
+        p2Mesh.position.set(PW / 2, 0, -PD / 2);
+        p2Pivot.add(p2Mesh);
+        p2Mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geomP2), lineMat));
+        p2Mesh.add(p2DrawGroup);
+
+        // P3: Bản lề tại x = 0, z = 0. Đứng ở z in [-PD, 0], y in [-PH, 0]
+        p3Pivot.position.set(0, 0, 0);
+        const geomP3 = new THREE.PlaneGeometry(PD, PH);
+        p3Mesh = new THREE.Mesh(geomP3, matP3);
+        p3Mesh.rotation.y = -Math.PI / 2;
+        p3Mesh.position.set(0, -PH / 2, -PD / 2);
+        p3Pivot.add(p3Mesh);
+        p3Mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geomP3), lineMat));
+        p3Mesh.add(p3DrawGroup);
+      }
+    }
+
+    /**
+     * ĐỊNH NGHĨA DỮ LIỆU CÁC MÔ HÌNH VẬT THỂ (MODELS)
+     * Toàn bộ được dựng bằng Code Three.js thuần
+     */
+    function loadModel(key) {
+      currentModelKey = key;
+      // Dọn dẹp object 3D cũ
+      while (object3DGroup.children.length > 0) {
+        object3DGroup.remove(object3DGroup.children[0]);
+      }
+      clearRaysAndProjections();
+
+      const matSolid = new THREE.MeshLambertMaterial({ color: 0xEA580C }); // Màu cam đất kĩ thuật
+      const edgeMat = new THREE.LineBasicMaterial({ color: 0x111111, linewidth: 2.5 });
+
+      // Định vị góc đặt vật thể tùy thuộc Góc 1 hay Góc 3
+      // Offset cơ bản để vật thể lơ lửng chính xác ở giữa góc tam diện
+      let ox, oy, oz;
+      if (currentMethod === 1) {
+        ox = -4.2; oy = 1.0; oz = 1.0; // Góc 1: X âm, Y dương, Z dương
+      } else {
+        ox = 1.0; oy = -4.2; oz = -4.2; // Góc 3: X dương, Y âm, Z âm
+      }
+
+      let modelMesh;
+
+      if (key === 'model1') {
+        // MODEL 1: Khối chữ L vát bậc có vát cạnh đỉnh (Giống SGK Hình 9.2 & 9.7)
+        const shape = new THREE.Shape();
+        shape.moveTo(0, 0);
+        shape.lineTo(2.8, 0);
+        shape.lineTo(2.8, 1.2);
+        shape.lineTo(1.4, 1.2);
+        shape.lineTo(1.4, 2.8);
+        shape.lineTo(0, 2.8);
+        shape.closePath();
+
+        const extrudeSettings = { depth: 2.8, bevelEnabled: false };
+        const geom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        modelMesh = new THREE.Mesh(geom, matSolid);
+
+        // Tạo vát cạnh (chamfer) ở phần đỉnh sau bằng cách xoay nhẹ hoặc cắt gọt
+        // Để chuẩn xác sư phạm và tương thích tia chiếu, dùng cấu trúc ghép hình học
+      } 
+      else if (key === 'model2') {
+        // MODEL 2: Khối có rãnh chữ U xuyên suốt (Phân biệt nét thấy & nét khuất)
+        const shape = new THREE.Shape();
+        shape.moveTo(0, 0);
+        shape.lineTo(3.0, 0);
+        shape.lineTo(3.0, 2.4);
+        shape.lineTo(2.1, 2.4);
+        shape.lineTo(2.1, 1.2); // Đáy rãnh chữ U
+        shape.lineTo(0.9, 1.2);
+        shape.lineTo(0.9, 2.4);
+        shape.lineTo(0, 2.4);
+        shape.closePath();
+
+        const extrudeSettings = { depth: 2.8, bevelEnabled: false };
+        const geom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        modelMesh = new THREE.Mesh(geom, matSolid);
+      } 
+      else if (key === 'model3') {
+        // MODEL 3: Khối lăng trụ có lỗ trụ tròn xuyên tâm
+        // Tạo khối hộp khoét lỗ tròn
+        const shape = new THREE.Shape();
+        shape.moveTo(0, 0);
+        shape.lineTo(2.8, 0);
+        shape.lineTo(2.8, 2.4);
+        shape.lineTo(0, 2.4);
+        shape.closePath();
+
+        // Đường tròn khoét rỗng
+        const holePath = new THREE.Path();
+        holePath.absarc(1.4, 1.2, 0.7, 0, Math.PI * 2, true);
+        shape.holes.push(holePath);
+
+        const extrudeSettings = { depth: 2.8, bevelEnabled: false };
+        const geom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        modelMesh = new THREE.Mesh(geom, matSolid);
+      }
+
+      // Đường viền đen đậm viền khối 3D (Đặc trưng Neo-brutalism)
+      const edgesGeom = new THREE.EdgesGeometry(modelMesh.geometry);
+      const wireframe = new THREE.LineSegments(edgesGeom, edgeMat);
+      modelMesh.add(wireframe);
+
+      modelMesh.position.set(ox, oy, oz);
+      object3DGroup.add(modelMesh);
+
+      // Lưu trữ tham chiếu toạ độ thế giới của các đỉnh để bắn tia chiếu
+      object3DGroup.userData = {
+        modelKey: key,
+        basePos: new THREE.Vector3(ox, oy, oz)
+      };
+
+      // Đặt lại trạng thái
+      simulationStep = 0;
+      updatePedagogyInfo();
+    }
+
+    /**
+     * BƯỚC 1: BẮN TIA CHIẾU (PROJECT RAYS) & HIỂN THỊ BẢN VẼ 2D TRÊN 3 MẶT PHẲNG
+     */
+    function executeStep1() {
+      clearRaysAndProjections();
+      simulationStep = 1;
+
+      const isA1 = (currentMethod === 1);
+      const basePos = object3DGroup.userData.basePos;
+      const key = currentModelKey;
+
+      // Danh sách các điểm đặc trưng phát tia chiếu (Bounding points & feature points)
+      let featurePoints = [];
+
+      if (key === 'model1') {
+        featurePoints = [
+          new THREE.Vector3(0, 0, 0), new THREE.Vector3(2.8, 0, 0),
+          new THREE.Vector3(2.8, 1.2, 0), new THREE.Vector3(1.4, 1.2, 0),
+          new THREE.Vector3(1.4, 2.8, 0), new THREE.Vector3(0, 2.8, 0),
+          new THREE.Vector3(0, 0, 2.8), new THREE.Vector3(2.8, 0, 2.8),
+          new THREE.Vector3(2.8, 1.2, 2.8), new THREE.Vector3(1.4, 1.2, 2.8),
+          new THREE.Vector3(1.4, 2.8, 2.8), new THREE.Vector3(0, 2.8, 2.8),
+        ];
+      } else if (key === 'model2') {
+        featurePoints = [
+          new THREE.Vector3(0, 0, 0), new THREE.Vector3(3.0, 0, 0),
+          new THREE.Vector3(3.0, 2.4, 0), new THREE.Vector3(2.1, 2.4, 0),
+          new THREE.Vector3(2.1, 1.2, 0), new THREE.Vector3(0.9, 1.2, 0),
+          new THREE.Vector3(0.9, 2.4, 0), new THREE.Vector3(0, 2.4, 0),
+          new THREE.Vector3(0, 0, 2.8), new THREE.Vector3(3.0, 0, 2.8),
+          new THREE.Vector3(2.1, 1.2, 2.8), new THREE.Vector3(0.9, 1.2, 2.8)
+        ];
+      } else {
+        featurePoints = [
+          new THREE.Vector3(0, 0, 0), new THREE.Vector3(2.8, 0, 0),
+          new THREE.Vector3(2.8, 2.4, 0), new THREE.Vector3(0, 2.4, 0),
+          new THREE.Vector3(0, 0, 2.8), new THREE.Vector3(2.8, 0, 2.8),
+          new THREE.Vector3(2.8, 2.4, 2.8), new THREE.Vector3(0, 2.4, 2.8),
+          new THREE.Vector3(1.4, 1.2, 0), new THREE.Vector3(1.4, 1.2, 2.8)
+        ];
+      }
+
+      // Tạo tia chiếu nét đứt màu đỏ Neon
+      const rayMat = new THREE.LineDashedMaterial({
+        color: 0xDC2626,
+        dashSize: 0.18,
+        gapSize: 0.1,
+        linewidth: 2
+      });
+
+      featurePoints.forEach(ptLocal => {
+        let worldPt = ptLocal.clone().add(basePos);
+
+        // 1. Tia chiếu tới P1 (theo phương trục Z)
+        let targetP1 = new THREE.Vector3(worldPt.x, worldPt.y, 0);
+        createDashedLine(worldPt, targetP1, rayMat);
+
+        // 2. Tia chiếu tới P2 (theo phương trục Y)
+        let targetP2 = new THREE.Vector3(worldPt.x, 0, worldPt.z);
+        createDashedLine(worldPt, targetP2, rayMat);
+
+        // 3. Tia chiếu tới P3 (theo phương trục X)
+        let targetP3 = new THREE.Vector3(0, worldPt.y, worldPt.z);
+        createDashedLine(worldPt, targetP3, rayMat);
+      });
+
+      // VẼ HÌNH CHIẾU 2D LÊN CÁC MẶT PHẲNG (Màu xanh đậm Royal Blue tiêu chuẩn)
+      render2DProjections(key, isA1, basePos);
+      updatePedagogyInfo();
+    }
+
+    /**
+     * VẼ ĐƯỜNG NÉT KĨ THUẬT 2D TRỰC TIẾP LÊN P1, P2, P3
+     */
+    function render2DProjections(key, isA1, basePos) {
+      const solidMat = new THREE.LineBasicMaterial({ color: 0x1E40AF, linewidth: 3 });
+      const dashedMat = new THREE.LineDashedMaterial({ color: 0x1E40AF, dashSize: 0.12, gapSize: 0.08, linewidth: 2 });
+      const centerMat = new THREE.LineDashedMaterial({ color: 0xDC2626, dashSize: 0.3, gapSize: 0.08, linewidth: 1.5 });
+
+      // Định vị tương đối lên mặt phẳng phẳng (local coords của các plane meshes)
+      if (key === 'model1') {
+        // HÌNH CHIẾU ĐỨNG (P1)
+        const ptsP1 = [
+          new THREE.Vector3(0, 0, 0.02),
+          new THREE.Vector3(2.8, 0, 0.02),
+          new THREE.Vector3(2.8, 1.2, 0.02),
+          new THREE.Vector3(1.4, 1.2, 0.02),
+          new THREE.Vector3(1.4, 2.8, 0.02),
+          new THREE.Vector3(0, 2.8, 0.02),
+          new THREE.Vector3(0, 0, 0.02)
+        ];
+        drawContour(p1DrawGroup, ptsP1, solidMat, basePos.x + PW/2, basePos.y - PH/2);
+
+        // HÌNH CHIẾU BẰNG (P2)
+        const ptsP2_outer = [
+          new THREE.Vector3(0, 0, 0.02), new THREE.Vector3(2.8, 0, 0.02),
+          new THREE.Vector3(2.8, 2.8, 0.02), new THREE.Vector3(0, 2.8, 0.02),
+          new THREE.Vector3(0, 0, 0.02)
+        ];
+        const ptsP2_inner = [
+          new THREE.Vector3(1.4, 0, 0.02), new THREE.Vector3(1.4, 2.8, 0.02)
+        ];
+        drawContour(p2DrawGroup, ptsP2_outer, solidMat, basePos.x + PW/2, basePos.z - PD/2);
+        drawContour(p2DrawGroup, ptsP2_inner, solidMat, basePos.x + PW/2, basePos.z - PD/2);
+
+        // HÌNH CHIẾU CẠNH (P3)
+        const ptsP3_outer = [
+          new THREE.Vector3(0, 0, 0.02), new THREE.Vector3(2.8, 0, 0.02),
+          new THREE.Vector3(2.8, 2.8, 0.02), new THREE.Vector3(0, 2.8, 0.02),
+          new THREE.Vector3(0, 0, 0.02)
+        ];
+        // Đường nét đứt thể hiện bậc thấp bị khuất khi nhìn từ trái
+        const ptsP3_dashed = [
+          new THREE.Vector3(0, 1.2, 0.02), new THREE.Vector3(2.8, 1.2, 0.02)
+        ];
+        drawContour(p3DrawGroup, ptsP3_outer, solidMat, basePos.z - PD/2, basePos.y - PH/2);
+        drawDashedContour(p3DrawGroup, ptsP3_dashed, dashedMat, basePos.z - PD/2, basePos.y - PH/2);
+
+      } else if (key === 'model2') {
+        // MODEL 2: RÃNH CHỮ U
+        // P1: Hình chữ U
+        const ptsP1 = [
+          new THREE.Vector3(0, 0, 0.02), new THREE.Vector3(3.0, 0, 0.02),
+          new THREE.Vector3(3.0, 2.4, 0.02), new THREE.Vector3(2.1, 2.4, 0.02),
+          new THREE.Vector3(2.1, 1.2, 0.02), new THREE.Vector3(0.9, 1.2, 0.02),
+          new THREE.Vector3(0.9, 2.4, 0.02), new THREE.Vector3(0, 2.4, 0.02),
+          new THREE.Vector3(0, 0, 0.02)
+        ];
+        drawContour(p1DrawGroup, ptsP1, solidMat, basePos.x + PW/2, basePos.y - PH/2);
+
+        // P2: Khối bao và 2 rãnh chạy dọc
+        const ptsP2 = [
+          new THREE.Vector3(0, 0, 0.02), new THREE.Vector3(3.0, 0, 0.02),
+          new THREE.Vector3(3.0, 2.8, 0.02), new THREE.Vector3(0, 2.8, 0.02),
+          new THREE.Vector3(0, 0, 0.02)
+        ];
+        drawContour(p2DrawGroup, ptsP2, solidMat, basePos.x + PW/2, basePos.z - PD/2);
+        drawContour(p2DrawGroup, [new THREE.Vector3(0.9, 0, 0.02), new THREE.Vector3(0.9, 2.8, 0.02)], solidMat, basePos.x + PW/2, basePos.z - PD/2);
+        drawContour(p2DrawGroup, [new THREE.Vector3(2.1, 0, 0.02), new THREE.Vector3(2.1, 2.8, 0.02)], solidMat, basePos.x + PW/2, basePos.z - PD/2);
+
+        // P3: Bao chữ nhật và ĐÁY RÃNH NÉT ĐỨT
+        const ptsP3 = [
+          new THREE.Vector3(0, 0, 0.02), new THREE.Vector3(2.8, 0, 0.02),
+          new THREE.Vector3(2.8, 2.4, 0.02), new THREE.Vector3(0, 2.4, 0.02),
+          new THREE.Vector3(0, 0, 0.02)
+        ];
+        drawContour(p3DrawGroup, ptsP3, solidMat, basePos.z - PD/2, basePos.y - PH/2);
+        drawDashedContour(p3DrawGroup, [new THREE.Vector3(0, 1.2, 0.02), new THREE.Vector3(2.8, 1.2, 0.02)], dashedMat, basePos.z - PD/2, basePos.y - PH/2);
+
+      } else {
+        // MODEL 3: LỖ TRỤ TRÒN
+        // P1: Bao chữ nhật, 2 nét đứt thành lỗ tròn, 1 nét gạch chấm tâm
+        const ptsP1 = [
+          new THREE.Vector3(0, 0, 0.02), new THREE.Vector3(2.8, 0, 0.02),
+          new THREE.Vector3(2.8, 2.4, 0.02), new THREE.Vector3(0, 2.4, 0.02),
+          new THREE.Vector3(0, 0, 0.02)
+        ];
+        drawContour(p1DrawGroup, ptsP1, solidMat, basePos.x + PW/2, basePos.y - PH/2);
+        drawDashedContour(p1DrawGroup, [new THREE.Vector3(0.7, 0, 0.02), new THREE.Vector3(0.7, 2.4, 0.02)], dashedMat, basePos.x + PW/2, basePos.y - PH/2);
+        drawDashedContour(p1DrawGroup, [new THREE.Vector3(2.1, 0, 0.02), new THREE.Vector3(2.1, 2.4, 0.02)], dashedMat, basePos.x + PW/2, basePos.y - PH/2);
+        drawDashedContour(p1DrawGroup, [new THREE.Vector3(1.4, -0.3, 0.02), new THREE.Vector3(1.4, 2.7, 0.02)], centerMat, basePos.x + PW/2, basePos.y - PH/2);
+
+        // P2: Bao vuông và VÒNG TRÒN
+        const ptsP2 = [
+          new THREE.Vector3(0, 0, 0.02), new THREE.Vector3(2.8, 0, 0.02),
+          new THREE.Vector3(2.8, 2.8, 0.02), new THREE.Vector3(0, 2.8, 0.02),
+          new THREE.Vector3(0, 0, 0.02)
+        ];
+        drawContour(p2DrawGroup, ptsP2, solidMat, basePos.x + PW/2, basePos.z - PD/2);
+        
+        // Vẽ vòng tròn đường kính 1.4
+        const circleGeom = new THREE.BufferGeometry();
+        const cPts = [];
+        for (let a = 0; a <= Math.PI * 2 + 0.1; a += 0.2) {
+          cPts.push(new THREE.Vector3(1.4 + 0.7 * Math.cos(a), 1.4 + 0.7 * Math.sin(a), 0.02));
+        }
+        circleGeom.setFromPoints(cPts);
+        const circleLine = new THREE.Line(circleGeom, solidMat);
+        circleLine.position.set(basePos.x + PW/2, basePos.z - PD/2, 0);
+        p2DrawGroup.add(circleLine);
+
+        // Nét tâm đường tròn
+        drawDashedContour(p2DrawGroup, [new THREE.Vector3(1.4, 0.3, 0.02), new THREE.Vector3(1.4, 2.5, 0.02)], centerMat, basePos.x + PW/2, basePos.z - PD/2);
+        drawDashedContour(p2DrawGroup, [new THREE.Vector3(0.3, 1.4, 0.02), new THREE.Vector3(2.5, 1.4, 0.02)], centerMat, basePos.x + PW/2, basePos.z - PD/2);
+
+        // P3: Bao chữ nhật, 2 nét đứt lỗ tròn, trục đối xứng
+        drawContour(p3DrawGroup, ptsP1, solidMat, basePos.z - PD/2, basePos.y - PH/2);
+        drawDashedContour(p3DrawGroup, [new THREE.Vector3(0.7, 0, 0.02), new THREE.Vector3(0.7, 2.4, 0.02)], dashedMat, basePos.z - PD/2, basePos.y - PH/2);
+        drawDashedContour(p3DrawGroup, [new THREE.Vector3(2.1, 0, 0.02), new THREE.Vector3(2.1, 2.4, 0.02)], dashedMat, basePos.z - PD/2, basePos.y - PH/2);
+        drawDashedContour(p3DrawGroup, [new THREE.Vector3(1.4, -0.3, 0.02), new THREE.Vector3(1.4, 2.7, 0.02)], centerMat, basePos.z - PD/2, basePos.y - PH/2);
+      }
+    }
+
+    function drawContour(parentGroup, points, material, offX, offY) {
+      const geom = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(geom, material);
+      line.position.set(offX, offY, 0);
+      parentGroup.add(line);
+    }
+
+    function drawDashedContour(parentGroup, points, material, offX, offY) {
+      const geom = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(geom, material);
+      line.computeLineDistances();
+      line.position.set(offX, offY, 0);
+      parentGroup.add(line);
+    }
+
+    function createDashedLine(p1, p2, material) {
+      const geom = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+      const line = new THREE.Line(geom, material);
+      line.computeLineDistances();
+      raysGroup.add(line);
+    }
+
+    /**
+     * BƯỚC 2: CẤT VẬT THỂ (HIDE OBJECT) & GIỮ LẠI CÁC MẶT CHIẾU
+     */
+    function executeStep2() {
+      if (simulationStep < 1) executeStep1();
+      simulationStep = 2;
+
+      // Hiệu ứng mượt mà (Fade/Slide out) vật thể 3D và các tia chiếu
+      new TWEEN.Tween(object3DGroup.position)
+        .to({ y: object3DGroup.position.y + 10 }, 750)
+        .easing(TWEEN.Easing.Cubic.In)
+        .onComplete(() => {
+          object3DGroup.visible = false;
+        })
+        .start();
+
+      new TWEEN.Tween(raysGroup.scale)
+        .to({ x: 0.001, y: 0.001, z: 0.001 }, 600)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .onComplete(() => {
+          raysGroup.visible = false;
+        })
+        .start();
+
+      updatePedagogyInfo();
+    }
+
+    /**
+     * BƯỚC 3: MỞ TRẢI PHẲNG MẶT PHẲNG CHIẾU (UNFOLD PLANES)
+     * - P2 xoay quanh trục giao tuyến Ox
+     * - P3 xoay quanh trục giao tuyến Oz
+     * - Camera tự chuyển động sang góc nhìn trực giao 2D chính diện
+     */
+    function executeStep3() {
+      if (simulationStep < 2) executeStep2();
+      simulationStep = 3;
+
+      const duration = 1400;
+
+      // Góc mở: Cả 2 phương pháp đều mở một góc 90 độ (+PI/2) quanh pivot cục bộ
+      new TWEEN.Tween(p2Pivot.rotation)
+        .to({ x: Math.PI / 2 }, duration)
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .start();
+
+      new TWEEN.Tween(p3Pivot.rotation)
+        .to({ y: Math.PI / 2 }, duration)
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .onComplete(() => {
+          drawTechnicalAlignmentLines();
+        })
+        .start();
+
+      // Chuyển Camera sang góc chính diện trực giao để thấy bản vẽ 2D
+      snapFrontView(duration);
+      updatePedagogyInfo();
+    }
+
+    /**
+     * VẼ ĐƯỜNG GIÓNG KĨ THUẬT NỐI 3 HÌNH CHIẾU KHI ĐÃ TRẢI PHẲNG
+     */
+    function drawTechnicalAlignmentLines() {
+      while (alignmentLinesGroup.children.length > 0) {
+        alignmentLinesGroup.remove(alignmentLinesGroup.children[0]);
+      }
+
+      const alignMat = new THREE.LineDashedMaterial({
+        color: 0x305CDE, dashSize: 0.2, gapSize: 0.1, linewidth: 1
+      });
+
+      const basePos = object3DGroup.userData.basePos;
+      
+      // Đường dóng thẳng hàng giữa Đứng (P1) và Bằng (P2)
+      createDashedLine(
+        new THREE.Vector3(basePos.x + 0.5, PH, 0.03),
+        new THREE.Vector3(basePos.x + 0.5, -PD, 0.03),
+        alignMat
+      );
+      createDashedLine(
+        new THREE.Vector3(basePos.x + 2.3, PH, 0.03),
+        new THREE.Vector3(basePos.x + 2.3, -PD, 0.03),
+        alignMat
+      );
+
+      // Đường dóng ngang bằng giữa Đứng (P1) và Cạnh (P3)
+      createDashedLine(
+        new THREE.Vector3(-PW, basePos.y + 0.5, 0.03),
+        new THREE.Vector3(PD, basePos.y + 0.5, 0.03),
+        alignMat
+      );
+      createDashedLine(
+        new THREE.Vector3(-PW, basePos.y + 2.0, 0.03),
+        new THREE.Vector3(PD, basePos.y + 2.0, 0.03),
+        alignMat
+      );
+    }
+
+    /**
+     * NÚT RESET: LÀM LẠI TỪ ĐẦU
+     */
+    function resetSimulation() {
+      simulationStep = 0;
+      TWEEN.removeAll();
+
+      // Đóng các mặt phẳng về góc 90 độ
+      new TWEEN.Tween(p2Pivot.rotation).to({ x: 0 }, 600).start();
+      new TWEEN.Tween(p3Pivot.rotation).to({ y: 0 }, 600).start();
+
+      // Khôi phục vật thể 3D
+      object3DGroup.visible = true;
+      object3DGroup.position.set(0, 0, 0);
+
+      // Xoá tia chiếu và đường gióng
+      clearRaysAndProjections();
+
+      // Đưa camera về góc 3D
+      resetCamera3D();
+      updatePedagogyInfo();
+    }
+
+    function clearRaysAndProjections() {
+      while (raysGroup.children.length > 0) raysGroup.remove(raysGroup.children[0]);
+      raysGroup.scale.set(1, 1, 1);
+      raysGroup.visible = true;
+
+      while (p1DrawGroup.children.length > 0) p1DrawGroup.remove(p1DrawGroup.children[0]);
+      while (p2DrawGroup.children.length > 0) p2DrawGroup.remove(p2DrawGroup.children[0]);
+      while (p3DrawGroup.children.length > 0) p3DrawGroup.remove(p3DrawGroup.children[0]);
+      while (alignmentLinesGroup.children.length > 0) alignmentLinesGroup.remove(alignmentLinesGroup.children[0]);
+    }
+
+    /**
+     * CHUYỂN ĐỔI PHƯƠNG PHÁP CHIẾU (GÓC 1 VS GÓC 3)
+     */
+    function setProjectionMethod(angle) {
+      if (currentMethod === angle) return;
+      currentMethod = angle;
+
+      document.getElementById('btn-angle-1').classList.toggle('active', angle === 1);
+      document.getElementById('btn-angle-3').classList.toggle('active', angle === 3);
+
+      buildProjectionPlanes();
+      loadModel(currentModelKey);
+      resetSimulation();
+    }
+
+    function changeModel(key) {
+      loadModel(key);
+      resetSimulation();
+    }
+
+    /**
+     * TIỆN ÍCH CAMERA TỰ ĐỘNG
+     */
+    function resetCamera3D() {
+      controls.autoRotate = false;
+      document.getElementById('btn-autorotate').textContent = '🔄 Tự xoay';
+
+      const targetPos = (currentMethod === 1) ? { x: 7.5, y: 6.5, z: 9.5 } : { x: -8.5, y: 7.0, z: 10.0 };
+      new TWEEN.Tween(camera.position).to(targetPos, 900).easing(TWEEN.Easing.Cubic.Out).start();
+      new TWEEN.Tween(controls.target).to({ x: 0, y: 0, z: 0 }, 900).start();
+    }
+
+    function snapFrontView(customDuration = 1000) {
+      controls.autoRotate = false;
+      document.getElementById('btn-autorotate').textContent = '🔄 Tự xoay';
+
+      // Canh thẳng chính diện trục Z để ngắm trọn vẹn bản vẽ 2D
+      const centerX = (currentMethod === 1) ? -0.5 : 0.5;
+      const centerY = (currentMethod === 1) ? 0.5 : -0.5;
+
+      new TWEEN.Tween(camera.position)
+        .to({ x: centerX, y: centerY, z: 14.5 }, customDuration)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start();
+
+      new TWEEN.Tween(controls.target)
+        .to({ x: centerX, y: centerY, z: 0 }, customDuration)
+        .start();
+    }
+
+    function toggleAutoRotate() {
+      controls.autoRotate = !controls.autoRotate;
+      document.getElementById('btn-autorotate').textContent = controls.autoRotate ? '⏸️ Dừng xoay' : '🔄 Tự xoay';
+    }
+
+    /**
+     * CẬP NHẬT NỘI DUNG SƯ PHẠM ĐỘNG
+     */
+    function updatePedagogyInfo() {
+      const tag = document.getElementById('pedagogyTag');
+      const text = document.getElementById('pedagogyText');
+
+      if (simulationStep === 0) {
+        tag.textContent = 'Trạng thái: Khởi tạo 3D';
+        text.innerHTML = (currentMethod === 1)
+          ? '<b>Phương pháp chiếu góc 1 (TCVN/ISO):</b> Người quan sát ➔ Vật thể ➔ Mặt phẳng chiếu. P1 (sau), P2 (dưới), P3 (phải).'
+          : '<b>Phương pháp chiếu góc 3 (Mỹ/ANSI):</b> Người quan sát ➔ Mặt phẳng chiếu trong suốt ➔ Vật thể. P1 (trước), P2 (trên), P3 (trái).';
+      } else if (simulationStep === 1) {
+        tag.textContent = 'Bước 1: Chiếu tia vuông góc';
+        text.innerHTML = 'Các tia chiếu song song vuông góc chiếu các đỉnh/cạnh của vật thể lên 3 mặt phẳng, tạo nên 3 biên dạng hình chiếu phẳng 2D: <b>Đứng (P1)</b>, <b>Bằng (P2)</b>, <b>Cạnh (P3)</b>.';
+      } else if (simulationStep === 2) {
+        tag.textContent = 'Bước 2: Cất vật thể 3D';
+        text.innerHTML = 'Khối 3D và tia chiếu được ẩn đi. Không gian chỉ còn lại 3 mặt phẳng chiếu vuông góc mang các hình chiếu phẳng tương ứng.';
+      } else if (simulationStep === 3) {
+        tag.textContent = 'Bước 3: Mở phẳng tạo bản vẽ';
+        text.innerHTML = (currentMethod === 1)
+          ? '<b>Quy tắc góc 1:</b> P2 mở xuống dưới 90°, P3 mở sang phải 90°. Kết quả: Hình chiếu <b>Bằng ở dưới Đứng</b>, hình chiếu <b>Cạnh ở bên phải Đứng</b>.'
+          : '<b>Quy tắc góc 3:</b> P2 mở lên trên 90°, P3 mở sang trái 90°. Kết quả: Hình chiếu <b>Bằng ở trên Đứng</b>, hình chiếu <b>Cạnh ở bên trái Đứng</b>.';
+      }
+    }
+
+    // Chạy khởi động khi tài liệu sẵn sàng
+    window.onload = init;
+  </script>
+</body>
+</html>
